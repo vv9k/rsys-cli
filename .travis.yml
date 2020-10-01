@@ -1,0 +1,14 @@
+language: rust
+
+os:
+  - linux
+
+
+before_install:
+  - rustup component add clippy rustfmt
+
+
+install:
+  - cargo clippy -- -Wclippy::all
+  - cargo fmt -- --check
+  - cargo test --all-features
