@@ -5,7 +5,8 @@ authors = ["wojciechkepka <wojtek.kepka@protonmail.com>"]
 edition = "2018"
 
 [dependencies]
-rsys = { version = "0.4", path = "../rsys" }
+rsys = { version = "0.4", path = ".." }
+structopt = { version = "0.3", default-features = false }
 
 
 [[bin]]
