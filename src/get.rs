@@ -50,6 +50,7 @@ pub enum Property {
     cpu_model,
     cpu_clock,
     cpu_cores,
+    kernel,
     logical_cores,
     /// All memory statistics
     memory,
@@ -79,16 +80,16 @@ impl RsysCli {
     pub(crate) fn get(&self, property: &Property, format: PrintFormat, pretty: bool) -> Result<()> {
         use Property::*;
         match property {
-            hostname => print(self.system.hostname()?, format, pretty)?,
-            domain => print(self.system.domainname()?, format, pretty)?,
-            uptime => print(self.system.uptime()?, format, pretty)?,
-            os => print(self.system.os(), format, pretty)?,
             arch => print(self.system.arch()?, format, pretty)?,
             cpu => print(self.system.processor()?, format, pretty)?,
             cpu_model => print(self.system.cpu()?, format, pretty)?,
             cpu_clock => print(self.system.cpu_clock()?, format, pretty)?,
             cpu_cores => print(self.system.cpu_cores()?, format, pretty)?,
+            domain => print(self.system.domainname()?, format, pretty)?,
+            hostname => print(self.system.hostname()?, format, pretty)?,
+            kernel => print(self.system.kernel_version()?, format, pretty)?,
             logical_cores => print(self.system.logical_cores()?, format, pretty)?,
+            os => print(self.system.os(), format, pretty)?,
             memory => print(self.system.memory()?, format, pretty)?,
             memory_free => print(self.system.memory_free()?, format, pretty)?,
             memory_total => print(self.system.memory_total()?, format, pretty)?,
@@ -97,6 +98,7 @@ impl RsysCli {
             storage { name } => self.print_storage(name, format, pretty)?,
             swap_total => print(self.system.swap_total()?, format, pretty)?,
             swap_free => print(self.system.swap_free()?, format, pretty)?,
+            uptime => print(self.system.uptime()?, format, pretty)?,
         }
         Ok(())
     }
