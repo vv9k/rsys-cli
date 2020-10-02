@@ -22,6 +22,8 @@ impl RsysCli {
             match cmd {
                 RsysCmd::Get { property, json, pretty } if *json => self.get(property, PrintFormat::Json, *pretty)?,
                 RsysCmd::Get { property, json, pretty } if !json => self.get(property, PrintFormat::Normal, *pretty)?,
+                RsysCmd::Dump { json, pretty } if *json => self.dump(PrintFormat::Json, *pretty)?,
+                RsysCmd::Dump { json, pretty } if !json => self.dump(PrintFormat::Normal, *pretty)?,
                 _ => {}
             }
         }

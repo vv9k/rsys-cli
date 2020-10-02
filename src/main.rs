@@ -1,4 +1,5 @@
 pub(crate) mod cli;
+pub(crate) mod dump;
 pub(crate) mod get;
 pub(crate) mod opt;
 pub(crate) mod util;

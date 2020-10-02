@@ -26,4 +26,13 @@ pub enum RsysCmd {
         /// Make the output pretty
         pretty: bool,
     },
+    /// Dumps all information
+    Dump {
+        #[structopt(short, long)]
+        /// Print output as JSON
+        json: bool,
+        #[structopt(short, long)]
+        /// Make the output pretty
+        pretty: bool,
+    },
 }
