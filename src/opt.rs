@@ -18,5 +18,7 @@ pub enum RsysCmd {
         property: Property,
         #[structopt(short)]
         json: bool,
+        #[structopt(short)]
+        pretty: bool,
     },
 }

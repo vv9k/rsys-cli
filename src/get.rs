@@ -6,8 +6,14 @@ use serde_json as json;
 use std::any::type_name;
 use structopt::StructOpt;
 
-fn json_to_string_pretty<T: Serialize>(val: T) -> Result<String> {
-    json::to_string_pretty(&val).map_err(|e| Error::SerializeError(type_name::<T>().to_string(), e.to_string()))
+fn json_to_string<T: Serialize>(val: T, pretty: bool) -> Result<String> {
+    let f = if pretty {
+        json::to_string_pretty
+    } else {
+        json::to_string
+    };
+
+    f(&val).map_err(|e| Error::SerializeError(type_name::<T>().to_string(), e.to_string()))
 }
 
 #[allow(non_camel_case_types)]
@@ -57,26 +63,26 @@ impl RsysCli {
         Ok(())
     }
 
-    pub(crate) fn get_json(&self, property: &Property) -> Result<()> {
+    pub(crate) fn get_json(&self, property: &Property, pretty: bool) -> Result<()> {
         use Property::*;
         match property {
-            hostname => print!("{}", json_to_string_pretty(self.system.hostname()?)?),
-            domain => print!("{}", json_to_string_pretty(self.system.domainname()?)?),
-            uptime => print!("{}", json_to_string_pretty(self.system.uptime()?)?),
-            os => print!("{}", json_to_string_pretty(self.system.os())?),
-            arch => print!("{}", json_to_string_pretty(self.system.arch()?)?),
-            cpu => print!("{}", json_to_string_pretty(self.system.cpu()?)?),
-            cpu_clock => print!("{}", json_to_string_pretty(self.system.cpu_clock()?)?),
-            cpu_cores => print!("{}", json_to_string_pretty(self.system.cpu_cores()?)?),
-            logical_cores => print!("{}", json_to_string_pretty(self.system.logical_cores()?)?),
-            memory => print!("{}", json_to_string_pretty(self.system.memory()?)?),
-            memory_free => print!("{}", json_to_string_pretty(self.system.memory_free()?)?),
-            memory_total => print!("{}", json_to_string_pretty(self.system.memory_total()?)?),
-            mounts => print!("{}", json_to_string_pretty(self.system.mounts()?)?),
-            process { pid } => print!("{}", json_to_string_pretty(self.system.stat_process(*pid)?)?),
-            storage { name } => self.print_json_storage(name)?,
-            swap_free => print!("{}", json_to_string_pretty(self.system.swap_free()?)?),
-            swap_total => print!("{}", json_to_string_pretty(self.system.swap_total()?)?),
+            hostname => print!("{}", json_to_string(self.system.hostname()?, pretty)?),
+            domain => print!("{}", json_to_string(self.system.domainname()?, pretty)?),
+            uptime => print!("{}", json_to_string(self.system.uptime()?, pretty)?),
+            os => print!("{}", json_to_string(self.system.os(), pretty)?),
+            arch => print!("{}", json_to_string(self.system.arch()?, pretty)?),
+            cpu => print!("{}", json_to_string(self.system.cpu()?, pretty)?),
+            cpu_clock => print!("{}", json_to_string(self.system.cpu_clock()?, pretty)?),
+            cpu_cores => print!("{}", json_to_string(self.system.cpu_cores()?, pretty)?),
+            logical_cores => print!("{}", json_to_string(self.system.logical_cores()?, pretty)?),
+            memory => print!("{}", json_to_string(self.system.memory()?, pretty)?),
+            memory_free => print!("{}", json_to_string(self.system.memory_free()?, pretty)?),
+            memory_total => print!("{}", json_to_string(self.system.memory_total()?, pretty)?),
+            mounts => print!("{}", json_to_string(self.system.mounts()?, pretty)?),
+            process { pid } => print!("{}", json_to_string(self.system.stat_process(*pid)?, pretty)?),
+            storage { name } => self.print_json_storage(name, pretty)?,
+            swap_free => print!("{}", json_to_string(self.system.swap_free()?, pretty)?),
+            swap_total => print!("{}", json_to_string(self.system.swap_total()?, pretty)?),
         }
 
         Ok(())
@@ -96,18 +102,18 @@ impl RsysCli {
         Ok(())
     }
 
-    fn print_json_storage(&self, name: &str) -> Result<()> {
+    fn print_json_storage(&self, name: &str, pretty: bool) -> Result<()> {
         if name.starts_with(StorageDevice::prefix()) {
-            print!("{}", json_to_string_pretty(self.system.stat_block_device(name)?)?);
+            print!("{}", json_to_string(self.system.stat_block_device(name)?, pretty)?);
         } else if name.starts_with(DeviceMapper::prefix()) {
-            print!("{}", json_to_string_pretty(self.system.stat_device_mapper(name)?)?);
+            print!("{}", json_to_string(self.system.stat_device_mapper(name)?, pretty)?);
         } else if name.starts_with(MultipleDeviceStorage::prefix()) {
             print!(
                 "{}",
-                json_to_string_pretty(self.system.stat_multiple_device_storage(name)?)?
+                json_to_string(self.system.stat_multiple_device_storage(name)?, pretty)?
             );
         } else if name.starts_with(ScsiCdrom::prefix()) {
-            print!("{}", json_to_string_pretty(self.system.stat_scsi_cdrom(name)?)?);
+            print!("{}", json_to_string(self.system.stat_scsi_cdrom(name)?, pretty)?);
         }
 
         Ok(())
