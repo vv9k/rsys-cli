@@ -2,7 +2,10 @@ use super::{
     cli::RsysCli,
     util::{print, PrintFormat},
 };
-use rsys::linux::{BlockStorageDeviceName, DeviceMapper, IfaceDev, MultipleDeviceStorage, ScsiCdrom, StorageDevice};
+use rsys::linux::{
+    net::Interface,
+    storage::{BlockStorageDeviceName, DeviceMapper, MultipleDeviceStorage, ScsiCdrom, StorageDevice},
+};
 use rsys::Result;
 use structopt::StructOpt;
 
@@ -96,8 +99,8 @@ impl RsysCli {
         Ok(())
     }
 
-    fn get_interface(&self, name: &str) -> Option<IfaceDev> {
-        if let Some(interface) = self.system.ifaces().ok()?.0.iter().filter(|i| i.iface == name).next() {
+    fn get_interface(&self, name: &str) -> Option<Interface> {
+        if let Some(interface) = self.system.ifaces().ok()?.0.iter().filter(|i| i.name == name).next() {
             return Some(interface.clone());
         }
         None
