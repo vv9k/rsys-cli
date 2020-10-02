@@ -12,3 +12,4 @@ install:
   - cargo clippy -- -Wclippy::all
   - cargo fmt -- --check
   - cargo test --all-features
+  - cargo run -- dump -jp --memory --network
