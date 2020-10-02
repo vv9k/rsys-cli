@@ -2,7 +2,7 @@ use super::{
     cli::RsysCli,
     util::{print, PrintFormat},
 };
-use rsys::linux::{BlockStorageDeviceName, DeviceMapper, MultipleDeviceStorage, ScsiCdrom, StorageDevice};
+use rsys::linux::{BlockStorageDeviceName, DeviceMapper, IfaceDev, MultipleDeviceStorage, ScsiCdrom, StorageDevice};
 use rsys::Result;
 use structopt::StructOpt;
 
@@ -11,15 +11,19 @@ use structopt::StructOpt;
 pub enum Property {
     /// Cpu architecture
     arch,
-    hostname,
-    domain,
-    uptime,
-    os,
     /// All cpu stats and cores
     cpu,
     cpu_model,
     cpu_clock,
     cpu_cores,
+    domain,
+    hostname,
+    /// Lookup statistics and information about network interface
+    interface {
+        /// Name of the interface to lookup. For example `eth0` or `enp8s0`
+        name: String,
+    },
+    interfaces,
     kernel,
     logical_cores,
     /// All memory statistics
@@ -28,6 +32,7 @@ pub enum Property {
     memory_total,
     /// Mountpoints from /etc/mounts
     mounts,
+    os,
     process {
         /// Id of the process to stat
         pid: i32,
@@ -39,6 +44,7 @@ pub enum Property {
     },
     swap_free,
     swap_total,
+    uptime,
 }
 
 impl RsysCli {
@@ -52,6 +58,14 @@ impl RsysCli {
             cpu_cores => print(self.system.cpu_cores()?, format, pretty)?,
             domain => print(self.system.domainname()?, format, pretty)?,
             hostname => print(self.system.hostname()?, format, pretty)?,
+            interface { name } => {
+                if let Some(iface) = self.get_interface(name) {
+                    print(iface, format, pretty)?;
+                } else {
+                    println!("Interface `{}` not found", name);
+                }
+            }
+            interfaces => print(self.system.ifaces()?, format, pretty)?,
             kernel => print(self.system.kernel_version()?, format, pretty)?,
             logical_cores => print(self.system.logical_cores()?, format, pretty)?,
             os => print(self.system.os(), format, pretty)?,
@@ -80,5 +94,12 @@ impl RsysCli {
         }
 
         Ok(())
+    }
+
+    fn get_interface(&self, name: &str) -> Option<IfaceDev> {
+        if let Some(interface) = self.system.ifaces().ok()?.0.iter().filter(|i| i.iface == name).next() {
+            return Some(interface.clone());
+        }
+        None
     }
 }
