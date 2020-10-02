@@ -1,0 +1,2118 @@
+{
+  "arch": "x86_64",
+  "hostname": "arch",
+  "domain": "(none)",
+  "uptime": 51252,
+  "os": "linux",
+  "cpu": {
+    "cores": [
+      {
+        "id": 11,
+        "min_freq": 2200000,
+        "cur_freq": 2195899,
+        "max_freq": 3600000
+      },
+      {
+        "id": 9,
+        "min_freq": 2200000,
+        "cur_freq": 2193702,
+        "max_freq": 3600000
+      },
+      {
+        "id": 7,
+        "min_freq": 2200000,
+        "cur_freq": 2138400,
+        "max_freq": 3600000
+      },
+      {
+        "id": 5,
+        "min_freq": 2200000,
+        "cur_freq": 2194193,
+        "max_freq": 3600000
+      },
+      {
+        "id": 3,
+        "min_freq": 2200000,
+        "cur_freq": 2196514,
+        "max_freq": 3600000
+      },
+      {
+        "id": 1,
+        "min_freq": 2200000,
+        "cur_freq": 1938574,
+        "max_freq": 3600000
+      },
+      {
+        "id": 10,
+        "min_freq": 2200000,
+        "cur_freq": 2195306,
+        "max_freq": 3600000
+      },
+      {
+        "id": 8,
+        "min_freq": 2200000,
+        "cur_freq": 2095843,
+        "max_freq": 3600000
+      },
+      {
+        "id": 6,
+        "min_freq": 2200000,
+        "cur_freq": 2719822,
+        "max_freq": 3600000
+      },
+      {
+        "id": 4,
+        "min_freq": 2200000,
+        "cur_freq": 2195029,
+        "max_freq": 3600000
+      },
+      {
+        "id": 2,
+        "min_freq": 2200000,
+        "cur_freq": 2085114,
+        "max_freq": 3600000
+      },
+      {
+        "id": 0,
+        "min_freq": 2200000,
+        "cur_freq": 2316508,
+        "max_freq": 3600000
+      }
+    ],
+    "model": "AMD Ryzen 5 3600 6-Core Processor",
+    "cache_size": 524288,
+    "bogomips": 0.0
+  },
+  "kernel": "5.8.12-arch1-1\n",
+  "memory": {
+    "total": 16712667136,
+    "free": 6606864384,
+    "available": 12663083008,
+    "buffers": 269496320,
+    "cached": 6081789952,
+    "active": 5315641344,
+    "inactive": 3897569280,
+    "shared": 322441216
+  },
+  "mounts": [
+    {
+      "volume": "proc",
+      "path": "/proc",
+      "voltype": "proc",
+      "options": "rw,nosuid,nodev,noexec,relatime"
+    },
+    {
+      "volume": "sys",
+      "path": "/sys",
+      "voltype": "sysfs",
+      "options": "rw,nosuid,nodev,noexec,relatime"
+    },
+    {
+      "volume": "dev",
+      "path": "/dev",
+      "voltype": "devtmpfs",
+      "options": "rw,nosuid,relatime,size=8148476k,nr_inodes=2037119,mode=755"
+    },
+    {
+      "volume": "run",
+      "path": "/run",
+      "voltype": "tmpfs",
+      "options": "rw,nosuid,nodev,relatime,mode=755"
+    },
+    {
+      "volume": "efivarfs",
+      "path": "/sys/firmware/efi/efivars",
+      "voltype": "efivarfs",
+      "options": "rw,nosuid,nodev,noexec,relatime"
+    },
+    {
+      "volume": "/dev/mapper/vgmain-root",
+      "path": "/",
+      "voltype": "ext4",
+      "options": "rw,relatime"
+    },
+    {
+      "volume": "securityfs",
+      "path": "/sys/kernel/security",
+      "voltype": "securityfs",
+      "options": "rw,nosuid,nodev,noexec,relatime"
+    },
+    {
+      "volume": "tmpfs",
+      "path": "/dev/shm",
+      "voltype": "tmpfs",
+      "options": "rw,nosuid,nodev"
+    },
+    {
+      "volume": "devpts",
+      "path": "/dev/pts",
+      "voltype": "devpts",
+      "options": "rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000"
+    },
+    {
+      "volume": "tmpfs",
+      "path": "/sys/fs/cgroup",
+      "voltype": "tmpfs",
+      "options": "ro,nosuid,nodev,noexec,size=4096k,nr_inodes=1024,mode=755"
+    },
+    {
+      "volume": "cgroup2",
+      "path": "/sys/fs/cgroup/unified",
+      "voltype": "cgroup2",
+      "options": "rw,nosuid,nodev,noexec,relatime,nsdelegate"
+    },
+    {
+      "volume": "cgroup",
+      "path": "/sys/fs/cgroup/systemd",
+      "voltype": "cgroup",
+      "options": "rw,nosuid,nodev,noexec,relatime,xattr,name=systemd"
+    },
+    {
+      "volume": "pstore",
+      "path": "/sys/fs/pstore",
+      "voltype": "pstore",
+      "options": "rw,nosuid,nodev,noexec,relatime"
+    },
+    {
+      "volume": "none",
+      "path": "/sys/fs/bpf",
+      "voltype": "bpf",
+      "options": "rw,nosuid,nodev,noexec,relatime,mode=700"
+    },
+    {
+      "volume": "cgroup",
+      "path": "/sys/fs/cgroup/blkio",
+      "voltype": "cgroup",
+      "options": "rw,nosuid,nodev,noexec,relatime,blkio"
+    },
+    {
+      "volume": "cgroup",
+      "path": "/sys/fs/cgroup/rdma",
+      "voltype": "cgroup",
+      "options": "rw,nosuid,nodev,noexec,relatime,rdma"
+    },
+    {
+      "volume": "cgroup",
+      "path": "/sys/fs/cgroup/perf_event",
+      "voltype": "cgroup",
+      "options": "rw,nosuid,nodev,noexec,relatime,perf_event"
+    },
+    {
+      "volume": "cgroup",
+      "path": "/sys/fs/cgroup/cpu,cpuacct",
+      "voltype": "cgroup",
+      "options": "rw,nosuid,nodev,noexec,relatime,cpu,cpuacct"
+    },
+    {
+      "volume": "cgroup",
+      "path": "/sys/fs/cgroup/hugetlb",
+      "voltype": "cgroup",
+      "options": "rw,nosuid,nodev,noexec,relatime,hugetlb"
+    },
+    {
+      "volume": "cgroup",
+      "path": "/sys/fs/cgroup/memory",
+      "voltype": "cgroup",
+      "options": "rw,nosuid,nodev,noexec,relatime,memory"
+    },
+    {
+      "volume": "cgroup",
+      "path": "/sys/fs/cgroup/freezer",
+      "voltype": "cgroup",
+      "options": "rw,nosuid,nodev,noexec,relatime,freezer"
+    },
+    {
+      "volume": "cgroup",
+      "path": "/sys/fs/cgroup/devices",
+      "voltype": "cgroup",
+      "options": "rw,nosuid,nodev,noexec,relatime,devices"
+    },
+    {
+      "volume": "cgroup",
+      "path": "/sys/fs/cgroup/cpuset",
+      "voltype": "cgroup",
+      "options": "rw,nosuid,nodev,noexec,relatime,cpuset"
+    },
+    {
+      "volume": "cgroup",
+      "path": "/sys/fs/cgroup/pids",
+      "voltype": "cgroup",
+      "options": "rw,nosuid,nodev,noexec,relatime,pids"
+    },
+    {
+      "volume": "cgroup",
+      "path": "/sys/fs/cgroup/net_cls,net_prio",
+      "voltype": "cgroup",
+      "options": "rw,nosuid,nodev,noexec,relatime,net_cls,net_prio"
+    },
+    {
+      "volume": "systemd-1",
+      "path": "/proc/sys/fs/binfmt_misc",
+      "voltype": "autofs",
+      "options": "rw,relatime,fd=29,pgrp=1,timeout=0,minproto=5,maxproto=5,direct,pipe_ino=3281"
+    },
+    {
+      "volume": "debugfs",
+      "path": "/sys/kernel/debug",
+      "voltype": "debugfs",
+      "options": "rw,nosuid,nodev,noexec,relatime"
+    },
+    {
+      "volume": "tracefs",
+      "path": "/sys/kernel/tracing",
+      "voltype": "tracefs",
+      "options": "rw,nosuid,nodev,noexec,relatime"
+    },
+    {
+      "volume": "mqueue",
+      "path": "/dev/mqueue",
+      "voltype": "mqueue",
+      "options": "rw,nosuid,nodev,noexec,relatime"
+    },
+    {
+      "volume": "hugetlbfs",
+      "path": "/dev/hugepages",
+      "voltype": "hugetlbfs",
+      "options": "rw,relatime,pagesize=2M"
+    },
+    {
+      "volume": "tmpfs",
+      "path": "/tmp",
+      "voltype": "tmpfs",
+      "options": "rw,nosuid,nodev,size=8160484k,nr_inodes=409600"
+    },
+    {
+      "volume": "configfs",
+      "path": "/sys/kernel/config",
+      "voltype": "configfs",
+      "options": "rw,nosuid,nodev,noexec,relatime"
+    },
+    {
+      "volume": "/dev/mapper/vgvol-games",
+      "path": "/home/wojtek/games",
+      "voltype": "ext4",
+      "options": "rw,relatime"
+    },
+    {
+      "volume": "/dev/sde1",
+      "path": "/boot",
+      "voltype": "vfat",
+      "options": "rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro"
+    },
+    {
+      "volume": "/dev/mapper/vgstor-media",
+      "path": "/mnt/media",
+      "voltype": "ext4",
+      "options": "rw,relatime"
+    },
+    {
+      "volume": "/dev/mapper/vgstor-docs",
+      "path": "/mnt/docs",
+      "voltype": "ext4",
+      "options": "rw,relatime"
+    },
+    {
+      "volume": "/dev/mapper/vgstor-rand",
+      "path": "/mnt/rand",
+      "voltype": "ext4",
+      "options": "rw,relatime"
+    },
+    {
+      "volume": "/dev/mapper/vgstor-photos",
+      "path": "/mnt/photos",
+      "voltype": "ext4",
+      "options": "rw,relatime"
+    },
+    {
+      "volume": "fusectl",
+      "path": "/sys/fs/fuse/connections",
+      "voltype": "fusectl",
+      "options": "rw,nosuid,nodev,noexec,relatime"
+    },
+    {
+      "volume": "tmpfs",
+      "path": "/run/user/1000",
+      "voltype": "tmpfs",
+      "options": "rw,nosuid,nodev,relatime,size=1632096k,nr_inodes=408024,mode=700,uid=1000,gid=1001"
+    },
+    {
+      "volume": "gvfsd-fuse",
+      "path": "/run/user/1000/gvfs",
+      "voltype": "fuse.gvfsd-fuse",
+      "options": "rw,nosuid,nodev,relatime,user_id=1000,group_id=1001"
+    }
+  ],
+  "interaces": [
+    {
+      "name": "enp8s0",
+      "ipv4": "192.168.0.1",
+      "stat": {
+        "rx_bytes": 1269591817,
+        "rx_packets": 939218,
+        "rx_errs": 0,
+        "rx_drop": 0,
+        "rx_fifo": 0,
+        "rx_frame": 0,
+        "rx_compressed": 0,
+        "rx_multicast": 16616,
+        "tx_bytes": 49752973,
+        "tx_packets": 572721,
+        "tx_errs": 0,
+        "tx_drop": 0,
+        "tx_fifo": 0,
+        "tx_frame": 0,
+        "tx_compressed": 0,
+        "tx_multicast": 0
+      },
+      "mtu": 1500,
+      "mac_address": "70:85:c2:f9:9b:2a",
+      "speed": 1000
+    },
+    {
+      "name": "lo",
+      "ipv4": "127.0.0.1",
+      "stat": {
+        "rx_bytes": 432689,
+        "rx_packets": 1402,
+        "rx_errs": 0,
+        "rx_drop": 0,
+        "rx_fifo": 0,
+        "rx_frame": 0,
+        "rx_compressed": 0,
+        "rx_multicast": 0,
+        "tx_bytes": 432689,
+        "tx_packets": 1402,
+        "tx_errs": 0,
+        "tx_drop": 0,
+        "tx_fifo": 0,
+        "tx_frame": 0,
+        "tx_compressed": 0,
+        "tx_multicast": 0
+      },
+      "mtu": 65536,
+      "mac_address": "00:00:00:00:00:00",
+      "speed": 0
+    }
+  ],
+  "storage_devices": [
+    {
+      "info": {
+        "dev": "sdd",
+        "size": 3907029168,
+        "maj": 8,
+        "min": 48,
+        "block_size": 4096,
+        "stat": {
+          "read_ios": 319,
+          "read_merges": 69,
+          "read_sectors": 6662,
+          "read_ticks": 1761,
+          "write_ios": 81,
+          "write_merges": 3,
+          "write_sectors": 454,
+          "write_ticks": 3492,
+          "in_flight": 0,
+          "io_ticks": 3954,
+          "time_in_queue": 8540,
+          "discard_ios": 0,
+          "discard_merges": 0,
+          "discard_sectors": 0,
+          "discard_ticks": 0
+        }
+      },
+      "model": "ST2000DM008-2FR1",
+      "vendor": "ATA",
+      "state": "running",
+      "partitions": [
+        {
+          "info": {
+            "dev": "sdd1",
+            "size": 3907027087,
+            "maj": 8,
+            "min": 49,
+            "block_size": 512,
+            "stat": {
+              "read_ios": 189,
+              "read_merges": 69,
+              "read_sectors": 3888,
+              "read_ticks": 1327,
+              "write_ios": 66,
+              "write_merges": 3,
+              "write_sectors": 454,
+              "write_ticks": 2782,
+              "in_flight": 0,
+              "io_ticks": 2897,
+              "time_in_queue": 4109,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "holder_mds": null,
+          "holder_dms": null
+        }
+      ]
+    },
+    {
+      "info": {
+        "dev": "sdb",
+        "size": 234441648,
+        "maj": 8,
+        "min": 16,
+        "block_size": 4096,
+        "stat": {
+          "read_ios": 547,
+          "read_merges": 0,
+          "read_sectors": 10556,
+          "read_ticks": 5143,
+          "write_ios": 0,
+          "write_merges": 0,
+          "write_sectors": 0,
+          "write_ticks": 0,
+          "in_flight": 0,
+          "io_ticks": 5390,
+          "time_in_queue": 5143,
+          "discard_ios": 0,
+          "discard_merges": 0,
+          "discard_sectors": 0,
+          "discard_ticks": 0
+        }
+      },
+      "model": "KINGSTON SV300S3",
+      "vendor": "ATA",
+      "state": "running",
+      "partitions": [
+        {
+          "info": {
+            "dev": "sdb2",
+            "size": 234405888,
+            "maj": 8,
+            "min": 18,
+            "block_size": 4096,
+            "stat": {
+              "read_ios": 68,
+              "read_merges": 0,
+              "read_sectors": 4752,
+              "read_ticks": 26,
+              "write_ios": 0,
+              "write_merges": 0,
+              "write_sectors": 0,
+              "write_ticks": 0,
+              "in_flight": 0,
+              "io_ticks": 40,
+              "time_in_queue": 26,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "holder_mds": null,
+          "holder_dms": null
+        },
+        {
+          "info": {
+            "dev": "sdb1",
+            "size": 32768,
+            "maj": 8,
+            "min": 17,
+            "block_size": 4096,
+            "stat": {
+              "read_ios": 54,
+              "read_merges": 0,
+              "read_sectors": 1728,
+              "read_ticks": 13,
+              "write_ios": 0,
+              "write_merges": 0,
+              "write_sectors": 0,
+              "write_ticks": 0,
+              "in_flight": 0,
+              "io_ticks": 27,
+              "time_in_queue": 13,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "holder_mds": null,
+          "holder_dms": null
+        }
+      ]
+    },
+    {
+      "info": {
+        "dev": "sde",
+        "size": 234441648,
+        "maj": 8,
+        "min": 64,
+        "block_size": 4096,
+        "stat": {
+          "read_ios": 47668,
+          "read_merges": 24948,
+          "read_sectors": 4255605,
+          "read_ticks": 29998,
+          "write_ios": 848203,
+          "write_merges": 252941,
+          "write_sectors": 27185833,
+          "write_ticks": 629558,
+          "in_flight": 0,
+          "io_ticks": 231890,
+          "time_in_queue": 673612,
+          "discard_ios": 0,
+          "discard_merges": 0,
+          "discard_sectors": 0,
+          "discard_ticks": 0
+        }
+      },
+      "model": "KINGSTON SV300S3",
+      "vendor": "ATA",
+      "state": "running",
+      "partitions": [
+        {
+          "info": {
+            "dev": "sde2",
+            "size": 233415567,
+            "maj": 8,
+            "min": 66,
+            "block_size": 512,
+            "stat": {
+              "read_ios": 46946,
+              "read_merges": 24700,
+              "read_sectors": 4238608,
+              "read_ticks": 25508,
+              "write_ios": 831951,
+              "write_merges": 252941,
+              "write_sectors": 27185832,
+              "write_ticks": 617000,
+              "in_flight": 0,
+              "io_ticks": 227080,
+              "time_in_queue": 642508,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "holder_mds": null,
+          "holder_dms": null
+        },
+        {
+          "info": {
+            "dev": "sde1",
+            "size": 1024000,
+            "maj": 8,
+            "min": 65,
+            "block_size": 512,
+            "stat": {
+              "read_ios": 331,
+              "read_merges": 248,
+              "read_sectors": 14105,
+              "read_ticks": 144,
+              "write_ios": 1,
+              "write_merges": 0,
+              "write_sectors": 1,
+              "write_ticks": 0,
+              "in_flight": 0,
+              "io_ticks": 147,
+              "time_in_queue": 144,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "holder_mds": null,
+          "holder_dms": null
+        }
+      ]
+    },
+    {
+      "info": {
+        "dev": "sdc",
+        "size": 3907029168,
+        "maj": 8,
+        "min": 32,
+        "block_size": 4096,
+        "stat": {
+          "read_ios": 737,
+          "read_merges": 0,
+          "read_sectors": 19654,
+          "read_ticks": 35465,
+          "write_ios": 11,
+          "write_merges": 1,
+          "write_sectors": 48,
+          "write_ticks": 78,
+          "in_flight": 0,
+          "io_ticks": 33897,
+          "time_in_queue": 35620,
+          "discard_ios": 0,
+          "discard_merges": 0,
+          "discard_sectors": 0,
+          "discard_ticks": 0
+        }
+      },
+      "model": "WDC WD20EARX-00P",
+      "vendor": "ATA",
+      "state": "running",
+      "partitions": [
+        {
+          "info": {
+            "dev": "sdc2",
+            "size": 2648735920,
+            "maj": 8,
+            "min": 34,
+            "block_size": 4096,
+            "stat": {
+              "read_ios": 291,
+              "read_merges": 0,
+              "read_sectors": 12130,
+              "read_ticks": 3428,
+              "write_ios": 5,
+              "write_merges": 1,
+              "write_sectors": 48,
+              "write_ticks": 29,
+              "in_flight": 0,
+              "io_ticks": 1644,
+              "time_in_queue": 3457,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "holder_mds": null,
+          "holder_dms": null
+        },
+        {
+          "info": {
+            "dev": "sdc1",
+            "size": 1258289152,
+            "maj": 8,
+            "min": 33,
+            "block_size": 4096,
+            "stat": {
+              "read_ios": 66,
+              "read_merges": 0,
+              "read_sectors": 4736,
+              "read_ticks": 135,
+              "write_ios": 0,
+              "write_merges": 0,
+              "write_sectors": 0,
+              "write_ticks": 0,
+              "in_flight": 0,
+              "io_ticks": 150,
+              "time_in_queue": 135,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "holder_mds": null,
+          "holder_dms": null
+        }
+      ]
+    },
+    {
+      "info": {
+        "dev": "sda",
+        "size": 3907029168,
+        "maj": 8,
+        "min": 0,
+        "block_size": 4096,
+        "stat": {
+          "read_ios": 401,
+          "read_merges": 48,
+          "read_sectors": 10367,
+          "read_ticks": 3787,
+          "write_ios": 81,
+          "write_merges": 3,
+          "write_sectors": 454,
+          "write_ticks": 4048,
+          "in_flight": 0,
+          "io_ticks": 5284,
+          "time_in_queue": 10973,
+          "discard_ios": 0,
+          "discard_merges": 0,
+          "discard_sectors": 0,
+          "discard_ticks": 0
+        }
+      },
+      "model": "ST2000DM008-2FR1",
+      "vendor": "ATA",
+      "state": "running",
+      "partitions": [
+        {
+          "info": {
+            "dev": "sda1",
+            "size": 3907027087,
+            "maj": 8,
+            "min": 1,
+            "block_size": 512,
+            "stat": {
+              "read_ios": 271,
+              "read_merges": 48,
+              "read_sectors": 7593,
+              "read_ticks": 3322,
+              "write_ios": 66,
+              "write_merges": 3,
+              "write_sectors": 454,
+              "write_ticks": 3696,
+              "in_flight": 0,
+              "io_ticks": 4520,
+              "time_in_queue": 7018,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "holder_mds": null,
+          "holder_dms": null
+        }
+      ]
+    }
+  ],
+  "multiple_device_storages": [
+    {
+      "info": {
+        "dev": "md0",
+        "size": 3906762880,
+        "maj": 9,
+        "min": 0,
+        "block_size": 4096,
+        "stat": {
+          "read_ios": 413,
+          "read_merges": 0,
+          "read_sectors": 10400,
+          "read_ticks": 0,
+          "write_ios": 32,
+          "write_merges": 0,
+          "write_sectors": 136,
+          "write_ticks": 0,
+          "in_flight": 0,
+          "io_ticks": 0,
+          "time_in_queue": 0,
+          "discard_ios": 0,
+          "discard_merges": 0,
+          "discard_sectors": 0,
+          "discard_ticks": 0
+        }
+      },
+      "level": "raid1",
+      "slave_parts": [
+        {
+          "info": {
+            "dev": "sdd1",
+            "size": 3907027087,
+            "maj": 8,
+            "min": 49,
+            "block_size": 512,
+            "stat": {
+              "read_ios": 189,
+              "read_merges": 69,
+              "read_sectors": 3888,
+              "read_ticks": 1327,
+              "write_ios": 66,
+              "write_merges": 3,
+              "write_sectors": 454,
+              "write_ticks": 2782,
+              "in_flight": 0,
+              "io_ticks": 2897,
+              "time_in_queue": 4109,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "holder_mds": null,
+          "holder_dms": null
+        },
+        {
+          "info": {
+            "dev": "sda1",
+            "size": 3907027087,
+            "maj": 8,
+            "min": 1,
+            "block_size": 512,
+            "stat": {
+              "read_ios": 271,
+              "read_merges": 48,
+              "read_sectors": 7593,
+              "read_ticks": 3322,
+              "write_ios": 66,
+              "write_merges": 3,
+              "write_sectors": 454,
+              "write_ticks": 3696,
+              "in_flight": 0,
+              "io_ticks": 4520,
+              "time_in_queue": 7018,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "holder_mds": null,
+          "holder_dms": null
+        }
+      ],
+      "holder_devices": [
+        {
+          "info": {
+            "dev": "dm-6",
+            "size": 209715200,
+            "maj": 254,
+            "min": 6,
+            "block_size": 4096,
+            "stat": {
+              "read_ios": 66,
+              "read_merges": 0,
+              "read_sectors": 2226,
+              "read_ticks": 1986,
+              "write_ios": 4,
+              "write_merges": 0,
+              "write_sectors": 8,
+              "write_ticks": 356,
+              "in_flight": 0,
+              "io_ticks": 1047,
+              "time_in_queue": 2343,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "name": "vgstor-rand",
+          "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGYieQNcZKKxZHkPIoA25iUAGm0hfo0IW9",
+          "slave_parts": null,
+          "slave_mds": null
+        },
+        {
+          "info": {
+            "dev": "dm-4",
+            "size": 629145600,
+            "maj": 254,
+            "min": 4,
+            "block_size": 4096,
+            "stat": {
+              "read_ios": 107,
+              "read_merges": 0,
+              "read_sectors": 2610,
+              "read_ticks": 3966,
+              "write_ios": 20,
+              "write_merges": 0,
+              "write_sectors": 136,
+              "write_ticks": 2433,
+              "in_flight": 0,
+              "io_ticks": 2297,
+              "time_in_queue": 6399,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "name": "vgstor-photos",
+          "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGFS3UxLCTMNcHyjP3KaYPAmcByH9cdqxL",
+          "slave_parts": null,
+          "slave_mds": null
+        },
+        {
+          "info": {
+            "dev": "dm-5",
+            "size": 209715200,
+            "maj": 254,
+            "min": 5,
+            "block_size": 4096,
+            "stat": {
+              "read_ios": 66,
+              "read_merges": 0,
+              "read_sectors": 2226,
+              "read_ticks": 749,
+              "write_ios": 4,
+              "write_merges": 0,
+              "write_sectors": 8,
+              "write_ticks": 629,
+              "in_flight": 0,
+              "io_ticks": 1327,
+              "time_in_queue": 1379,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "name": "vgstor-docs",
+          "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGsh5G3o5enDMpks44ILBRayoGTjbiFzfp",
+          "slave_parts": null,
+          "slave_mds": null
+        },
+        {
+          "info": {
+            "dev": "dm-3",
+            "size": 1677721600,
+            "maj": 254,
+            "min": 3,
+            "block_size": 4096,
+            "stat": {
+              "read_ios": 154,
+              "read_merges": 0,
+              "read_sectors": 2930,
+              "read_ticks": 1219,
+              "write_ios": 4,
+              "write_merges": 0,
+              "write_sectors": 8,
+              "write_ticks": 553,
+              "in_flight": 0,
+              "io_ticks": 1347,
+              "time_in_queue": 1773,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "name": "vgstor-media",
+          "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGj23hIRRpNbd2YUuOLxrJpDEMldcjZhaR",
+          "slave_parts": null,
+          "slave_mds": null
+        }
+      ]
+    }
+  ],
+  "device_mappers": [
+    {
+      "info": {
+        "dev": "dm-1",
+        "size": 419430400,
+        "maj": 254,
+        "min": 1,
+        "block_size": 4096,
+        "stat": {
+          "read_ios": 127,
+          "read_merges": 0,
+          "read_sectors": 4418,
+          "read_ticks": 1236,
+          "write_ios": 10,
+          "write_merges": 0,
+          "write_sectors": 56,
+          "write_ticks": 76,
+          "in_flight": 0,
+          "io_ticks": 900,
+          "time_in_queue": 1313,
+          "discard_ios": 0,
+          "discard_merges": 0,
+          "discard_sectors": 0,
+          "discard_ticks": 0
+        }
+      },
+      "name": "vgvol-games",
+      "uuid": "LVM-D0J4mWtV7c3vTbjLQkTcCp3ltYxfuIXGFrvgLvv3ZK8VxVvrZ2dsaqfk2necCd2M",
+      "slave_parts": [
+        {
+          "info": {
+            "dev": "sdc2",
+            "size": 2648735920,
+            "maj": 8,
+            "min": 34,
+            "block_size": 4096,
+            "stat": {
+              "read_ios": 291,
+              "read_merges": 0,
+              "read_sectors": 12130,
+              "read_ticks": 3428,
+              "write_ios": 5,
+              "write_merges": 1,
+              "write_sectors": 48,
+              "write_ticks": 29,
+              "in_flight": 0,
+              "io_ticks": 1644,
+              "time_in_queue": 3457,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "holder_mds": null,
+          "holder_dms": null
+        }
+      ],
+      "slave_mds": null
+    },
+    {
+      "info": {
+        "dev": "dm-6",
+        "size": 209715200,
+        "maj": 254,
+        "min": 6,
+        "block_size": 4096,
+        "stat": {
+          "read_ios": 66,
+          "read_merges": 0,
+          "read_sectors": 2226,
+          "read_ticks": 1986,
+          "write_ios": 4,
+          "write_merges": 0,
+          "write_sectors": 8,
+          "write_ticks": 356,
+          "in_flight": 0,
+          "io_ticks": 1047,
+          "time_in_queue": 2343,
+          "discard_ios": 0,
+          "discard_merges": 0,
+          "discard_sectors": 0,
+          "discard_ticks": 0
+        }
+      },
+      "name": "vgstor-rand",
+      "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGYieQNcZKKxZHkPIoA25iUAGm0hfo0IW9",
+      "slave_parts": null,
+      "slave_mds": [
+        {
+          "info": {
+            "dev": "md0",
+            "size": 3906762880,
+            "maj": 9,
+            "min": 0,
+            "block_size": 4096,
+            "stat": {
+              "read_ios": 413,
+              "read_merges": 0,
+              "read_sectors": 10400,
+              "read_ticks": 0,
+              "write_ios": 32,
+              "write_merges": 0,
+              "write_sectors": 136,
+              "write_ticks": 0,
+              "in_flight": 0,
+              "io_ticks": 0,
+              "time_in_queue": 0,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "level": "raid1",
+          "slave_parts": [
+            {
+              "info": {
+                "dev": "sdd1",
+                "size": 3907027087,
+                "maj": 8,
+                "min": 49,
+                "block_size": 512,
+                "stat": {
+                  "read_ios": 189,
+                  "read_merges": 69,
+                  "read_sectors": 3888,
+                  "read_ticks": 1327,
+                  "write_ios": 66,
+                  "write_merges": 3,
+                  "write_sectors": 454,
+                  "write_ticks": 2782,
+                  "in_flight": 0,
+                  "io_ticks": 2897,
+                  "time_in_queue": 4109,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "holder_mds": null,
+              "holder_dms": null
+            },
+            {
+              "info": {
+                "dev": "sda1",
+                "size": 3907027087,
+                "maj": 8,
+                "min": 1,
+                "block_size": 512,
+                "stat": {
+                  "read_ios": 271,
+                  "read_merges": 48,
+                  "read_sectors": 7593,
+                  "read_ticks": 3322,
+                  "write_ios": 66,
+                  "write_merges": 3,
+                  "write_sectors": 454,
+                  "write_ticks": 3696,
+                  "in_flight": 0,
+                  "io_ticks": 4520,
+                  "time_in_queue": 7018,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "holder_mds": null,
+              "holder_dms": null
+            }
+          ],
+          "holder_devices": [
+            {
+              "info": {
+                "dev": "dm-6",
+                "size": 209715200,
+                "maj": 254,
+                "min": 6,
+                "block_size": 4096,
+                "stat": {
+                  "read_ios": 66,
+                  "read_merges": 0,
+                  "read_sectors": 2226,
+                  "read_ticks": 1986,
+                  "write_ios": 4,
+                  "write_merges": 0,
+                  "write_sectors": 8,
+                  "write_ticks": 356,
+                  "in_flight": 0,
+                  "io_ticks": 1047,
+                  "time_in_queue": 2343,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "name": "vgstor-rand",
+              "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGYieQNcZKKxZHkPIoA25iUAGm0hfo0IW9",
+              "slave_parts": null,
+              "slave_mds": null
+            },
+            {
+              "info": {
+                "dev": "dm-4",
+                "size": 629145600,
+                "maj": 254,
+                "min": 4,
+                "block_size": 4096,
+                "stat": {
+                  "read_ios": 107,
+                  "read_merges": 0,
+                  "read_sectors": 2610,
+                  "read_ticks": 3966,
+                  "write_ios": 20,
+                  "write_merges": 0,
+                  "write_sectors": 136,
+                  "write_ticks": 2433,
+                  "in_flight": 0,
+                  "io_ticks": 2297,
+                  "time_in_queue": 6399,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "name": "vgstor-photos",
+              "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGFS3UxLCTMNcHyjP3KaYPAmcByH9cdqxL",
+              "slave_parts": null,
+              "slave_mds": null
+            },
+            {
+              "info": {
+                "dev": "dm-5",
+                "size": 209715200,
+                "maj": 254,
+                "min": 5,
+                "block_size": 4096,
+                "stat": {
+                  "read_ios": 66,
+                  "read_merges": 0,
+                  "read_sectors": 2226,
+                  "read_ticks": 749,
+                  "write_ios": 4,
+                  "write_merges": 0,
+                  "write_sectors": 8,
+                  "write_ticks": 629,
+                  "in_flight": 0,
+                  "io_ticks": 1327,
+                  "time_in_queue": 1379,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "name": "vgstor-docs",
+              "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGsh5G3o5enDMpks44ILBRayoGTjbiFzfp",
+              "slave_parts": null,
+              "slave_mds": null
+            },
+            {
+              "info": {
+                "dev": "dm-3",
+                "size": 1677721600,
+                "maj": 254,
+                "min": 3,
+                "block_size": 4096,
+                "stat": {
+                  "read_ios": 154,
+                  "read_merges": 0,
+                  "read_sectors": 2930,
+                  "read_ticks": 1219,
+                  "write_ios": 4,
+                  "write_merges": 0,
+                  "write_sectors": 8,
+                  "write_ticks": 553,
+                  "in_flight": 0,
+                  "io_ticks": 1347,
+                  "time_in_queue": 1773,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "name": "vgstor-media",
+              "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGj23hIRRpNbd2YUuOLxrJpDEMldcjZhaR",
+              "slave_parts": null,
+              "slave_mds": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "info": {
+        "dev": "dm-4",
+        "size": 629145600,
+        "maj": 254,
+        "min": 4,
+        "block_size": 4096,
+        "stat": {
+          "read_ios": 107,
+          "read_merges": 0,
+          "read_sectors": 2610,
+          "read_ticks": 3966,
+          "write_ios": 20,
+          "write_merges": 0,
+          "write_sectors": 136,
+          "write_ticks": 2433,
+          "in_flight": 0,
+          "io_ticks": 2297,
+          "time_in_queue": 6399,
+          "discard_ios": 0,
+          "discard_merges": 0,
+          "discard_sectors": 0,
+          "discard_ticks": 0
+        }
+      },
+      "name": "vgstor-photos",
+      "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGFS3UxLCTMNcHyjP3KaYPAmcByH9cdqxL",
+      "slave_parts": null,
+      "slave_mds": [
+        {
+          "info": {
+            "dev": "md0",
+            "size": 3906762880,
+            "maj": 9,
+            "min": 0,
+            "block_size": 4096,
+            "stat": {
+              "read_ios": 413,
+              "read_merges": 0,
+              "read_sectors": 10400,
+              "read_ticks": 0,
+              "write_ios": 32,
+              "write_merges": 0,
+              "write_sectors": 136,
+              "write_ticks": 0,
+              "in_flight": 0,
+              "io_ticks": 0,
+              "time_in_queue": 0,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "level": "raid1",
+          "slave_parts": [
+            {
+              "info": {
+                "dev": "sdd1",
+                "size": 3907027087,
+                "maj": 8,
+                "min": 49,
+                "block_size": 512,
+                "stat": {
+                  "read_ios": 189,
+                  "read_merges": 69,
+                  "read_sectors": 3888,
+                  "read_ticks": 1327,
+                  "write_ios": 66,
+                  "write_merges": 3,
+                  "write_sectors": 454,
+                  "write_ticks": 2782,
+                  "in_flight": 0,
+                  "io_ticks": 2897,
+                  "time_in_queue": 4109,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "holder_mds": null,
+              "holder_dms": null
+            },
+            {
+              "info": {
+                "dev": "sda1",
+                "size": 3907027087,
+                "maj": 8,
+                "min": 1,
+                "block_size": 512,
+                "stat": {
+                  "read_ios": 271,
+                  "read_merges": 48,
+                  "read_sectors": 7593,
+                  "read_ticks": 3322,
+                  "write_ios": 66,
+                  "write_merges": 3,
+                  "write_sectors": 454,
+                  "write_ticks": 3696,
+                  "in_flight": 0,
+                  "io_ticks": 4520,
+                  "time_in_queue": 7018,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "holder_mds": null,
+              "holder_dms": null
+            }
+          ],
+          "holder_devices": [
+            {
+              "info": {
+                "dev": "dm-6",
+                "size": 209715200,
+                "maj": 254,
+                "min": 6,
+                "block_size": 4096,
+                "stat": {
+                  "read_ios": 66,
+                  "read_merges": 0,
+                  "read_sectors": 2226,
+                  "read_ticks": 1986,
+                  "write_ios": 4,
+                  "write_merges": 0,
+                  "write_sectors": 8,
+                  "write_ticks": 356,
+                  "in_flight": 0,
+                  "io_ticks": 1047,
+                  "time_in_queue": 2343,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "name": "vgstor-rand",
+              "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGYieQNcZKKxZHkPIoA25iUAGm0hfo0IW9",
+              "slave_parts": null,
+              "slave_mds": null
+            },
+            {
+              "info": {
+                "dev": "dm-4",
+                "size": 629145600,
+                "maj": 254,
+                "min": 4,
+                "block_size": 4096,
+                "stat": {
+                  "read_ios": 107,
+                  "read_merges": 0,
+                  "read_sectors": 2610,
+                  "read_ticks": 3966,
+                  "write_ios": 20,
+                  "write_merges": 0,
+                  "write_sectors": 136,
+                  "write_ticks": 2433,
+                  "in_flight": 0,
+                  "io_ticks": 2297,
+                  "time_in_queue": 6399,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "name": "vgstor-photos",
+              "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGFS3UxLCTMNcHyjP3KaYPAmcByH9cdqxL",
+              "slave_parts": null,
+              "slave_mds": null
+            },
+            {
+              "info": {
+                "dev": "dm-5",
+                "size": 209715200,
+                "maj": 254,
+                "min": 5,
+                "block_size": 4096,
+                "stat": {
+                  "read_ios": 66,
+                  "read_merges": 0,
+                  "read_sectors": 2226,
+                  "read_ticks": 749,
+                  "write_ios": 4,
+                  "write_merges": 0,
+                  "write_sectors": 8,
+                  "write_ticks": 629,
+                  "in_flight": 0,
+                  "io_ticks": 1327,
+                  "time_in_queue": 1379,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "name": "vgstor-docs",
+              "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGsh5G3o5enDMpks44ILBRayoGTjbiFzfp",
+              "slave_parts": null,
+              "slave_mds": null
+            },
+            {
+              "info": {
+                "dev": "dm-3",
+                "size": 1677721600,
+                "maj": 254,
+                "min": 3,
+                "block_size": 4096,
+                "stat": {
+                  "read_ios": 154,
+                  "read_merges": 0,
+                  "read_sectors": 2930,
+                  "read_ticks": 1219,
+                  "write_ios": 4,
+                  "write_merges": 0,
+                  "write_sectors": 8,
+                  "write_ticks": 553,
+                  "in_flight": 0,
+                  "io_ticks": 1347,
+                  "time_in_queue": 1773,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "name": "vgstor-media",
+              "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGj23hIRRpNbd2YUuOLxrJpDEMldcjZhaR",
+              "slave_parts": null,
+              "slave_mds": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "info": {
+        "dev": "dm-2",
+        "size": 233398272,
+        "maj": 254,
+        "min": 2,
+        "block_size": 4096,
+        "stat": {
+          "read_ios": 71596,
+          "read_merges": 0,
+          "read_sectors": 4237490,
+          "read_ticks": 52724,
+          "write_ios": 1096894,
+          "write_merges": 0,
+          "write_sectors": 27309456,
+          "write_ticks": 1155000,
+          "in_flight": 0,
+          "io_ticks": 225740,
+          "time_in_queue": 1207725,
+          "discard_ios": 0,
+          "discard_merges": 0,
+          "discard_sectors": 0,
+          "discard_ticks": 0
+        }
+      },
+      "name": "vgmain-root",
+      "uuid": "LVM-btxwpaK0pT59m3ftQrM0svBNT5524uoORWORdOWj3UnLudihVXhvTbZpfhFfRtek",
+      "slave_parts": [
+        {
+          "info": {
+            "dev": "sde2",
+            "size": 233415567,
+            "maj": 8,
+            "min": 66,
+            "block_size": 512,
+            "stat": {
+              "read_ios": 46946,
+              "read_merges": 24700,
+              "read_sectors": 4238608,
+              "read_ticks": 25508,
+              "write_ios": 831951,
+              "write_merges": 252941,
+              "write_sectors": 27185832,
+              "write_ticks": 617000,
+              "in_flight": 0,
+              "io_ticks": 227080,
+              "time_in_queue": 642508,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "holder_mds": null,
+          "holder_dms": null
+        }
+      ],
+      "slave_mds": null
+    },
+    {
+      "info": {
+        "dev": "dm-0",
+        "size": 1048576000,
+        "maj": 254,
+        "min": 0,
+        "block_size": 4096,
+        "stat": {
+          "read_ios": 114,
+          "read_merges": 0,
+          "read_sectors": 6320,
+          "read_ticks": 2033,
+          "write_ios": 2,
+          "write_merges": 0,
+          "write_sectors": 0,
+          "write_ticks": 0,
+          "in_flight": 0,
+          "io_ticks": 1377,
+          "time_in_queue": 2033,
+          "discard_ios": 0,
+          "discard_merges": 0,
+          "discard_sectors": 0,
+          "discard_ticks": 0
+        }
+      },
+      "name": "vgvol-k8s",
+      "uuid": "LVM-D0J4mWtV7c3vTbjLQkTcCp3ltYxfuIXGfCivRZSyWEZyAvdlSAl4sJvnG8G2Gm5h",
+      "slave_parts": [
+        {
+          "info": {
+            "dev": "sdc2",
+            "size": 2648735920,
+            "maj": 8,
+            "min": 34,
+            "block_size": 4096,
+            "stat": {
+              "read_ios": 291,
+              "read_merges": 0,
+              "read_sectors": 12130,
+              "read_ticks": 3428,
+              "write_ios": 5,
+              "write_merges": 1,
+              "write_sectors": 48,
+              "write_ticks": 29,
+              "in_flight": 0,
+              "io_ticks": 1644,
+              "time_in_queue": 3457,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "holder_mds": null,
+          "holder_dms": null
+        }
+      ],
+      "slave_mds": null
+    },
+    {
+      "info": {
+        "dev": "dm-5",
+        "size": 209715200,
+        "maj": 254,
+        "min": 5,
+        "block_size": 4096,
+        "stat": {
+          "read_ios": 66,
+          "read_merges": 0,
+          "read_sectors": 2226,
+          "read_ticks": 749,
+          "write_ios": 4,
+          "write_merges": 0,
+          "write_sectors": 8,
+          "write_ticks": 629,
+          "in_flight": 0,
+          "io_ticks": 1327,
+          "time_in_queue": 1379,
+          "discard_ios": 0,
+          "discard_merges": 0,
+          "discard_sectors": 0,
+          "discard_ticks": 0
+        }
+      },
+      "name": "vgstor-docs",
+      "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGsh5G3o5enDMpks44ILBRayoGTjbiFzfp",
+      "slave_parts": null,
+      "slave_mds": [
+        {
+          "info": {
+            "dev": "md0",
+            "size": 3906762880,
+            "maj": 9,
+            "min": 0,
+            "block_size": 4096,
+            "stat": {
+              "read_ios": 413,
+              "read_merges": 0,
+              "read_sectors": 10400,
+              "read_ticks": 0,
+              "write_ios": 32,
+              "write_merges": 0,
+              "write_sectors": 136,
+              "write_ticks": 0,
+              "in_flight": 0,
+              "io_ticks": 0,
+              "time_in_queue": 0,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "level": "raid1",
+          "slave_parts": [
+            {
+              "info": {
+                "dev": "sdd1",
+                "size": 3907027087,
+                "maj": 8,
+                "min": 49,
+                "block_size": 512,
+                "stat": {
+                  "read_ios": 189,
+                  "read_merges": 69,
+                  "read_sectors": 3888,
+                  "read_ticks": 1327,
+                  "write_ios": 66,
+                  "write_merges": 3,
+                  "write_sectors": 454,
+                  "write_ticks": 2782,
+                  "in_flight": 0,
+                  "io_ticks": 2897,
+                  "time_in_queue": 4109,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "holder_mds": null,
+              "holder_dms": null
+            },
+            {
+              "info": {
+                "dev": "sda1",
+                "size": 3907027087,
+                "maj": 8,
+                "min": 1,
+                "block_size": 512,
+                "stat": {
+                  "read_ios": 271,
+                  "read_merges": 48,
+                  "read_sectors": 7593,
+                  "read_ticks": 3322,
+                  "write_ios": 66,
+                  "write_merges": 3,
+                  "write_sectors": 454,
+                  "write_ticks": 3696,
+                  "in_flight": 0,
+                  "io_ticks": 4520,
+                  "time_in_queue": 7018,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "holder_mds": null,
+              "holder_dms": null
+            }
+          ],
+          "holder_devices": [
+            {
+              "info": {
+                "dev": "dm-6",
+                "size": 209715200,
+                "maj": 254,
+                "min": 6,
+                "block_size": 4096,
+                "stat": {
+                  "read_ios": 66,
+                  "read_merges": 0,
+                  "read_sectors": 2226,
+                  "read_ticks": 1986,
+                  "write_ios": 4,
+                  "write_merges": 0,
+                  "write_sectors": 8,
+                  "write_ticks": 356,
+                  "in_flight": 0,
+                  "io_ticks": 1047,
+                  "time_in_queue": 2343,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "name": "vgstor-rand",
+              "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGYieQNcZKKxZHkPIoA25iUAGm0hfo0IW9",
+              "slave_parts": null,
+              "slave_mds": null
+            },
+            {
+              "info": {
+                "dev": "dm-4",
+                "size": 629145600,
+                "maj": 254,
+                "min": 4,
+                "block_size": 4096,
+                "stat": {
+                  "read_ios": 107,
+                  "read_merges": 0,
+                  "read_sectors": 2610,
+                  "read_ticks": 3966,
+                  "write_ios": 20,
+                  "write_merges": 0,
+                  "write_sectors": 136,
+                  "write_ticks": 2433,
+                  "in_flight": 0,
+                  "io_ticks": 2297,
+                  "time_in_queue": 6399,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "name": "vgstor-photos",
+              "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGFS3UxLCTMNcHyjP3KaYPAmcByH9cdqxL",
+              "slave_parts": null,
+              "slave_mds": null
+            },
+            {
+              "info": {
+                "dev": "dm-5",
+                "size": 209715200,
+                "maj": 254,
+                "min": 5,
+                "block_size": 4096,
+                "stat": {
+                  "read_ios": 66,
+                  "read_merges": 0,
+                  "read_sectors": 2226,
+                  "read_ticks": 749,
+                  "write_ios": 4,
+                  "write_merges": 0,
+                  "write_sectors": 8,
+                  "write_ticks": 629,
+                  "in_flight": 0,
+                  "io_ticks": 1327,
+                  "time_in_queue": 1379,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "name": "vgstor-docs",
+              "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGsh5G3o5enDMpks44ILBRayoGTjbiFzfp",
+              "slave_parts": null,
+              "slave_mds": null
+            },
+            {
+              "info": {
+                "dev": "dm-3",
+                "size": 1677721600,
+                "maj": 254,
+                "min": 3,
+                "block_size": 4096,
+                "stat": {
+                  "read_ios": 154,
+                  "read_merges": 0,
+                  "read_sectors": 2930,
+                  "read_ticks": 1219,
+                  "write_ios": 4,
+                  "write_merges": 0,
+                  "write_sectors": 8,
+                  "write_ticks": 553,
+                  "in_flight": 0,
+                  "io_ticks": 1347,
+                  "time_in_queue": 1773,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "name": "vgstor-media",
+              "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGj23hIRRpNbd2YUuOLxrJpDEMldcjZhaR",
+              "slave_parts": null,
+              "slave_mds": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "info": {
+        "dev": "dm-3",
+        "size": 1677721600,
+        "maj": 254,
+        "min": 3,
+        "block_size": 4096,
+        "stat": {
+          "read_ios": 154,
+          "read_merges": 0,
+          "read_sectors": 2930,
+          "read_ticks": 1219,
+          "write_ios": 4,
+          "write_merges": 0,
+          "write_sectors": 8,
+          "write_ticks": 553,
+          "in_flight": 0,
+          "io_ticks": 1347,
+          "time_in_queue": 1773,
+          "discard_ios": 0,
+          "discard_merges": 0,
+          "discard_sectors": 0,
+          "discard_ticks": 0
+        }
+      },
+      "name": "vgstor-media",
+      "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGj23hIRRpNbd2YUuOLxrJpDEMldcjZhaR",
+      "slave_parts": null,
+      "slave_mds": [
+        {
+          "info": {
+            "dev": "md0",
+            "size": 3906762880,
+            "maj": 9,
+            "min": 0,
+            "block_size": 4096,
+            "stat": {
+              "read_ios": 413,
+              "read_merges": 0,
+              "read_sectors": 10400,
+              "read_ticks": 0,
+              "write_ios": 32,
+              "write_merges": 0,
+              "write_sectors": 136,
+              "write_ticks": 0,
+              "in_flight": 0,
+              "io_ticks": 0,
+              "time_in_queue": 0,
+              "discard_ios": 0,
+              "discard_merges": 0,
+              "discard_sectors": 0,
+              "discard_ticks": 0
+            }
+          },
+          "level": "raid1",
+          "slave_parts": [
+            {
+              "info": {
+                "dev": "sdd1",
+                "size": 3907027087,
+                "maj": 8,
+                "min": 49,
+                "block_size": 512,
+                "stat": {
+                  "read_ios": 189,
+                  "read_merges": 69,
+                  "read_sectors": 3888,
+                  "read_ticks": 1327,
+                  "write_ios": 66,
+                  "write_merges": 3,
+                  "write_sectors": 454,
+                  "write_ticks": 2782,
+                  "in_flight": 0,
+                  "io_ticks": 2897,
+                  "time_in_queue": 4109,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "holder_mds": null,
+              "holder_dms": null
+            },
+            {
+              "info": {
+                "dev": "sda1",
+                "size": 3907027087,
+                "maj": 8,
+                "min": 1,
+                "block_size": 512,
+                "stat": {
+                  "read_ios": 271,
+                  "read_merges": 48,
+                  "read_sectors": 7593,
+                  "read_ticks": 3322,
+                  "write_ios": 66,
+                  "write_merges": 3,
+                  "write_sectors": 454,
+                  "write_ticks": 3696,
+                  "in_flight": 0,
+                  "io_ticks": 4520,
+                  "time_in_queue": 7018,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "holder_mds": null,
+              "holder_dms": null
+            }
+          ],
+          "holder_devices": [
+            {
+              "info": {
+                "dev": "dm-6",
+                "size": 209715200,
+                "maj": 254,
+                "min": 6,
+                "block_size": 4096,
+                "stat": {
+                  "read_ios": 66,
+                  "read_merges": 0,
+                  "read_sectors": 2226,
+                  "read_ticks": 1986,
+                  "write_ios": 4,
+                  "write_merges": 0,
+                  "write_sectors": 8,
+                  "write_ticks": 356,
+                  "in_flight": 0,
+                  "io_ticks": 1047,
+                  "time_in_queue": 2343,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "name": "vgstor-rand",
+              "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGYieQNcZKKxZHkPIoA25iUAGm0hfo0IW9",
+              "slave_parts": null,
+              "slave_mds": null
+            },
+            {
+              "info": {
+                "dev": "dm-4",
+                "size": 629145600,
+                "maj": 254,
+                "min": 4,
+                "block_size": 4096,
+                "stat": {
+                  "read_ios": 107,
+                  "read_merges": 0,
+                  "read_sectors": 2610,
+                  "read_ticks": 3966,
+                  "write_ios": 20,
+                  "write_merges": 0,
+                  "write_sectors": 136,
+                  "write_ticks": 2433,
+                  "in_flight": 0,
+                  "io_ticks": 2297,
+                  "time_in_queue": 6399,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "name": "vgstor-photos",
+              "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGFS3UxLCTMNcHyjP3KaYPAmcByH9cdqxL",
+              "slave_parts": null,
+              "slave_mds": null
+            },
+            {
+              "info": {
+                "dev": "dm-5",
+                "size": 209715200,
+                "maj": 254,
+                "min": 5,
+                "block_size": 4096,
+                "stat": {
+                  "read_ios": 66,
+                  "read_merges": 0,
+                  "read_sectors": 2226,
+                  "read_ticks": 749,
+                  "write_ios": 4,
+                  "write_merges": 0,
+                  "write_sectors": 8,
+                  "write_ticks": 629,
+                  "in_flight": 0,
+                  "io_ticks": 1327,
+                  "time_in_queue": 1379,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "name": "vgstor-docs",
+              "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGsh5G3o5enDMpks44ILBRayoGTjbiFzfp",
+              "slave_parts": null,
+              "slave_mds": null
+            },
+            {
+              "info": {
+                "dev": "dm-3",
+                "size": 1677721600,
+                "maj": 254,
+                "min": 3,
+                "block_size": 4096,
+                "stat": {
+                  "read_ios": 154,
+                  "read_merges": 0,
+                  "read_sectors": 2930,
+                  "read_ticks": 1219,
+                  "write_ios": 4,
+                  "write_merges": 0,
+                  "write_sectors": 8,
+                  "write_ticks": 553,
+                  "in_flight": 0,
+                  "io_ticks": 1347,
+                  "time_in_queue": 1773,
+                  "discard_ios": 0,
+                  "discard_merges": 0,
+                  "discard_sectors": 0,
+                  "discard_ticks": 0
+                }
+              },
+              "name": "vgstor-media",
+              "uuid": "LVM-3Wn54nieFFkISN2T3YodfGJV2jkG95EGj23hIRRpNbd2YUuOLxrJpDEMldcjZhaR",
+              "slave_parts": null,
+              "slave_mds": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
