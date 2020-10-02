@@ -39,21 +39,31 @@ fn print<T: Debug + Display + Serialize>(val: T, format: PrintFormat, pretty: bo
 #[allow(non_camel_case_types)]
 #[derive(StructOpt)]
 pub enum Property {
+    /// Cpu architecture
+    arch,
     hostname,
     domain,
     uptime,
     os,
-    arch,
     cpu,
     cpu_clock,
     cpu_cores,
     logical_cores,
+    /// All memory statistics
     memory,
     memory_free,
     memory_total,
+    /// Mountpoints from /etc/mounts
     mounts,
-    process { pid: i32 },
-    storage { name: String },
+    process {
+        /// Id of the process to stat
+        pid: i32,
+    },
+    /// Storage device info
+    storage {
+        /// Name of the storage device. For example `sda` or `md0`
+        name: String,
+    },
     swap_free,
     swap_total,
 }

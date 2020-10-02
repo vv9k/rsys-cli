@@ -8,17 +8,22 @@ use structopt::StructOpt;
 )]
 pub struct RsysOpt {
     #[structopt(subcommand)]
+    /// Command to run
     pub cmd: Option<RsysCmd>,
 }
 
 #[derive(StructOpt)]
 pub enum RsysCmd {
+    /// Prints out a system proprty to stdout
     Get {
         #[structopt(subcommand)]
+        /// One of system properties
         property: Property,
-        #[structopt(short)]
+        #[structopt(short, long)]
+        /// Print output as JSON
         json: bool,
-        #[structopt(short)]
+        #[structopt(short, long)]
+        /// Make the output pretty
         pretty: bool,
     },
 }
