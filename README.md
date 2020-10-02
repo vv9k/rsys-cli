@@ -1,6 +1,6 @@
 # rsys-cli
-[![Build Status](https://travis-ci.com/wojciechkepka/rsys-cli.svg?branch=master)](https://travis-ci.com/wojciechkepka/rsys-cli)
-CLI tool for quick access to system information.
+[![Build Status](https://travis-ci.com/wojciechkepka/rsys-cli.svg?branch=master)](https://travis-ci.com/wojciechkepka/rsys-cli)  
+CLI tool for quick access to system information. For now Linux only.
 
 ## Available commands
 ### `get`
