@@ -1,5 +1,7 @@
-use super::get::PrintFormat;
-use super::opt::{RsysCmd, RsysOpt};
+use super::{
+    opt::{RsysCmd, RsysOpt},
+    util::PrintFormat,
+};
 use rsys::{Result, Rsys};
 use structopt::StructOpt;
 

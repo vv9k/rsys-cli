@@ -1,40 +1,10 @@
-use super::cli::RsysCli;
-use rsys::linux::{BlockStorageDeviceName, DeviceMapper, MultipleDeviceStorage, ScsiCdrom, StorageDevice};
-use rsys::{Error, Result};
-use serde::Serialize;
-use serde_json as json;
-use std::{
-    any::type_name,
-    fmt::{Debug, Display},
+use super::{
+    cli::RsysCli,
+    util::{print, PrintFormat},
 };
+use rsys::linux::{BlockStorageDeviceName, DeviceMapper, MultipleDeviceStorage, ScsiCdrom, StorageDevice};
+use rsys::Result;
 use structopt::StructOpt;
-
-fn json_to_string<T: Serialize>(val: T, pretty: bool) -> Result<String> {
-    let f = if pretty {
-        json::to_string_pretty
-    } else {
-        json::to_string
-    };
-
-    f(&val).map_err(|e| Error::SerializeError(type_name::<T>().to_string(), e.to_string()))
-}
-
-fn print<T: Debug + Display + Serialize>(val: T, format: PrintFormat, pretty: bool) -> Result<()> {
-    match format {
-        PrintFormat::Normal => {
-            if pretty {
-                print!("{:#?}", val);
-            } else {
-                print!("{}", val);
-            }
-        }
-        PrintFormat::Json => {
-            print!("{}", json_to_string(val, pretty)?);
-        }
-    }
-
-    Ok(())
-}
 
 #[allow(non_camel_case_types)]
 #[derive(StructOpt)]
@@ -69,11 +39,6 @@ pub enum Property {
     },
     swap_free,
     swap_total,
-}
-
-pub(crate) enum PrintFormat {
-    Normal,
-    Json,
 }
 
 impl RsysCli {

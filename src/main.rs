@@ -1,6 +1,7 @@
 pub(crate) mod cli;
 pub(crate) mod get;
 pub(crate) mod opt;
+pub(crate) mod util;
 use cli::RsysCli;
 use rsys::Result;
 
