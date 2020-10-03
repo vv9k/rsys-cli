@@ -1,103 +1,9 @@
 use crate::{
-    cli::RsysCli,
-    util::{handle_err, print, PrintFormat},
+    cmd::common::SystemInfo,
+    util::{print, PrintFormat},
+    RsysCli,
 };
-use rsys::{
-    linux::{
-        cpu::Processor,
-        mem::Memory,
-        misc::MountPoints,
-        net::Interfaces,
-        storage::{
-            storage_devices, DeviceMapper, DeviceMappers, MultipleDeviceStorage, MultipleDeviceStorages, StorageDevice,
-            StorageDevices,
-        },
-    },
-    Result, Rsys,
-};
-use serde::{Deserialize, Serialize};
-use std::fmt::{self, Formatter};
-
-#[derive(Debug, Serialize, Deserialize)]
-struct SystemInfo {
-    arch: String,
-    hostname: String,
-    domain: String,
-    uptime: u64,
-    os: String,
-    kernel: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    cpu: Option<Processor>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    memory: Option<Memory>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    mounts: Option<MountPoints>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    interaces: Option<Interfaces>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    storage_devices: Option<StorageDevices>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    multiple_device_storages: Option<MultipleDeviceStorages>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    device_mappers: Option<DeviceMappers>,
-}
-impl SystemInfo {
-    fn new(
-        r: &Rsys,
-        cpu: bool,
-        memory: bool,
-        net: bool,
-        storage: bool,
-        mounts: bool,
-        all: bool,
-        stats: bool,
-    ) -> Result<SystemInfo> {
-        Ok(Self {
-            arch: handle_err(r.arch()),
-            hostname: handle_err(r.hostname()),
-            domain: handle_err(r.domainname()),
-            uptime: handle_err(r.uptime()),
-            os: r.os(),
-            kernel: handle_err(r.kernel_version()),
-            cpu: if cpu || all {
-                Some(handle_err(r.processor()))
-            } else {
-                None
-            },
-            memory: if memory || all {
-                Some(handle_err(r.memory()))
-            } else {
-                None
-            },
-            mounts: if mounts || all {
-                Some(handle_err(r.mounts()))
-            } else {
-                None
-            },
-            interaces: if net || all { Some(handle_err(r.ifaces())) } else { None },
-            storage_devices: if storage || all {
-                Some(handle_err(storage_devices::<StorageDevice>(stats)))
-            } else {
-                None
-            },
-            multiple_device_storages: if storage || all {
-                Some(handle_err(storage_devices::<MultipleDeviceStorage>(stats)))
-            } else {
-                None
-            },
-            device_mappers: if storage || all {
-                Some(handle_err(storage_devices::<DeviceMapper>(stats)))
-            } else {
-                None
-            },
-        })
-    }
-}
-impl fmt::Display for SystemInfo {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
+use rsys::Result;
 
 impl RsysCli {
     pub(crate) fn dump(
@@ -113,7 +19,22 @@ impl RsysCli {
         stats: bool,
     ) -> Result<()> {
         print(
-            SystemInfo::new(&self.system, cpu, memory, net, storage, mounts, all, stats)?,
+            SystemInfo::new(
+                &self.system,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                cpu,
+                memory,
+                net,
+                storage,
+                mounts,
+                all,
+                stats,
+            )?,
             format,
             pretty,
         )

@@ -1,91 +1,13 @@
 use crate::{
     cli::RsysCli,
-    util::{handle_err, print, PrintFormat},
+    cmd::common::SystemInfo,
+    util::{print, PrintFormat},
 };
-use rsys::{
-    linux::{
-        cpu::Processor,
-        mem::Memory,
-        net::Interfaces,
-        storage::{
-            storage_devices, DeviceMapper, DeviceMappers, MultipleDeviceStorage, MultipleDeviceStorages, StorageDevice,
-            StorageDevices,
-        },
-    },
-    Result, Rsys,
-};
-use serde::{Deserialize, Serialize};
+use rsys::Result;
 use std::{
-    fmt::{self, Formatter},
     thread,
     time::{Duration, Instant},
-    u64,
 };
-
-#[derive(Debug, Serialize, Deserialize)]
-struct MonitorStats {
-    hostname: String,
-    uptime: u64,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    cpu: Option<Processor>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    memory: Option<Memory>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    interaces: Option<Interfaces>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    storage_devices: Option<StorageDevices>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    multiple_device_storages: Option<MultipleDeviceStorages>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    device_mappers: Option<DeviceMappers>,
-}
-impl MonitorStats {
-    fn new(
-        r: &Rsys,
-        cpu: bool,
-        memory: bool,
-        net: bool,
-        storage: bool,
-        all: bool,
-        stats: bool,
-    ) -> Result<MonitorStats> {
-        Ok(Self {
-            hostname: handle_err(r.hostname()),
-            uptime: handle_err(r.uptime()),
-            cpu: if cpu || all {
-                Some(handle_err(r.processor()))
-            } else {
-                None
-            },
-            memory: if memory || all {
-                Some(handle_err(r.memory()))
-            } else {
-                None
-            },
-            interaces: if net || all { Some(handle_err(r.ifaces())) } else { None },
-            storage_devices: if storage || all {
-                Some(handle_err(storage_devices::<StorageDevice>(stats)))
-            } else {
-                None
-            },
-            multiple_device_storages: if storage || all {
-                Some(handle_err(storage_devices::<MultipleDeviceStorage>(stats)))
-            } else {
-                None
-            },
-            device_mappers: if storage || all {
-                Some(handle_err(storage_devices::<DeviceMapper>(stats)))
-            } else {
-                None
-            },
-        })
-    }
-}
-impl fmt::Display for MonitorStats {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
 
 impl RsysCli {
     pub(crate) fn watch(
@@ -110,7 +32,22 @@ impl RsysCli {
         loop {
             let print_start = Instant::now();
             print(
-                MonitorStats::new(&self.system, cpu, memory, net, storage, all, stats)?,
+                SystemInfo::new(
+                    &self.system,
+                    false,
+                    true,
+                    false,
+                    true,
+                    false,
+                    false,
+                    cpu,
+                    memory,
+                    net,
+                    storage,
+                    false,
+                    all,
+                    stats,
+                )?,
                 PrintFormat::Json,
                 pretty,
             )?;

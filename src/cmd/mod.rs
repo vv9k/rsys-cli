@@ -1,3 +1,4 @@
+pub(crate) mod common;
 pub(crate) mod dump;
 pub(crate) mod get;
 pub(crate) mod watch;
