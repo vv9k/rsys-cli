@@ -1,4 +1,6 @@
-use super::get::Property;
+pub(crate) mod dump;
+pub(crate) mod get;
+use get::Property;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]

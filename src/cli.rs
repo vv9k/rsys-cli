@@ -1,5 +1,5 @@
 use super::{
-    opt::{RsysCmd, RsysOpt},
+    cmd::{RsysCmd, RsysOpt},
     util::PrintFormat,
 };
 use rsys::{Result, Rsys};
