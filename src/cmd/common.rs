@@ -147,10 +147,15 @@ impl SystemInfo {
             table.add_row(row!["arch:", arch]);
         }
         if let Some(domain) = &self.domain {
-            table.add_row(row!["domain:", domain]);
+            if domain != "(none)" {
+                table.add_row(row!["domain:", domain]);
+            }
+        }
+        if let Some(kernel) = &self.kernel {
+            table.add_row(row!["kernel:", kernel]);
         }
         if let Some(uptime) = &self.uptime {
-            table.add_row(row!["uptime:", format!("{}s", uptime)]);
+            table.add_row(row!["uptime:", format!("{} s", uptime)]);
         }
         if let Some(os) = &self.os {
             table.add_row(row!["os:", os]);
@@ -164,11 +169,16 @@ impl SystemInfo {
         if let Some(cpu) = &self.cpu {
             s.push_str(" CPU:\n");
             let mut cpu_table = Table::new();
+            let mut cores_table = Table::new();
             cpu_table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
-            cpu_table.add_row(row![c => "core", "minimum", "current", "max"]);
+            cores_table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
+            cpu_table.add_row(row!["model:", cpu.model]);
+            cpu_table.add_row(row!["cache size:", format!("{} b", cpu.cache_size)]);
+            cpu_table.add_row(row!["bogomips:", cpu.bogomips]);
+            cores_table.add_row(row![c => "core", "minimum", "current", "max"]);
 
             for core in &cpu.cores {
-                cpu_table.add_row(row![ r ->
+                cores_table.add_row(row![ r ->
                     &format!("cpu{}", core.id), c ->
                     &format!("{}hz", core.min_freq), c ->
                     &format!("{}hz", core.cur_freq), c ->
@@ -176,6 +186,7 @@ impl SystemInfo {
                 ]);
             }
             s.push_str(&cpu_table.to_string());
+            s.push_str(&cores_table.to_string());
         }
         s
     }
@@ -185,14 +196,14 @@ impl SystemInfo {
             s.push_str(" MEMORY:\n");
             let mut mem_table = Table::new();
             mem_table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
-            mem_table.add_row(row![r => "total", &format!("{}b", memory.total)]);
-            mem_table.add_row(row![r => "free", &format!("{}b", memory.free)]);
-            mem_table.add_row(row![r => "available", &format!("{}b", memory.available)]);
-            mem_table.add_row(row![r => "buffers", &format!("{}b", memory.buffers)]);
-            mem_table.add_row(row![r => "cached", &format!("{}b", memory.cached)]);
-            mem_table.add_row(row![r => "active", &format!("{}b", memory.active)]);
-            mem_table.add_row(row![r => "inactive", &format!("{}b", memory.inactive)]);
-            mem_table.add_row(row![r => "shared", &format!("{}b", memory.shared)]);
+            mem_table.add_row(row![r => "total:", &format!("{} b", memory.total)]);
+            mem_table.add_row(row![r => "free:", &format!("{} b", memory.free)]);
+            mem_table.add_row(row![r => "available:", &format!("{} b", memory.available)]);
+            mem_table.add_row(row![r => "buffers:", &format!("{} b", memory.buffers)]);
+            mem_table.add_row(row![r => "cached:", &format!("{} b", memory.cached)]);
+            mem_table.add_row(row![r => "active:", &format!("{} b", memory.active)]);
+            mem_table.add_row(row![r => "inactive:", &format!("{} b", memory.inactive)]);
+            mem_table.add_row(row![r => "shared:", &format!("{} b", memory.shared)]);
             s.push_str(&mem_table.to_string());
         }
         s
