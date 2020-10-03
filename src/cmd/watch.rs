@@ -26,11 +26,17 @@ use std::{
 struct MonitorStats {
     hostname: String,
     uptime: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
     cpu: Option<Processor>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     memory: Option<Memory>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     interaces: Option<Interfaces>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     storage_devices: Option<StorageDevices>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     multiple_device_storages: Option<MultipleDeviceStorages>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     device_mappers: Option<DeviceMappers>,
 }
 impl MonitorStats {

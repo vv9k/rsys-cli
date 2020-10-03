@@ -26,12 +26,19 @@ struct SystemInfo {
     uptime: u64,
     os: String,
     kernel: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     cpu: Option<Processor>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     memory: Option<Memory>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     mounts: Option<MountPoints>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     interaces: Option<Interfaces>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     storage_devices: Option<StorageDevices>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     multiple_device_storages: Option<MultipleDeviceStorages>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     device_mappers: Option<DeviceMappers>,
 }
 impl SystemInfo {

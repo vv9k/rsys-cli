@@ -143,13 +143,6 @@ domain: (none)
 uptime: 4861
 os: linux
 kernel: 5.8.12-arch1-1
-cpu: ~
-memory: ~
-mounts: ~
-interaces: ~
-storage_devices: ~
-multiple_device_storages: ~
-device_mappers: ~
 ```
 
 #### Dumping all information as pretty json (Output from this benchmark [here](https://github.com/wojciechkepka/rsys-cli/blob/master/example_output/dump)
