@@ -23,61 +23,18 @@ impl RsysCli {
                 RsysCmd::Get {
                     property,
                     json,
-                    yaml: _,
-                    pretty,
-                } if *json => self.get(property, PrintFormat::Json, *pretty)?,
-                RsysCmd::Get {
-                    property,
-                    json: _,
                     yaml,
                     pretty,
-                } if *yaml => self.get(property, PrintFormat::Yaml, *pretty)?,
-                RsysCmd::Get {
-                    property,
-                    json,
-                    yaml,
-                    pretty,
-                } if !yaml && !json => self.get(property, PrintFormat::Normal, *pretty)?,
-                RsysCmd::Dump {
-                    json,
-                    yaml: _,
-                    pretty,
-                    cpu,
-                    memory,
-                    network,
-                    storage,
-                    mounts,
-                    all,
-                } if *json => self.dump(
-                    PrintFormat::Json,
-                    *pretty,
-                    *cpu,
-                    *memory,
-                    *network,
-                    *storage,
-                    *mounts,
-                    *all,
-                )?,
-                RsysCmd::Dump {
-                    json: _,
-                    yaml,
-                    pretty,
-                    cpu,
-                    memory,
-                    network,
-                    storage,
-                    mounts,
-                    all,
-                } if *yaml => self.dump(
-                    PrintFormat::Yaml,
-                    *pretty,
-                    *cpu,
-                    *memory,
-                    *network,
-                    *storage,
-                    *mounts,
-                    *all,
-                )?,
+                } => {
+                    let format = if *json {
+                        PrintFormat::Json
+                    } else if *yaml {
+                        PrintFormat::Yaml
+                    } else {
+                        PrintFormat::Normal
+                    };
+                    self.get(property, format, *pretty)?
+                }
                 RsysCmd::Dump {
                     json,
                     yaml,
@@ -88,17 +45,19 @@ impl RsysCli {
                     storage,
                     mounts,
                     all,
-                } if !yaml && !json => self.dump(
-                    PrintFormat::Normal,
-                    *pretty,
-                    *cpu,
-                    *memory,
-                    *network,
-                    *storage,
-                    *mounts,
-                    *all,
-                )?,
-                _ => {}
+                    stats,
+                } => {
+                    let format = if *json {
+                        PrintFormat::Json
+                    } else if *yaml {
+                        PrintFormat::Yaml
+                    } else {
+                        PrintFormat::Normal
+                    };
+                    self.dump(
+                        format, *pretty, *cpu, *memory, *network, *storage, *mounts, *all, *stats,
+                    )?
+                }
             }
         }
 

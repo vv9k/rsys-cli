@@ -2,10 +2,7 @@ use super::get::Property;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
-#[structopt(
-    name = "rsys",
-    about = "Aquire all important information about your operating system"
-)]
+#[structopt(name = "rsys", about = "Aquire all important information about your system")]
 pub struct RsysOpt {
     #[structopt(subcommand)]
     /// Command to run
@@ -53,6 +50,10 @@ pub enum RsysCmd {
         /// Adds info about storage devices, device mappers,
         /// multiple device arrays
         storage: bool,
+        #[structopt(long)]
+        /// Whether to parse stats for all storage devices or just the main ones.
+        /// Only functional with `--storage` flag
+        stats: bool,
         #[structopt(long)]
         /// Adds information about mountpoints on host os
         mounts: bool,

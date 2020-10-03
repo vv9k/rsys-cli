@@ -99,6 +99,8 @@ FLAGS:
         --mounts     Adds information about mountpoints on host os
         --network    Adds network interfaces to the output
     -p, --pretty     Make the output pretty
+        --stats      Whether to parse stats for all storage devices or just the main ones. Only functional with
+                     `--storage` flag
         --storage    Adds info about storage devices, device mappers, multiple device arrays
     -V, --version    Prints version information
     -y, --yaml       Print output as YAML

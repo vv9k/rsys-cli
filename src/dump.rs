@@ -35,7 +35,16 @@ struct SystemInfo {
     device_mappers: Option<DeviceMappers>,
 }
 impl SystemInfo {
-    fn new(r: &Rsys, cpu: bool, memory: bool, net: bool, storage: bool, mounts: bool, all: bool) -> Result<SystemInfo> {
+    fn new(
+        r: &Rsys,
+        cpu: bool,
+        memory: bool,
+        net: bool,
+        storage: bool,
+        mounts: bool,
+        all: bool,
+        stats: bool,
+    ) -> Result<SystemInfo> {
         Ok(Self {
             arch: r.arch()?,
             hostname: r.hostname()?,
@@ -48,17 +57,17 @@ impl SystemInfo {
             mounts: if mounts || all { Some(r.mounts()?) } else { None },
             interaces: if net || all { Some(r.ifaces()?) } else { None },
             storage_devices: if storage || all {
-                Some(storage_devices::<StorageDevice>()?)
+                Some(storage_devices::<StorageDevice>(stats)?)
             } else {
                 None
             },
             multiple_device_storages: if storage || all {
-                Some(storage_devices::<MultipleDeviceStorage>()?)
+                Some(storage_devices::<MultipleDeviceStorage>(stats)?)
             } else {
                 None
             },
             device_mappers: if storage || all {
-                Some(storage_devices::<DeviceMapper>()?)
+                Some(storage_devices::<DeviceMapper>(stats)?)
             } else {
                 None
             },
@@ -82,9 +91,10 @@ impl RsysCli {
         storage: bool,
         mounts: bool,
         all: bool,
+        stats: bool,
     ) -> Result<()> {
         print(
-            SystemInfo::new(&self.system, cpu, memory, net, storage, mounts, all)?,
+            SystemInfo::new(&self.system, cpu, memory, net, storage, mounts, all, stats)?,
             format,
             pretty,
         )
