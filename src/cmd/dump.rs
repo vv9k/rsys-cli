@@ -17,6 +17,7 @@ impl RsysCli {
         mounts: bool,
         all: bool,
         stats: bool,
+        processes: bool,
     ) -> Result<()> {
         print(
             SystemInfo::new(
@@ -34,6 +35,7 @@ impl RsysCli {
                 mounts,
                 all,
                 stats,
+                processes,
             )?,
             format,
             pretty,

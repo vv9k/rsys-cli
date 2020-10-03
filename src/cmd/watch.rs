@@ -47,6 +47,7 @@ impl RsysCli {
                     false,
                     all,
                     stats,
+                    false,
                 )?,
                 PrintFormat::Json,
                 pretty,

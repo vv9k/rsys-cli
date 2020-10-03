@@ -55,6 +55,9 @@ pub enum RsysCmd {
         /// multiple device arrays
         storage: bool,
         #[structopt(long)]
+        /// Adds all processes
+        processes: bool,
+        #[structopt(long)]
         /// Whether to parse stats for all storage devices or just the main ones.
         /// Only functional with `--storage` flag
         stats: bool,
@@ -62,7 +65,7 @@ pub enum RsysCmd {
         /// Adds information about mountpoints on host os
         mounts: bool,
         #[structopt(short, long)]
-        /// Shortcut for `--cpu --memory --storage --network --mounts --stats`
+        /// Shortcut for `--cpu --memory --storage --network --mounts --stats --processes`
         all: bool,
     },
     /// Monitor specified parameters. Default parameters are hostname and uptime.

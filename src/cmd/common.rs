@@ -6,6 +6,7 @@ use rsys::{
         mem::Memory,
         misc::MountPoints,
         net::Interfaces,
+        ps::Processes,
         storage::{
             storage_devices, DeviceMapper, DeviceMappers, MultipleDeviceStorage, MultipleDeviceStorages, StorageDevice,
             StorageDevices,
@@ -34,6 +35,8 @@ pub(crate) struct SystemInfo {
     cpu: Option<Processor>,
     #[serde(skip_serializing_if = "Option::is_none")]
     memory: Option<Memory>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    processes: Option<Processes>,
     #[serde(skip_serializing_if = "Option::is_none")]
     mounts: Option<MountPoints>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -65,6 +68,7 @@ impl SystemInfo {
         mounts: bool,
         all: bool,
         mut stats: bool,
+        processes: bool,
     ) -> Result<SystemInfo> {
         Ok(Self {
             arch: if arch || all { Some(handle_err(r.arch())) } else { None },
@@ -96,6 +100,11 @@ impl SystemInfo {
             },
             memory: if memory || all {
                 Some(handle_err(r.memory()))
+            } else {
+                None
+            },
+            processes: if processes || all {
+                Some(handle_err(r.processes()))
             } else {
                 None
             },
@@ -356,6 +365,65 @@ impl fmt::Display for SystemInfo {
                 s.push_str(" STORAGE STATS: (r - read, w - write, d - discard)\n");
                 s.push_str(&stats_table.to_string());
             }
+        }
+        if let Some(processes) = &self.processes {
+            s.push_str(" PROCESSES:\n");
+            let mut p_table = Table::new();
+            p_table.set_format(*format::consts::FORMAT_NO_LINESEP);
+            p_table.add_row(row![
+                "pid",
+                "name",
+                "state",
+                "ppid",
+                "pgrp",
+                "session",
+                "tty_nr",
+                "utime",
+                "stime",
+                "cutime",
+                "cstime",
+                "priority",
+                "nice",
+                "num_threads",
+                "itrealvalue",
+                "starttime",
+                "vsize",
+                "rss",
+                "rsslim",
+                "nswap",
+                "cnswap",
+                "guest_time",
+                "cguest_time"
+            ]);
+
+            for p in processes {
+                p_table.add_row(row![
+                    p.pid,
+                    p.name,
+                    p.state,
+                    p.ppid,
+                    p.pgrp,
+                    p.session,
+                    p.tty_nr,
+                    p.utime,
+                    p.stime,
+                    p.cutime,
+                    p.cstime,
+                    p.priority,
+                    p.nice,
+                    p.num_threads,
+                    p.itrealvalue,
+                    p.starttime,
+                    p.vsize,
+                    p.rss,
+                    p.rsslim,
+                    p.nswap,
+                    p.cnswap,
+                    p.guest_time,
+                    p.cguest_time,
+                ]);
+            }
+            s.push_str(&p_table.to_string());
         }
         write!(f, "{}", s)
     }

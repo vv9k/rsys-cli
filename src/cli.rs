@@ -46,6 +46,7 @@ impl RsysCli {
                     mounts,
                     all,
                     stats,
+                    processes,
                 } => {
                     let format = if *json {
                         PrintFormat::Json
@@ -55,7 +56,7 @@ impl RsysCli {
                         PrintFormat::Normal
                     };
                     self.dump(
-                        format, *pretty, *cpu, *memory, *network, *storage, *mounts, *all, *stats,
+                        format, *pretty, *cpu, *memory, *network, *storage, *mounts, *all, *stats, *processes,
                     )?
                 }
                 RsysCmd::Watch {
