@@ -1,3 +1,5 @@
+#[macro_use]
+extern crate prettytable;
 pub(crate) mod cli;
 pub(crate) mod cmd;
 pub(crate) mod util;

@@ -1,4 +1,5 @@
 use crate::util::handle_err;
+use prettytable::{format, Cell, Row, Table};
 use rsys::{
     linux::{
         cpu::Processor,
@@ -43,6 +44,8 @@ pub(crate) struct SystemInfo {
     multiple_device_storages: Option<MultipleDeviceStorages>,
     #[serde(skip_serializing_if = "Option::is_none")]
     device_mappers: Option<DeviceMappers>,
+    display_stats: bool,
+    display_all: bool,
 }
 impl SystemInfo {
     pub(crate) fn new(
@@ -59,7 +62,7 @@ impl SystemInfo {
         storage: bool,
         mounts: bool,
         all: bool,
-        stats: bool,
+        mut stats: bool,
     ) -> Result<SystemInfo> {
         Ok(Self {
             arch: if arch || all { Some(handle_err(r.arch())) } else { None },
@@ -101,25 +104,257 @@ impl SystemInfo {
             },
             interfaces: if net || all { Some(handle_err(r.ifaces())) } else { None },
             storage_devices: if storage || all {
+                stats = if all { true } else { stats };
                 Some(handle_err(storage_devices::<StorageDevice>(stats)))
             } else {
                 None
             },
             multiple_device_storages: if storage || all {
+                stats = if all { true } else { stats };
                 Some(handle_err(storage_devices::<MultipleDeviceStorage>(stats)))
             } else {
                 None
             },
             device_mappers: if storage || all {
+                stats = if all { true } else { stats };
                 Some(handle_err(storage_devices::<DeviceMapper>(stats)))
             } else {
                 None
             },
+            display_stats: stats,
+            display_all: all,
         })
     }
 }
 impl fmt::Display for SystemInfo {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
+        let mut s = String::new();
+        let mut table = Table::new();
+        table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
+        if let Some(hostname) = &self.hostname {
+            table.add_row(row!["hostname:", hostname]);
+        }
+        if let Some(arch) = &self.arch {
+            table.add_row(row!["arch:", arch]);
+        }
+        if let Some(domain) = &self.domain {
+            table.add_row(row!["domain:", domain]);
+        }
+        if let Some(uptime) = &self.uptime {
+            table.add_row(row!["uptime:", format!("{}s", uptime)]);
+        }
+        if let Some(os) = &self.os {
+            table.add_row(row!["os:", os]);
+        }
+        s.push_str(" GENERAL:\n");
+        s.push_str(&table.to_string());
+        if let Some(cpu) = &self.cpu {
+            s.push_str(" CPU:\n");
+            let mut cpu_table = Table::new();
+            cpu_table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
+            cpu_table.add_row(row![c => "core", "minimum", "current", "max"]);
+
+            for core in &cpu.cores {
+                cpu_table.add_row(row![ r ->
+                    &format!("cpu{}", core.id), c ->
+                    &format!("{}hz", core.min_freq), c ->
+                    &format!("{}hz", core.cur_freq), c ->
+                    &format!("{}hz", core.max_freq),
+                ]);
+            }
+            s.push_str(&cpu_table.to_string());
+        }
+        if let Some(memory) = &self.memory {
+            s.push_str(" MEMORY:\n");
+            let mut mem_table = Table::new();
+            mem_table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
+            mem_table.add_row(row![r => "total", &format!("{}b", memory.total)]);
+            mem_table.add_row(row![r => "free", &format!("{}b", memory.free)]);
+            mem_table.add_row(row![r => "available", &format!("{}b", memory.available)]);
+            mem_table.add_row(row![r => "buffers", &format!("{}b", memory.buffers)]);
+            mem_table.add_row(row![r => "cached", &format!("{}b", memory.cached)]);
+            mem_table.add_row(row![r => "active", &format!("{}b", memory.active)]);
+            mem_table.add_row(row![r => "inactive", &format!("{}b", memory.inactive)]);
+            mem_table.add_row(row![r => "shared", &format!("{}b", memory.shared)]);
+            s.push_str(&mem_table.to_string());
+        }
+        if let Some(ifaces) = &self.interfaces {
+            s.push_str(" NETWORK:\n");
+            let mut net_table = Table::new();
+            net_table.set_format(*format::consts::FORMAT_NO_LINESEP);
+            net_table.add_row(row![
+                "name",
+                "ipv4",
+                "mac",
+                "speed",
+                "mtu",
+                "rx_bytes",
+                "tx_bytes",
+                "rx_packets",
+                "tx_packets"
+            ]);
+            for iface in &ifaces.0 {
+                net_table.add_row(row![
+                    iface.name,
+                    iface.ipv4,
+                    iface.mac_address,
+                    iface.speed,
+                    iface.mtu,
+                    iface.stat.rx_bytes,
+                    iface.stat.tx_bytes,
+                    iface.stat.rx_packets,
+                    iface.stat.tx_packets
+                ]);
+            }
+            s.push_str(&net_table.to_string());
+        }
+        if let Some(storages) = &self.storage_devices {
+            s.push_str(" STORAGE DEVICES:\n");
+            let mut storage_table = Table::new();
+            let mut stats_table = Table::new();
+            storage_table.set_format(*format::consts::FORMAT_NO_LINESEP);
+            stats_table.set_format(*format::consts::FORMAT_NO_LINESEP);
+
+            storage_table.add_row(row![
+                "name",
+                "size",
+                "major",
+                "min",
+                "block size",
+                "model",
+                "vendor",
+                "state"
+            ]);
+            stats_table.add_row(row![
+                "device",
+                "r I/O's",
+                "r merges",
+                "r sectors",
+                "r ticks",
+                "w I/O's",
+                "w merges",
+                "w sectors",
+                "w ticks",
+                "d I/O's",
+                "d merges",
+                "d sectors",
+                "d ticks",
+                "in flight",
+                "I/O ticks",
+            ]);
+            for storage in storages {
+                storage_table.add_row(row![
+                    storage.info.dev,
+                    storage.info.size,
+                    storage.info.maj,
+                    storage.info.min,
+                    storage.info.block_size,
+                    storage.model,
+                    storage.vendor,
+                    storage.state
+                ]);
+
+                if let Some(stat) = &storage.info.stat {
+                    stats_table.add_row(row![
+                        storage.info.dev,
+                        stat.read_ios,
+                        stat.read_merges,
+                        stat.read_sectors,
+                        stat.read_ticks,
+                        stat.write_ios,
+                        stat.write_merges,
+                        stat.write_sectors,
+                        stat.write_ticks,
+                        stat.discard_ios,
+                        stat.discard_merges,
+                        stat.discard_sectors,
+                        stat.discard_ticks,
+                        stat.in_flight,
+                        stat.io_ticks
+                    ]);
+                }
+            }
+            s.push_str(&storage_table.to_string());
+            if let Some(mds) = &self.multiple_device_storages {
+                s.push_str(" MULTIPLE DEVICE ARRAYS:\n");
+                let mut mds_table = Table::new();
+                mds_table.set_format(*format::consts::FORMAT_NO_LINESEP);
+
+                mds_table.add_row(row!["name", "size", "major", "min", "block size", "level",]);
+                for md in mds {
+                    mds_table.add_row(row![
+                        md.info.dev,
+                        md.info.size,
+                        md.info.maj,
+                        md.info.min,
+                        md.info.block_size,
+                        md.level,
+                    ]);
+                    if let Some(stat) = &md.info.stat {
+                        stats_table.add_row(row![
+                            md.info.dev,
+                            stat.read_ios,
+                            stat.read_merges,
+                            stat.read_sectors,
+                            stat.read_ticks,
+                            stat.write_ios,
+                            stat.write_merges,
+                            stat.write_sectors,
+                            stat.write_ticks,
+                            stat.discard_ios,
+                            stat.discard_merges,
+                            stat.discard_sectors,
+                            stat.discard_ticks,
+                            stat.in_flight,
+                            stat.io_ticks
+                        ]);
+                    }
+                }
+                s.push_str(&mds_table.to_string());
+            }
+            if let Some(dms) = &self.device_mappers {
+                s.push_str(" DEVICE MAPPERS:\n");
+                let mut dms_table = Table::new();
+                dms_table.set_format(*format::consts::FORMAT_NO_LINESEP);
+
+                dms_table.add_row(row!["name", "size", "major", "min", "block size", "vname", "uuid",]);
+                for dm in dms {
+                    dms_table.add_row(row![
+                        dm.info.dev,
+                        dm.info.size,
+                        dm.info.maj,
+                        dm.info.min,
+                        dm.info.block_size,
+                        dm.name,
+                        dm.uuid,
+                    ]);
+                    if let Some(stat) = &dm.info.stat {
+                        stats_table.add_row(row![
+                            dm.info.dev,
+                            stat.read_ios,
+                            stat.read_merges,
+                            stat.read_sectors,
+                            stat.read_ticks,
+                            stat.write_ios,
+                            stat.write_merges,
+                            stat.write_sectors,
+                            stat.write_ticks,
+                            stat.discard_ios,
+                            stat.discard_merges,
+                            stat.discard_sectors,
+                            stat.discard_ticks,
+                            stat.in_flight,
+                            stat.io_ticks
+                        ]);
+                    }
+                }
+                s.push_str(&dms_table.to_string());
+            }
+            if self.display_stats || self.display_all {
+                s.push_str(" STORAGE STATS: (r - read, w - write, d - discard)\n");
+                s.push_str(&stats_table.to_string());
+            }
+        }
+        write!(f, "{}", s)
     }
 }

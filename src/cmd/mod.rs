@@ -62,7 +62,7 @@ pub enum RsysCmd {
         /// Adds information about mountpoints on host os
         mounts: bool,
         #[structopt(short, long)]
-        /// Shortcut for `--cpu --memory --storage --network --mounts`
+        /// Shortcut for `--cpu --memory --storage --network --mounts --stats`
         all: bool,
     },
     /// Monitor specified parameters. Default parameters are hostname and uptime.
