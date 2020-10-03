@@ -99,7 +99,7 @@ impl RsysCli {
         } else {
             Duration::from_secs(u64::MAX)
         };
-        let interval = if let Some(i) = interval { i } else { 1000 };
+        let interval: u128 = if let Some(i) = interval { i as u128 } else { 1000 };
         let loop_start = Instant::now();
         loop {
             let print_start = Instant::now();
@@ -113,8 +113,10 @@ impl RsysCli {
             if loop_start.elapsed() > duration {
                 break;
             }
-            let sleep_duration = Duration::from_millis((interval as u128 - print_duration) as u64);
-            thread::sleep(sleep_duration);
+            if print_duration < interval {
+                let sleep_duration = Duration::from_millis((interval - print_duration) as u64);
+                thread::sleep(sleep_duration);
+            }
         }
         Ok(())
     }
