@@ -1,6 +1,6 @@
 use crate::{
     cli::RsysCli,
-    util::{print, PrintFormat},
+    util::{handle_err, print, PrintFormat},
 };
 use rsys::{
     linux::{
@@ -17,16 +17,6 @@ use rsys::{
 };
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Formatter};
-
-fn handle_err<T: Default>(res: Result<T>) -> T {
-    match res {
-        Ok(val) => val,
-        Err(e) => {
-            eprintln!("Error: {}", e);
-            T::default()
-        }
-    }
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 struct SystemInfo {

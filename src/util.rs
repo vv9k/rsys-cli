@@ -44,3 +44,13 @@ pub(crate) fn print<T: Debug + Display + Serialize>(val: T, format: PrintFormat,
 
     Ok(())
 }
+
+pub(crate) fn handle_err<T: Default>(res: Result<T>) -> T {
+    match res {
+        Ok(val) => val,
+        Err(e) => {
+            eprintln!("Error: {}", e);
+            T::default()
+        }
+    }
+}
