@@ -175,7 +175,7 @@ impl SystemInfo {
             cpu_table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
             cores_table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
             cpu_table.add_row(row!["model:", cpu.model]);
-            cpu_table.add_row(row!["cache size:", format!("{} b", cpu.cache_size)]);
+            cpu_table.add_row(row!["cache size:", conv_b(cpu.cache_size)]);
             cpu_table.add_row(row!["bogomips:", cpu.bogomips]);
             cores_table.add_row(row![c => "core", "minimum", "current", "max"]);
 
