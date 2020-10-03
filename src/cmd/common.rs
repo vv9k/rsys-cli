@@ -1,5 +1,5 @@
 use crate::util::handle_err;
-use prettytable::{format, Cell, Row, Table};
+use prettytable::{format, Table};
 use rsys::{
     linux::{
         cpu::Processor,
