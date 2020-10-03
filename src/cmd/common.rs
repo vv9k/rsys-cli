@@ -1,4 +1,4 @@
-use crate::util::handle_err;
+use crate::util::{conv_b, handle_err};
 use prettytable::{format, Table};
 use rsys::{
     linux::{
@@ -16,6 +16,8 @@ use rsys::{
 };
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Formatter};
+
+const SECTOR_SIZE: u64 = 512;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct SystemInfo {
@@ -196,14 +198,14 @@ impl SystemInfo {
             s.push_str(" MEMORY:\n");
             let mut mem_table = Table::new();
             mem_table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
-            mem_table.add_row(row![r => "total:", &format!("{} b", memory.total)]);
-            mem_table.add_row(row![r => "free:", &format!("{} b", memory.free)]);
-            mem_table.add_row(row![r => "available:", &format!("{} b", memory.available)]);
-            mem_table.add_row(row![r => "buffers:", &format!("{} b", memory.buffers)]);
-            mem_table.add_row(row![r => "cached:", &format!("{} b", memory.cached)]);
-            mem_table.add_row(row![r => "active:", &format!("{} b", memory.active)]);
-            mem_table.add_row(row![r => "inactive:", &format!("{} b", memory.inactive)]);
-            mem_table.add_row(row![r => "shared:", &format!("{} b", memory.shared)]);
+            mem_table.add_row(row![r => "total:", conv_b(memory.total)]);
+            mem_table.add_row(row![r => "free:", conv_b(memory.free)]);
+            mem_table.add_row(row![r => "available:", conv_b(memory.available)]);
+            mem_table.add_row(row![r => "buffers:", conv_b(memory.buffers)]);
+            mem_table.add_row(row![r => "cached:", conv_b(memory.cached)]);
+            mem_table.add_row(row![r => "active:", conv_b(memory.active)]);
+            mem_table.add_row(row![r => "inactive:", conv_b(memory.inactive)]);
+            mem_table.add_row(row![r => "shared:", conv_b(memory.shared)]);
             s.push_str(&mem_table.to_string());
         }
         s
@@ -220,14 +222,14 @@ impl SystemInfo {
             net_table.add_row(row!["name", "ipv4", "mac", "speed", "mtu",]);
             stats_table.add_row(row![ c =>
                 "name",
-                "rx/tx bytes",
-                "rx/tx packets",
-                "rx/tx errs",
-                "rx/tx drop",
-                "rx/tx fifo",
-                "rx/tx frame",
-                "rx/tx compressed",
-                "rx/tx multicast",
+                "bytes",
+                "packets",
+                "errs",
+                "drop",
+                "fifo",
+                "frame",
+                "compressed",
+                "multicast",
             ]);
             for iface in &ifaces.0 {
                 net_table.add_row(row![
@@ -239,7 +241,7 @@ impl SystemInfo {
                 ]);
                 stats_table.add_row(row![ c =>
                     iface.name,
-                    format!("{} / {}", iface.stat.rx_bytes, iface.stat.tx_bytes),
+                    format!("{} / {}", conv_b(iface.stat.rx_bytes), conv_b(iface.stat.tx_bytes)),
                     format!("{} / {}", iface.stat.rx_packets, iface.stat.tx_packets),
                     format!("{} / {}", iface.stat.rx_errs, iface.stat.tx_errs),
                     format!("{} / {}", iface.stat.rx_drop, iface.stat.tx_drop),
@@ -251,7 +253,7 @@ impl SystemInfo {
             }
             s.push_str(&net_table.to_string());
             if self.display_stats || self.display_all {
-                s.push_str(" NETWORK STATS:\n");
+                s.push_str(" NETWORK STATS: ( rx / tx - received / transfered )\n");
                 s.push_str(&stats_table.to_string());
             }
         }
@@ -296,7 +298,7 @@ impl SystemInfo {
             for storage in storages {
                 storage_table.add_row(row![
                     storage.info.dev,
-                    storage.info.size,
+                    conv_b(storage.info.size as u64 * SECTOR_SIZE),
                     storage.info.maj,
                     storage.info.min,
                     storage.info.block_size,
@@ -335,7 +337,7 @@ impl SystemInfo {
                 for md in mds {
                     mds_table.add_row(row![
                         md.info.dev,
-                        md.info.size,
+                        conv_b(md.info.size as u64 * SECTOR_SIZE),
                         md.info.maj,
                         md.info.min,
                         md.info.block_size,
@@ -372,7 +374,7 @@ impl SystemInfo {
                 for dm in dms {
                     dms_table.add_row(row![
                         dm.info.dev,
-                        dm.info.size,
+                        conv_b(dm.info.size as u64 * SECTOR_SIZE),
                         dm.info.maj,
                         dm.info.min,
                         dm.info.block_size,
