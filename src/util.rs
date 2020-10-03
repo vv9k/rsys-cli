@@ -56,7 +56,7 @@ pub(crate) fn handle_err<T: Default>(res: Result<T>) -> T {
 }
 
 pub(crate) fn conv_b(bytes: u64) -> String {
-    let n: f64 = bytes as f64;
+    let n = bytes as f64;
     if n < 1024. {
         format!("{} B", n)
     } else if 1024. <= n && n < u64::pow(1024, 2) as f64 {
@@ -67,5 +67,15 @@ pub(crate) fn conv_b(bytes: u64) -> String {
         format!("{:.2} GB", n / u64::pow(1024, 3) as f64)
     } else {
         format!("{:.2} TB", n / u64::pow(1024, 4) as f64)
+    }
+}
+
+pub(crate) fn conv_hz(hz: u64) -> String {
+    if hz < 1_000 {
+        format!("{} Hz", hz)
+    } else if hz < 1_000_000 {
+        format!("{:.1} MHz", (hz as f64 / 1_000.0))
+    } else {
+        format!("{:.1} GHz", (hz as f64 / 1_000_000.0))
     }
 }

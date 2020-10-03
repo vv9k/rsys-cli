@@ -1,4 +1,4 @@
-use crate::util::{conv_b, handle_err};
+use crate::util::{conv_b, conv_hz, handle_err};
 use prettytable::{format, Table};
 use rsys::{
     linux::{
@@ -182,9 +182,9 @@ impl SystemInfo {
             for core in &cpu.cores {
                 cores_table.add_row(row![ r ->
                     &format!("cpu{}", core.id), c ->
-                    &format!("{}hz", core.min_freq), c ->
-                    &format!("{}hz", core.cur_freq), c ->
-                    &format!("{}hz", core.max_freq),
+                    conv_hz(core.min_freq), c ->
+                    conv_hz(core.cur_freq), c ->
+                    conv_hz(core.max_freq),
                 ]);
             }
             s.push_str(&cpu_table.to_string());
