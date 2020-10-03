@@ -143,24 +143,24 @@ impl SystemInfo {
         let mut table = Table::new();
         table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
         if let Some(hostname) = &self.hostname {
-            table.add_row(row!["hostname:", hostname]);
+            table.add_row(row!["hostname:", l -> hostname]);
         }
         if let Some(arch) = &self.arch {
-            table.add_row(row!["arch:", arch]);
+            table.add_row(row!["arch:", l -> arch]);
         }
         if let Some(domain) = &self.domain {
             if domain != "(none)" {
-                table.add_row(row!["domain:", domain]);
+                table.add_row(row!["domain:", l -> domain]);
             }
         }
         if let Some(kernel) = &self.kernel {
-            table.add_row(row!["kernel:", kernel]);
+            table.add_row(row!["kernel:", l -> kernel]);
         }
         if let Some(uptime) = &self.uptime {
-            table.add_row(row!["uptime:", format!("{} s", uptime)]);
+            table.add_row(row!["uptime:", l -> format!("{} s", uptime)]);
         }
         if let Some(os) = &self.os {
-            table.add_row(row!["os:", os]);
+            table.add_row(row!["os:", l -> os]);
         }
         s.push_str(" GENERAL:\n");
         s.push_str(&table.to_string());
@@ -180,10 +180,10 @@ impl SystemInfo {
             cores_table.add_row(row![c => "core", "minimum", "current", "max"]);
 
             for core in &cpu.cores {
-                cores_table.add_row(row![ r ->
-                    &format!("cpu{}", core.id), c ->
-                    conv_hz(core.min_freq), c ->
-                    conv_hz(core.cur_freq), c ->
+                cores_table.add_row(row![
+                    &format!("cpu{}", core.id),
+                    conv_hz(core.min_freq),
+                    conv_hz(core.cur_freq),
                     conv_hz(core.max_freq),
                 ]);
             }
@@ -198,14 +198,14 @@ impl SystemInfo {
             s.push_str(" MEMORY:\n");
             let mut mem_table = Table::new();
             mem_table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
-            mem_table.add_row(row![r => "total:", conv_b(memory.total)]);
-            mem_table.add_row(row![r => "free:", conv_b(memory.free)]);
-            mem_table.add_row(row![r => "available:", conv_b(memory.available)]);
-            mem_table.add_row(row![r => "buffers:", conv_b(memory.buffers)]);
-            mem_table.add_row(row![r => "cached:", conv_b(memory.cached)]);
-            mem_table.add_row(row![r => "active:", conv_b(memory.active)]);
-            mem_table.add_row(row![r => "inactive:", conv_b(memory.inactive)]);
-            mem_table.add_row(row![r => "shared:", conv_b(memory.shared)]);
+            mem_table.add_row(row!["total:", r -> conv_b(memory.total)]);
+            mem_table.add_row(row!["free:", r -> conv_b(memory.free)]);
+            mem_table.add_row(row!["available:", r -> conv_b(memory.available)]);
+            mem_table.add_row(row!["buffers:", r -> conv_b(memory.buffers)]);
+            mem_table.add_row(row!["cached:", r -> conv_b(memory.cached)]);
+            mem_table.add_row(row!["active:", r -> conv_b(memory.active)]);
+            mem_table.add_row(row!["inactive:", r -> conv_b(memory.inactive)]);
+            mem_table.add_row(row!["shared:", r -> conv_b(memory.shared)]);
             s.push_str(&mem_table.to_string());
         }
         s
@@ -219,7 +219,7 @@ impl SystemInfo {
             net_table.set_format(*format::consts::FORMAT_NO_LINESEP);
             stats_table.set_format(*format::consts::FORMAT_NO_LINESEP);
 
-            net_table.add_row(row!["name", "ipv4", "mac", "speed", "mtu",]);
+            net_table.add_row(row![ c => "name", "ipv4", "mac", "speed", "mtu",]);
             stats_table.add_row(row![ c =>
                 "name",
                 "bytes",
@@ -239,16 +239,16 @@ impl SystemInfo {
                     format!("{} mb/s", iface.speed),
                     iface.mtu,
                 ]);
-                stats_table.add_row(row![ c =>
+                stats_table.add_row(row![
                     iface.name,
-                    format!("{} / {}", conv_b(iface.stat.rx_bytes), conv_b(iface.stat.tx_bytes)),
-                    format!("{} / {}", iface.stat.rx_packets, iface.stat.tx_packets),
-                    format!("{} / {}", iface.stat.rx_errs, iface.stat.tx_errs),
-                    format!("{} / {}", iface.stat.rx_drop, iface.stat.tx_drop),
-                    format!("{} / {}", iface.stat.rx_fifo, iface.stat.tx_fifo),
-                    format!("{} / {}", iface.stat.rx_frame, iface.stat.tx_frame),
-                    format!("{} / {}", iface.stat.rx_compressed, iface.stat.tx_compressed),
-                    format!("{} / {}", iface.stat.rx_multicast, iface.stat.tx_multicast),
+                    c -> format!("{} / {}", conv_b(iface.stat.rx_bytes), conv_b(iface.stat.tx_bytes)),
+                    c -> format!("{} / {}", iface.stat.rx_packets, iface.stat.tx_packets),
+                    c -> format!("{} / {}", iface.stat.rx_errs, iface.stat.tx_errs),
+                    c -> format!("{} / {}", iface.stat.rx_drop, iface.stat.tx_drop),
+                    c -> format!("{} / {}", iface.stat.rx_fifo, iface.stat.tx_fifo),
+                    c -> format!("{} / {}", iface.stat.rx_frame, iface.stat.tx_frame),
+                    c -> format!("{} / {}", iface.stat.rx_compressed, iface.stat.tx_compressed),
+                    c -> format!("{} / {}", iface.stat.rx_multicast, iface.stat.tx_multicast),
                 ]);
             }
             s.push_str(&net_table.to_string());
@@ -269,6 +269,7 @@ impl SystemInfo {
             stats_table.set_format(*format::consts::FORMAT_NO_LINESEP);
 
             storage_table.add_row(row![
+                c =>
                 "name",
                 "size",
                 "major",
@@ -279,6 +280,7 @@ impl SystemInfo {
                 "state"
             ]);
             stats_table.add_row(row![
+                c =>
                 "device",
                 "r I/O's",
                 "r merges",
@@ -298,7 +300,7 @@ impl SystemInfo {
             for storage in storages {
                 storage_table.add_row(row![
                     storage.info.dev,
-                    conv_b(storage.info.size as u64 * SECTOR_SIZE),
+                    r -> conv_b(storage.info.size as u64 * SECTOR_SIZE),
                     storage.info.maj,
                     storage.info.min,
                     storage.info.block_size,
@@ -333,11 +335,11 @@ impl SystemInfo {
                 let mut mds_table = Table::new();
                 mds_table.set_format(*format::consts::FORMAT_NO_LINESEP);
 
-                mds_table.add_row(row!["name", "size", "major", "min", "block size", "level",]);
+                mds_table.add_row(row![ c => "name", "size", "major", "min", "block size", "level",]);
                 for md in mds {
                     mds_table.add_row(row![
                         md.info.dev,
-                        conv_b(md.info.size as u64 * SECTOR_SIZE),
+                        r -> conv_b(md.info.size as u64 * SECTOR_SIZE),
                         md.info.maj,
                         md.info.min,
                         md.info.block_size,
@@ -370,11 +372,11 @@ impl SystemInfo {
                 let mut dms_table = Table::new();
                 dms_table.set_format(*format::consts::FORMAT_NO_LINESEP);
 
-                dms_table.add_row(row!["name", "size", "major", "min", "block size", "vname", "uuid",]);
+                dms_table.add_row(row![ c => "name", "size", "major", "min", "block size", "vname", "uuid",]);
                 for dm in dms {
                     dms_table.add_row(row![
                         dm.info.dev,
-                        conv_b(dm.info.size as u64 * SECTOR_SIZE),
+                        r -> conv_b(dm.info.size as u64 * SECTOR_SIZE),
                         dm.info.maj,
                         dm.info.min,
                         dm.info.block_size,
@@ -417,6 +419,7 @@ impl SystemInfo {
             let mut p_table = Table::new();
             p_table.set_format(*format::consts::FORMAT_NO_LINESEP);
             p_table.add_row(row![
+                c =>
                 "pid",
                 "name",
                 "state",
