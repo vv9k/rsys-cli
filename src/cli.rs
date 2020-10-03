@@ -58,6 +58,19 @@ impl RsysCli {
                         format, *pretty, *cpu, *memory, *network, *storage, *mounts, *all, *stats,
                     )?
                 }
+                RsysCmd::Watch {
+                    pretty,
+                    cpu,
+                    memory,
+                    network,
+                    storage,
+                    all,
+                    stats,
+                    duration,
+                    interval,
+                } => self.watch(
+                    *pretty, *cpu, *memory, *network, *storage, *all, *stats, *duration, *interval,
+                )?,
             }
         }
 

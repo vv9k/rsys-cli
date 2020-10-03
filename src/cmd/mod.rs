@@ -1,5 +1,6 @@
 pub(crate) mod dump;
 pub(crate) mod get;
+pub(crate) mod watch;
 use get::Property;
 use structopt::StructOpt;
 
@@ -62,5 +63,41 @@ pub enum RsysCmd {
         #[structopt(short, long)]
         /// Shortcut for `--cpu --memory --storage --network --mounts`
         all: bool,
+    },
+    /// Monitor specified parameters. Default parameters are hostname and uptime.
+    /// To monitor more parameters use flags like `cpu`, `memory` or `storage`.
+    /// This command runs indefinitely unless a `duration` parameter is specified
+    /// and by default prints JSON with parameters each second. To change how often
+    /// there is a snapshot of data adjust `interval` parameter.
+    Watch {
+        #[structopt(short, long)]
+        /// Make the output pretty
+        pretty: bool,
+        #[structopt(long)]
+        /// Include CPU info with cores
+        cpu: bool,
+        #[structopt(long)]
+        /// Include memory statistics
+        memory: bool,
+        #[structopt(long)]
+        /// Adds network interfaces to the output
+        network: bool,
+        #[structopt(long)]
+        /// Adds info about storage devices, device mappers,
+        /// multiple device arrays
+        storage: bool,
+        #[structopt(long)]
+        /// Whether to parse stats for all storage devices or just the main ones.
+        /// Only functional with `--storage` flag
+        stats: bool,
+        #[structopt(short, long)]
+        /// Shortcut for `--cpu --memory --storage --network --mounts`
+        all: bool,
+        #[structopt(short, long)]
+        /// Duration in seconds for which to collect data. Default is 18_446_744_073_709_551_615 seconds
+        duration: Option<u64>,
+        #[structopt(short, long)]
+        /// How long to wait between runs in milliseconds. Default is 1000
+        interval: Option<u64>,
     },
 }
