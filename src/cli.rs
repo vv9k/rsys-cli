@@ -20,10 +20,27 @@ impl RsysCli {
     pub fn main(&self) -> Result<()> {
         if let Some(cmd) = &self.opts.cmd {
             match cmd {
-                RsysCmd::Get { property, json, pretty } if *json => self.get(property, PrintFormat::Json, *pretty)?,
-                RsysCmd::Get { property, json, pretty } if !json => self.get(property, PrintFormat::Normal, *pretty)?,
+                RsysCmd::Get {
+                    property,
+                    json,
+                    yaml: _,
+                    pretty,
+                } if *json => self.get(property, PrintFormat::Json, *pretty)?,
+                RsysCmd::Get {
+                    property,
+                    json: _,
+                    yaml,
+                    pretty,
+                } if *yaml => self.get(property, PrintFormat::Yaml, *pretty)?,
+                RsysCmd::Get {
+                    property,
+                    json,
+                    yaml,
+                    pretty,
+                } if !yaml && !json => self.get(property, PrintFormat::Normal, *pretty)?,
                 RsysCmd::Dump {
                     json,
+                    yaml: _,
                     pretty,
                     cpu,
                     memory,
@@ -42,7 +59,8 @@ impl RsysCli {
                     *all,
                 )?,
                 RsysCmd::Dump {
-                    json,
+                    json: _,
+                    yaml,
                     pretty,
                     cpu,
                     memory,
@@ -50,7 +68,27 @@ impl RsysCli {
                     storage,
                     mounts,
                     all,
-                } if !json => self.dump(
+                } if *yaml => self.dump(
+                    PrintFormat::Yaml,
+                    *pretty,
+                    *cpu,
+                    *memory,
+                    *network,
+                    *storage,
+                    *mounts,
+                    *all,
+                )?,
+                RsysCmd::Dump {
+                    json,
+                    yaml,
+                    pretty,
+                    cpu,
+                    memory,
+                    network,
+                    storage,
+                    mounts,
+                    all,
+                } if !yaml && !json => self.dump(
                     PrintFormat::Normal,
                     *pretty,
                     *cpu,

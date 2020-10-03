@@ -23,6 +23,9 @@ pub enum RsysCmd {
         /// Print output as JSON
         json: bool,
         #[structopt(short, long)]
+        /// Print output as YAML
+        yaml: bool,
+        #[structopt(short, long)]
         /// Make the output pretty
         pretty: bool,
     },
@@ -31,6 +34,9 @@ pub enum RsysCmd {
         #[structopt(short, long)]
         /// Print output as JSON
         json: bool,
+        #[structopt(short, long)]
+        /// Print output as YAML
+        yaml: bool,
         #[structopt(short, long)]
         /// Make the output pretty
         pretty: bool,

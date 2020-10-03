@@ -14,6 +14,7 @@ FLAGS:
     -j, --json       Print output as JSON
     -p, --pretty     Make the output pretty
     -V, --version    Prints version information
+    -y, --yaml       Print output as YAML
 
 SUBCOMMANDS:
     arch             Cpu architecture
@@ -100,6 +101,7 @@ FLAGS:
     -p, --pretty     Make the output pretty
         --storage    Adds info about storage devices, device mappers, multiple device arrays
     -V, --version    Prints version information
+    -y, --yaml       Print output as YAML
 ```
 ### Some benchmarks
 #### Dumping all information as pretty json (Output from this benchmark [here](https://github.com/wojciechkepka/rsys-cli/blob/master/example_output/dump)

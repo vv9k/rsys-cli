@@ -1,12 +1,14 @@
 use rsys::{Error, Result};
 use serde::Serialize;
 use serde_json as json;
+use serde_yaml as yaml;
 use std::any::type_name;
 use std::fmt::{Debug, Display};
 
 pub(crate) enum PrintFormat {
     Normal,
     Json,
+    Yaml,
 }
 
 pub(crate) fn json_to_string<T: Serialize>(val: T, pretty: bool) -> Result<String> {
@@ -30,6 +32,13 @@ pub(crate) fn print<T: Debug + Display + Serialize>(val: T, format: PrintFormat,
         }
         PrintFormat::Json => {
             print!("{}", json_to_string(val, pretty)?);
+        }
+        PrintFormat::Yaml => {
+            print!(
+                "{}",
+                yaml::to_string(&val)
+                    .map_err(|e| Error::SerializeError(type_name::<T>().to_string(), e.to_string()))?
+            );
         }
     }
 
