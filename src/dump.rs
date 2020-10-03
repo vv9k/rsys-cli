@@ -25,8 +25,8 @@ struct SystemInfo {
     domain: String,
     uptime: u64,
     os: String,
-    cpu: Processor,
     kernel: String,
+    cpu: Option<Processor>,
     memory: Option<Memory>,
     mounts: Option<MountPoints>,
     interaces: Option<Interfaces>,
@@ -35,29 +35,29 @@ struct SystemInfo {
     device_mappers: Option<DeviceMappers>,
 }
 impl SystemInfo {
-    fn new(r: &Rsys, memory: bool, net: bool, storage: bool, mounts: bool) -> Result<SystemInfo> {
+    fn new(r: &Rsys, cpu: bool, memory: bool, net: bool, storage: bool, mounts: bool, all: bool) -> Result<SystemInfo> {
         Ok(Self {
             arch: r.arch()?,
             hostname: r.hostname()?,
             domain: r.domainname()?,
             uptime: r.uptime()?,
             os: r.os(),
-            cpu: r.processor()?,
             kernel: r.kernel_version()?,
-            memory: if memory { Some(r.memory()?) } else { None },
-            mounts: if mounts { Some(r.mounts()?) } else { None },
-            interaces: if net { Some(r.ifaces()?) } else { None },
-            storage_devices: if storage {
+            cpu: if cpu || all { Some(r.processor()?) } else { None },
+            memory: if memory || all { Some(r.memory()?) } else { None },
+            mounts: if mounts || all { Some(r.mounts()?) } else { None },
+            interaces: if net || all { Some(r.ifaces()?) } else { None },
+            storage_devices: if storage || all {
                 Some(storage_devices::<StorageDevice>()?)
             } else {
                 None
             },
-            multiple_device_storages: if storage {
+            multiple_device_storages: if storage || all {
                 Some(storage_devices::<MultipleDeviceStorage>()?)
             } else {
                 None
             },
-            device_mappers: if storage {
+            device_mappers: if storage || all {
                 Some(storage_devices::<DeviceMapper>()?)
             } else {
                 None
@@ -76,13 +76,15 @@ impl RsysCli {
         &self,
         format: PrintFormat,
         pretty: bool,
+        cpu: bool,
         memory: bool,
         net: bool,
         storage: bool,
         mounts: bool,
+        all: bool,
     ) -> Result<()> {
         print(
-            SystemInfo::new(&self.system, memory, net, storage, mounts)?,
+            SystemInfo::new(&self.system, cpu, memory, net, storage, mounts, all)?,
             format,
             pretty,
         )

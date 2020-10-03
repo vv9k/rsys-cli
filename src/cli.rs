@@ -25,19 +25,41 @@ impl RsysCli {
                 RsysCmd::Dump {
                     json,
                     pretty,
+                    cpu,
                     memory,
                     network,
                     storage,
                     mounts,
-                } if *json => self.dump(PrintFormat::Json, *pretty, *memory, *network, *storage, *mounts)?,
+                    all,
+                } if *json => self.dump(
+                    PrintFormat::Json,
+                    *pretty,
+                    *cpu,
+                    *memory,
+                    *network,
+                    *storage,
+                    *mounts,
+                    *all,
+                )?,
                 RsysCmd::Dump {
                     json,
                     pretty,
+                    cpu,
                     memory,
                     network,
                     storage,
                     mounts,
-                } if !json => self.dump(PrintFormat::Normal, *pretty, *memory, *network, *storage, *mounts)?,
+                    all,
+                } if !json => self.dump(
+                    PrintFormat::Normal,
+                    *pretty,
+                    *cpu,
+                    *memory,
+                    *network,
+                    *storage,
+                    *mounts,
+                    *all,
+                )?,
                 _ => {}
             }
         }

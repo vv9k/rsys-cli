@@ -102,8 +102,8 @@ FLAGS:
 ### Some benchmarks
 #### Dumping all information as pretty json (Output from this benchmark [here](https://github.com/wojciechkepka/rsys-cli/blob/master/example_output/dump)
 ```
-$ hyperfine --warmup 5 './target/release/rsys dump -jp --network --memory --mounts --storage'
-Benchmark #1: ./target/release/rsys dump -jp --network --memory --mounts --storage
+$ hyperfine --warmup 5 './target/release/rsys dump -jp --all'
+Benchmark #1: ./target/release/rsys dump -jp --all
   Time (mean ± σ):       2.5 ms ±   0.2 ms    [User: 1.6 ms, System: 1.5 ms]
   Range (min … max):     1.0 ms …   3.4 ms    553 runs
 ```

@@ -35,6 +35,8 @@ pub enum RsysCmd {
         /// Make the output pretty
         pretty: bool,
         #[structopt(long)]
+        cpu: bool,
+        #[structopt(long)]
         memory: bool,
         #[structopt(long)]
         network: bool,
@@ -42,5 +44,7 @@ pub enum RsysCmd {
         storage: bool,
         #[structopt(long)]
         mounts: bool,
+        #[structopt(short, long)]
+        all: bool,
     },
 }
