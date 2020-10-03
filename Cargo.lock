@@ -107,8 +107,7 @@ dependencies = [
 [[package]]
 name = "rsys"
 version = "0.5.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0315c87823052838254fb8fe2aeb888976a3f40000a9470a44e64cb65974b761"
+source = "git+https://github.com/wojciechkepka/rsys#4aa9225f5031699695ea5d4382493dc61cb79e41"
 dependencies = [
  "cfg-if",
  "libc",
@@ -132,8 +131,7 @@ dependencies = [
 [[package]]
 name = "rsys_macro"
 version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "311e133a521e8cba1e694d52c7ae8cddf62766bad3bc7fb4224e4a4e43c3fe5e"
+source = "git+https://github.com/wojciechkepka/rsys#4aa9225f5031699695ea5d4382493dc61cb79e41"
 dependencies = [
  "proc-macro2",
 ]
