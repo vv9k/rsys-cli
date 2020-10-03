@@ -44,7 +44,9 @@ pub(crate) struct SystemInfo {
     multiple_device_storages: Option<MultipleDeviceStorages>,
     #[serde(skip_serializing_if = "Option::is_none")]
     device_mappers: Option<DeviceMappers>,
+    #[serde(skip_serializing)]
     display_stats: bool,
+    #[serde(skip_serializing)]
     display_all: bool,
 }
 impl SystemInfo {
