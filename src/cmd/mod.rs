@@ -59,7 +59,7 @@ pub enum RsysCmd {
         processes: bool,
         #[structopt(long)]
         /// Whether to parse stats for all storage devices or just the main ones.
-        /// Only functional with `--storage` flag
+        /// Only functional with `--storage` and `network` flag
         stats: bool,
         #[structopt(long)]
         /// Adds information about mountpoints on host os

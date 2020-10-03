@@ -136,9 +136,7 @@ impl SystemInfo {
             display_all: all,
         })
     }
-}
-impl fmt::Display for SystemInfo {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    fn general_section_string(&self) -> String {
         let mut s = String::new();
         let mut table = Table::new();
         table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
@@ -159,6 +157,10 @@ impl fmt::Display for SystemInfo {
         }
         s.push_str(" GENERAL:\n");
         s.push_str(&table.to_string());
+        s
+    }
+    fn cpu_section_string(&self) -> String {
+        let mut s = String::new();
         if let Some(cpu) = &self.cpu {
             s.push_str(" CPU:\n");
             let mut cpu_table = Table::new();
@@ -175,6 +177,10 @@ impl fmt::Display for SystemInfo {
             }
             s.push_str(&cpu_table.to_string());
         }
+        s
+    }
+    fn memory_section_string(&self) -> String {
+        let mut s = String::new();
         if let Some(memory) = &self.memory {
             s.push_str(" MEMORY:\n");
             let mut mem_table = Table::new();
@@ -189,36 +195,59 @@ impl fmt::Display for SystemInfo {
             mem_table.add_row(row![r => "shared", &format!("{}b", memory.shared)]);
             s.push_str(&mem_table.to_string());
         }
+        s
+    }
+    fn network_section_string(&self) -> String {
+        let mut s = String::new();
         if let Some(ifaces) = &self.interfaces {
             s.push_str(" NETWORK:\n");
             let mut net_table = Table::new();
+            let mut stats_table = Table::new();
             net_table.set_format(*format::consts::FORMAT_NO_LINESEP);
-            net_table.add_row(row![
+            stats_table.set_format(*format::consts::FORMAT_NO_LINESEP);
+
+            net_table.add_row(row!["name", "ipv4", "mac", "speed", "mtu",]);
+            stats_table.add_row(row![ c =>
                 "name",
-                "ipv4",
-                "mac",
-                "speed",
-                "mtu",
-                "rx_bytes",
-                "tx_bytes",
-                "rx_packets",
-                "tx_packets"
+                "rx/tx bytes",
+                "rx/tx packets",
+                "rx/tx errs",
+                "rx/tx drop",
+                "rx/tx fifo",
+                "rx/tx frame",
+                "rx/tx compressed",
+                "rx/tx multicast",
             ]);
             for iface in &ifaces.0 {
                 net_table.add_row(row![
                     iface.name,
                     iface.ipv4,
                     iface.mac_address,
-                    iface.speed,
+                    format!("{} mb/s", iface.speed),
                     iface.mtu,
-                    iface.stat.rx_bytes,
-                    iface.stat.tx_bytes,
-                    iface.stat.rx_packets,
-                    iface.stat.tx_packets
+                ]);
+                stats_table.add_row(row![ c =>
+                    iface.name,
+                    format!("{} / {}", iface.stat.rx_bytes, iface.stat.tx_bytes),
+                    format!("{} / {}", iface.stat.rx_packets, iface.stat.tx_packets),
+                    format!("{} / {}", iface.stat.rx_errs, iface.stat.tx_errs),
+                    format!("{} / {}", iface.stat.rx_drop, iface.stat.tx_drop),
+                    format!("{} / {}", iface.stat.rx_fifo, iface.stat.tx_fifo),
+                    format!("{} / {}", iface.stat.rx_frame, iface.stat.tx_frame),
+                    format!("{} / {}", iface.stat.rx_compressed, iface.stat.tx_compressed),
+                    format!("{} / {}", iface.stat.rx_multicast, iface.stat.tx_multicast),
                 ]);
             }
             s.push_str(&net_table.to_string());
+            if self.display_stats || self.display_all {
+                s.push_str(" NETWORK STATS:\n");
+                s.push_str(&stats_table.to_string());
+            }
         }
+        s
+    }
+    fn storage_section_string(&self) -> String {
+        let mut s = String::new();
         if let Some(storages) = &self.storage_devices {
             s.push_str(" STORAGE DEVICES:\n");
             let mut storage_table = Table::new();
@@ -366,6 +395,10 @@ impl fmt::Display for SystemInfo {
                 s.push_str(&stats_table.to_string());
             }
         }
+        s
+    }
+    fn processes_section_string(&self) -> String {
+        let mut s = String::new();
         if let Some(processes) = &self.processes {
             s.push_str(" PROCESSES:\n");
             let mut p_table = Table::new();
@@ -425,6 +458,19 @@ impl fmt::Display for SystemInfo {
             }
             s.push_str(&p_table.to_string());
         }
+
+        s
+    }
+}
+impl fmt::Display for SystemInfo {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let mut s = String::new();
+        s.push_str(&self.general_section_string());
+        s.push_str(&self.cpu_section_string());
+        s.push_str(&self.memory_section_string());
+        s.push_str(&self.network_section_string());
+        s.push_str(&self.storage_section_string());
+        s.push_str(&self.processes_section_string());
         write!(f, "{}", s)
     }
 }
