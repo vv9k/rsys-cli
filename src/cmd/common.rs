@@ -36,7 +36,7 @@ pub(crate) struct SystemInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     mounts: Option<MountPoints>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    interaces: Option<Interfaces>,
+    interfaces: Option<Interfaces>,
     #[serde(skip_serializing_if = "Option::is_none")]
     storage_devices: Option<StorageDevices>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -99,7 +99,7 @@ impl SystemInfo {
             } else {
                 None
             },
-            interaces: if net || all { Some(handle_err(r.ifaces())) } else { None },
+            interfaces: if net || all { Some(handle_err(r.ifaces())) } else { None },
             storage_devices: if storage || all {
                 Some(handle_err(storage_devices::<StorageDevice>(stats)))
             } else {
