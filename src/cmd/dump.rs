@@ -18,6 +18,16 @@ use rsys::{
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Formatter};
 
+fn handle_err<T: Default>(res: Result<T>) -> T {
+    match res {
+        Ok(val) => val,
+        Err(e) => {
+            eprintln!("Error: {}", e);
+            T::default()
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 struct SystemInfo {
     arch: String,
@@ -46,28 +56,40 @@ impl SystemInfo {
         stats: bool,
     ) -> Result<SystemInfo> {
         Ok(Self {
-            arch: r.arch()?,
-            hostname: r.hostname()?,
-            domain: r.domainname()?,
-            uptime: r.uptime()?,
+            arch: handle_err(r.arch()),
+            hostname: handle_err(r.hostname()),
+            domain: handle_err(r.domainname()),
+            uptime: handle_err(r.uptime()),
             os: r.os(),
-            kernel: r.kernel_version()?,
-            cpu: if cpu || all { Some(r.processor()?) } else { None },
-            memory: if memory || all { Some(r.memory()?) } else { None },
-            mounts: if mounts || all { Some(r.mounts()?) } else { None },
-            interaces: if net || all { Some(r.ifaces()?) } else { None },
+            kernel: handle_err(r.kernel_version()),
+            cpu: if cpu || all {
+                Some(handle_err(r.processor()))
+            } else {
+                None
+            },
+            memory: if memory || all {
+                Some(handle_err(r.memory()))
+            } else {
+                None
+            },
+            mounts: if mounts || all {
+                Some(handle_err(r.mounts()))
+            } else {
+                None
+            },
+            interaces: if net || all { Some(handle_err(r.ifaces())) } else { None },
             storage_devices: if storage || all {
-                Some(storage_devices::<StorageDevice>(stats)?)
+                Some(handle_err(storage_devices::<StorageDevice>(stats)))
             } else {
                 None
             },
             multiple_device_storages: if storage || all {
-                Some(storage_devices::<MultipleDeviceStorage>(stats)?)
+                Some(handle_err(storage_devices::<MultipleDeviceStorage>(stats)))
             } else {
                 None
             },
             device_mappers: if storage || all {
-                Some(storage_devices::<DeviceMapper>(stats)?)
+                Some(handle_err(storage_devices::<DeviceMapper>(stats)))
             } else {
                 None
             },
