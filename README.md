@@ -82,7 +82,33 @@ Interface {
     speed: 1000,
 }
 ```
-### `dump`
+### `watch`
+```
+Monitor specified parameters. Default parameters are hostname and uptime. To monitor more parameters use flags like
+`cpu`, `memory` or `storage`. This command runs indefinitely unless a `duration` parameter is specified and by default
+prints JSON with parameters each second. To change how often there is a snapshot of data adjust `interval` parameter
+
+USAGE:
+    rsys watch [FLAGS] [OPTIONS]
+
+FLAGS:
+    -a, --all        Shortcut for `--cpu --memory --storage --network --mounts`
+        --cpu        Include CPU info with cores
+    -h, --help       Prints help information
+        --memory     Include memory statistics
+        --network    Adds network interfaces to the output
+    -p, --pretty     Make the output pretty
+        --stats      Whether to parse stats for all storage devices or just the main ones. Only functional with
+                     `--storage` flag
+        --storage    Adds info about storage devices, device mappers, multiple device arrays
+    -V, --version    Prints version information
+
+OPTIONS:
+    -d, --duration <duration>    Duration in seconds for which to collect data. Default is 18_446_744_073_709_551_615
+                                 seconds
+    -i, --interval <interval>    How long to wait between runs in milliseconds. Default is 1000
+```
+### `dump`                                                                 
 Dumps all data in specified format. By default only basic info like
 hostname, uptime, cpu architecture are dumped. To enable more information
 use `--memory`, `--mounts`, `--storage`, `--network` flags
