@@ -114,7 +114,7 @@ hostname: arch
 domain: (none)
 uptime: 4861
 os: linux
-kernel: "5.8.12-arch1-1\n"
+kernel: 5.8.12-arch1-1
 cpu: ~
 memory: ~
 mounts: ~

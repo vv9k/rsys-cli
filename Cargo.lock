@@ -106,9 +106,9 @@ dependencies = [
 
 [[package]]
 name = "rsys"
-version = "0.5.4"
+version = "0.5.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f405166131ebf94279164bd115190a1b0790baca5f4d7a2bef220b91734519c0"
+checksum = "0315c87823052838254fb8fe2aeb888976a3f40000a9470a44e64cb65974b761"
 dependencies = [
  "cfg-if",
  "libc",
