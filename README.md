@@ -90,13 +90,15 @@ USAGE:
     rsys dump [FLAGS]
 
 FLAGS:
+    -a, --all        Shortcut for `--cpu --memory --storage --network --mounts`
+        --cpu        Include CPU info with cores
     -h, --help       Prints help information
     -j, --json       Print output as JSON
-        --memory
-        --mounts
-        --network
+        --memory     Include memory statistics
+        --mounts     Adds information about mountpoints on host os
+        --network    Adds network interfaces to the output
     -p, --pretty     Make the output pretty
-        --storage
+        --storage    Adds info about storage devices, device mappers, multiple device arrays
     -V, --version    Prints version information
 ```
 ### Some benchmarks

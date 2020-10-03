@@ -35,16 +35,23 @@ pub enum RsysCmd {
         /// Make the output pretty
         pretty: bool,
         #[structopt(long)]
+        /// Include CPU info with cores
         cpu: bool,
         #[structopt(long)]
+        /// Include memory statistics
         memory: bool,
         #[structopt(long)]
+        /// Adds network interfaces to the output
         network: bool,
         #[structopt(long)]
+        /// Adds info about storage devices, device mappers,
+        /// multiple device arrays
         storage: bool,
         #[structopt(long)]
+        /// Adds information about mountpoints on host os
         mounts: bool,
         #[structopt(short, long)]
+        /// Shortcut for `--cpu --memory --storage --network --mounts`
         all: bool,
     },
 }
