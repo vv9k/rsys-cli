@@ -13,6 +13,7 @@ serde = { version = "1", features = ["derive"] }
 prettytable-rs = "^0.8"
 termion = "1"
 tui = "0.12"
+anyhow = "1"
 
 
 [[bin]]
