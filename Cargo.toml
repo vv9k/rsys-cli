@@ -11,6 +11,8 @@ serde_json = "1"
 serde_yaml = "0.8"
 serde = { version = "1", features = ["derive"] }
 prettytable-rs = "^0.8"
+termion = "1"
+tui = "0.12"
 
 
 [[bin]]
