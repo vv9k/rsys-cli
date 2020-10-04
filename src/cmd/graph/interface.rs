@@ -1,6 +1,6 @@
 use super::{
     events::{Event, Events},
-    get_terminal,
+    get_terminal, DataSeries,
 };
 use crate::util::conv_fb;
 use anyhow::{anyhow, Result};
@@ -21,8 +21,8 @@ const X_AXIS_TIME_MAX: f64 = 30.0;
 const X_AXIS_GRAPH_MAX: f64 = X_AXIS_TIME_MAX - 1.6;
 
 struct IfaceMonitor {
-    rx_speed: Vec<(f64, f64)>,
-    tx_speed: Vec<(f64, f64)>,
+    rx_speed: DataSeries,
+    tx_speed: DataSeries,
     iface: Interface,
     prev_rx_bytes: u64,
     prev_tx_bytes: u64,
@@ -42,8 +42,8 @@ impl IfaceMonitor {
         let rx = iface.stat.rx_bytes;
         let tx = iface.stat.tx_bytes;
         Ok(IfaceMonitor {
-            rx_speed: vec![(0., 0.)],
-            tx_speed: vec![(0., 0.)],
+            rx_speed: DataSeries::new(),
+            tx_speed: DataSeries::new(),
             iface,
             prev_rx_bytes: rx,
             prev_tx_bytes: tx,
@@ -66,8 +66,8 @@ impl IfaceMonitor {
         let delta_tx = ((self.iface.stat.tx_bytes - self.prev_tx_bytes) as f64 / time) / 1024.;
         self.total_rx += delta_rx;
         self.total_tx += delta_tx;
-        self.rx_speed.push((time + self.total_time, delta_rx));
-        self.tx_speed.push((time + self.total_time, delta_tx));
+        self.rx_speed.add(time + self.total_time, delta_rx);
+        self.tx_speed.add(time + self.total_time, delta_tx);
         self.curr_rx_speed = delta_rx;
         self.curr_tx_speed = delta_tx;
         if self.current_max_y < delta_rx {
@@ -81,10 +81,12 @@ impl IfaceMonitor {
         self.total_time += time;
 
         if self.total_time > X_AXIS_GRAPH_MAX {
-            let removed = self.rx_speed.remove(0);
-            self.tx_speed.remove(0);
-            self.window[0] += self.rx_speed[0].0 - removed.0;
-            self.window[1] += self.rx_speed[0].0 - removed.0;
+            let removed = self.rx_speed.pop();
+            self.tx_speed.pop();
+            if let Some(point) = self.rx_speed.nth(0) {
+                self.window[0] += point.0 - removed.0;
+                self.window[1] += point.0 - removed.0;
+            }
         }
     }
 
@@ -176,12 +178,12 @@ impl IfaceMonitor {
                 .name("rx")
                 .marker(symbols::Marker::Dot)
                 .style(Style::default().fg(Color::Cyan))
-                .data(&self.rx_speed),
+                .data(&self.rx_speed.data),
             Dataset::default()
                 .name("tx")
                 .marker(symbols::Marker::Braille)
                 .style(Style::default().fg(Color::Blue))
-                .data(&self.tx_speed),
+                .data(&self.tx_speed.data),
         ]
     }
     fn render_graph_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
