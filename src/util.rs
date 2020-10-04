@@ -77,8 +77,18 @@ pub(crate) fn conv_hz(hz: u64) -> String {
     if hz < 1_000 {
         format!("{} Hz", hz)
     } else if hz < 1_000_000 {
-        format!("{:.1} MHz", (hz as f64 / 1_000.0))
+        format!("{:.2} MHz", (hz as f64 / 1_000.0))
     } else {
-        format!("{:.1} GHz", (hz as f64 / 1_000_000.0))
+        format!("{:.2} GHz", (hz as f64 / 1_000_000.0))
+    }
+}
+
+pub(crate) fn conv_fhz(hz: f64) -> String {
+    if hz < 1_000. {
+        format!("{:.2} Hz", hz)
+    } else if hz < 1_000_000. {
+        format!("{:.2} MHz", (hz / 1_000.0))
+    } else {
+        format!("{:.2} GHz", (hz / 1_000_000.0))
     }
 }
