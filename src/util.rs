@@ -56,17 +56,20 @@ pub(crate) fn handle_err<T: Default>(res: Result<T>) -> T {
 }
 
 pub(crate) fn conv_b(bytes: u64) -> String {
-    let n = bytes as f64;
-    if n < 1024. {
-        format!("{} B", n)
-    } else if 1024. <= n && n < u64::pow(1024, 2) as f64 {
-        format!("{:.2} KB", n / 1024.)
-    } else if u64::pow(1024, 2) as f64 <= n && n < u64::pow(1024, 3) as f64 {
-        format!("{:.2} MB", n / u64::pow(1024, 2) as f64)
-    } else if u64::pow(1024, 3) as f64 <= n && n < u64::pow(1024, 4) as f64 {
-        format!("{:.2} GB", n / u64::pow(1024, 3) as f64)
+    conv_fb(bytes as f64)
+}
+
+pub(crate) fn conv_fb(bytes: f64) -> String {
+    if bytes < 1_024. {
+        format!("{:.2} B", bytes)
+    } else if 1_024. <= bytes && bytes < u64::pow(1_024, 2) as f64 {
+        format!("{:.2} KB", bytes / 1_024.)
+    } else if u64::pow(1_024, 2) as f64 <= bytes && bytes < u64::pow(1_024, 3) as f64 {
+        format!("{:.2} MB", bytes / u64::pow(1_024, 2) as f64)
+    } else if u64::pow(1_024, 3) as f64 <= bytes && bytes < u64::pow(1_024, 4) as f64 {
+        format!("{:.2} GB", bytes / u64::pow(1_024, 3) as f64)
     } else {
-        format!("{:.2} TB", n / u64::pow(1024, 4) as f64)
+        format!("{:.2} TB", bytes / u64::pow(1_024, 4) as f64)
     }
 }
 

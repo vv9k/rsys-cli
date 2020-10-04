@@ -2,20 +2,23 @@ use super::{
     events::{Event, Events},
     get_terminal,
 };
+use crate::util::conv_fb;
 use anyhow::{anyhow, Result};
 use rsys::linux::net::{iface, Interface};
 use std::time::Instant;
 use termion::event::Key;
 use tui::{
-    layout::{Constraint, Direction, Layout},
+    backend::Backend,
+    layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     symbols,
     text::{Span, Spans},
     widgets::{Axis, Block, Borders, Chart, Dataset, Paragraph},
+    Frame,
 };
 
 const X_AXIS_TIME_MAX: f64 = 30.0;
-const X_AXIS_GRAPH_MAX: f64 = X_AXIS_TIME_MAX - 2.;
+const X_AXIS_GRAPH_MAX: f64 = X_AXIS_TIME_MAX - 1.6;
 
 struct IfaceMonitor {
     rx_speed: Vec<(f64, f64)>,
@@ -89,21 +92,20 @@ impl IfaceMonitor {
     }
 
     fn current_rx_speed(&self) -> String {
-        format!("{:.2} kb/s", self.curr_rx_speed)
+        format!("{}/s", conv_fb(self.curr_rx_speed * 1024.))
     }
     fn current_tx_speed(&self) -> String {
-        format!("{:.2} kb/s", self.curr_tx_speed)
+        format!("{}/s", conv_fb(self.curr_tx_speed * 1024.))
     }
     fn total_rx(&self) -> String {
-        format!("{:.0} kb", self.total_rx)
+        conv_fb(self.total_rx * 1024.)
     }
     fn total_tx(&self) -> String {
-        format!("{:.0} kb", self.total_tx)
+        conv_fb(self.total_tx * 1024.)
     }
-
-    fn info_widget(&self) -> Paragraph {
-        let rx_info = Spans::from(vec![
-            Span::raw("Current rx speed: "),
+    fn rx_info(&self) -> Spans {
+        Spans::from(vec![
+            Span::raw("  Current rx speed: "),
             Span::styled(
                 self.current_rx_speed(),
                 Style::default().add_modifier(Modifier::BOLD).fg(Color::Cyan),
@@ -113,9 +115,11 @@ impl IfaceMonitor {
                 self.total_rx(),
                 Style::default().add_modifier(Modifier::BOLD).fg(Color::Cyan),
             ),
-        ]);
-        let tx_info = Spans::from(vec![
-            Span::raw("Current tx speed: "),
+        ])
+    }
+    fn tx_info(&self) -> Spans {
+        Spans::from(vec![
+            Span::raw("  Current tx speed: "),
             Span::styled(
                 self.current_tx_speed(),
                 Style::default().add_modifier(Modifier::BOLD).fg(Color::Blue),
@@ -125,15 +129,45 @@ impl IfaceMonitor {
                 self.total_tx(),
                 Style::default().add_modifier(Modifier::BOLD).fg(Color::Blue),
             ),
-        ]);
-        Paragraph::new(vec![
-            Spans::from(vec![
-                Span::styled(&self.iface.name, Style::default().add_modifier(Modifier::BOLD)),
-                Span::raw(format!(" {}", &self.iface.ipv4)),
-            ]),
-            rx_info,
-            tx_info,
         ])
+    }
+    fn iface_info(&self) -> Paragraph {
+        Paragraph::new(vec![
+            Spans::from(Span::styled(
+                &self.iface.name,
+                Style::default().add_modifier(Modifier::BOLD).fg(Color::Green),
+            )),
+            Spans::from(vec![
+                Span::raw("  ipv4: "),
+                Span::styled(&self.iface.ipv4, Style::default().add_modifier(Modifier::BOLD)),
+            ]),
+            Spans::from(vec![
+                Span::raw("  ipv6: "),
+                Span::styled(&self.iface.ipv6, Style::default().add_modifier(Modifier::BOLD)),
+            ]),
+            Spans::from(vec![
+                Span::raw("  mtu:  "),
+                Span::styled(
+                    self.iface.mtu.to_string(),
+                    Style::default().add_modifier(Modifier::BOLD),
+                ),
+            ]),
+            Spans::from(vec![
+                Span::raw("  mac:  "),
+                Span::styled(&self.iface.mac_address, Style::default().add_modifier(Modifier::BOLD)),
+            ]),
+        ])
+    }
+    fn iface_stats(&self) -> Paragraph {
+        Paragraph::new(vec![Spans::from(vec![]), self.rx_info(), self.tx_info()])
+    }
+    fn render_info_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+        let chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+            .split(area);
+        f.render_widget(self.iface_info(), chunks[0]);
+        f.render_widget(self.iface_stats(), chunks[1]);
     }
     fn datasets(&self) -> Vec<Dataset> {
         vec![
@@ -173,12 +207,12 @@ impl IfaceMonitor {
                     .style(Style::default().fg(Color::Gray))
                     .labels(vec![
                         Span::raw("0"),
-                        Span::raw(format!("{:.0} kb/s", top_speed * (1.0 / 5.0))),
-                        Span::raw(format!("{:.0} kb/s", top_speed * (2.0 / 5.0))),
-                        Span::raw(format!("{:.0} kb/s", top_speed * (3.0 / 5.0))),
-                        Span::raw(format!("{:.0} kb/s", top_speed * (4.0 / 5.0))),
+                        Span::raw(format!("{}/s", conv_fb(top_speed * (1.0 / 5.0) * 1024.))),
+                        Span::raw(format!("{}/s", conv_fb(top_speed * (2.0 / 5.0) * 1024.))),
+                        Span::raw(format!("{}/s", conv_fb(top_speed * (3.0 / 5.0) * 1024.))),
+                        Span::raw(format!("{}/s", conv_fb(top_speed * (4.0 / 5.0) * 1024.))),
                         Span::styled(
-                            format!("{:.2} kb/s", top_speed),
+                            format!("{}/s", conv_fb(top_speed * 1024.)),
                             Style::default().add_modifier(Modifier::BOLD),
                         ),
                     ])
@@ -202,8 +236,7 @@ pub fn graph_net_interface(name: &str) -> Result<()> {
             let chart = monitor.graph_widget();
 
             f.render_widget(chart, chunks[0]);
-            let info = monitor.info_widget();
-            f.render_widget(info, chunks[1]);
+            monitor.render_info_widget(f, chunks[1]);
         })?;
 
         match events.next()? {
