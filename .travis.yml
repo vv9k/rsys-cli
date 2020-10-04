@@ -11,4 +11,4 @@ before_install:
 install:
   - cargo clippy -- -Wclippy::all
   - cargo fmt -- --check
-  - cargo run -- dump --all --stats --yaml
+  - cargo run -- dump -a
