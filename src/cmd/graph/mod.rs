@@ -39,3 +39,25 @@ impl RsysCli {
         }
     }
 }
+
+pub(crate) struct DataSeries {
+    data: Vec<(f64, f64)>,
+}
+impl DataSeries {
+    pub fn new() -> Self {
+        Self { data: Vec::new() }
+    }
+    pub fn add(&mut self, time: f64, value: f64) {
+        self.data.push((time, value));
+    }
+    pub fn pop(&mut self) -> (f64, f64) {
+        self.data.remove(0)
+    }
+
+    pub fn nth(&self, n: usize) -> Option<(f64, f64)> {
+        if n < self.data.len() {
+            return Some(self.data[n]);
+        }
+        None
+    }
+}
