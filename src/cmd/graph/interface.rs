@@ -83,7 +83,7 @@ impl IfaceMonitor {
         if self.total_time > X_AXIS_GRAPH_MAX {
             let removed = self.rx_speed.pop();
             self.tx_speed.pop();
-            if let Some(point) = self.rx_speed.nth(0) {
+            if let Some(point) = self.rx_speed.first() {
                 self.window[0] += point.0 - removed.0;
                 self.window[1] += point.0 - removed.0;
             }

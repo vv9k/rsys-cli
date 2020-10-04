@@ -88,7 +88,7 @@ impl CpuMonitor {
 
         if self.total_time > X_AXIS_GRAPH_MAX {
             let removed = self.stats[0].data.pop();
-            if let Some(point) = self.stats[0].data.nth(0) {
+            if let Some(point) = self.stats[0].data.first() {
                 self.window[0] += point.0 - removed.1;
                 self.window[1] += point.0 - removed.1;
             }
