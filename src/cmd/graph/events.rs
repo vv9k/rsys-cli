@@ -9,8 +9,6 @@ use std::{
 };
 use termion::{event::Key, input::TermRead};
 
-const DEFAULT_TICK_RATE: u64 = 300;
-
 pub enum Event<I> {
     Input(I),
     Tick,
@@ -25,12 +23,20 @@ pub struct Config {
     pub exit_key: Key,
     pub tick_rate: Duration,
 }
+impl Config {
+    pub fn new(tick_rate: u64) -> Config {
+        Config {
+            exit_key: Key::Char('q'),
+            tick_rate: Duration::from_millis(tick_rate),
+        }
+    }
+}
 
 impl Default for Config {
     fn default() -> Config {
         Config {
             exit_key: Key::Char('q'),
-            tick_rate: Duration::from_millis(DEFAULT_TICK_RATE),
+            tick_rate: Duration::from_millis(300),
         }
     }
 }
