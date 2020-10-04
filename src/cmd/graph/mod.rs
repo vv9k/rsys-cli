@@ -87,3 +87,55 @@ impl DataSeries {
         self.nth(0)
     }
 }
+
+pub(crate) struct Monitor {
+    x_axis: [f64; 2],
+    y_axis: [f64; 2],
+    total_time: f64,
+}
+impl Monitor {
+    pub fn new(x: (f64, f64), y: (f64, f64)) -> Self {
+        Self {
+            x_axis: [x.0, x.1],
+            y_axis: [y.0, y.1],
+            total_time: 0.,
+        }
+    }
+    #[inline]
+    pub fn add_time(&mut self, time: f64) {
+        self.total_time += time;
+    }
+    #[inline]
+    pub fn time(&self) -> f64 {
+        self.total_time
+    }
+    #[inline]
+    pub fn inc_x_axis(&mut self, n: f64) {
+        self.x_axis[0] += n;
+        self.x_axis[1] += n;
+    }
+    #[inline]
+    pub fn set_y_max(&mut self, y: f64) {
+        self.y_axis[1] = y;
+    }
+    #[inline]
+    pub fn set_y_min(&mut self, y: f64) {
+        self.y_axis[0] = y;
+    }
+    #[inline]
+    pub fn max_y(&self) -> f64 {
+        self.y_axis[1]
+    }
+    #[inline]
+    pub fn min_y(&self) -> f64 {
+        self.y_axis[0]
+    }
+    #[inline]
+    pub fn y(&self) -> [f64; 2] {
+        self.y_axis
+    }
+    #[inline]
+    pub fn x(&self) -> [f64; 2] {
+        self.x_axis
+    }
+}
