@@ -56,9 +56,10 @@ impl IfaceMonitor {
     }
 
     fn delta(&mut self, time: f64) -> (f64, f64) {
-        let delta_rx = ((self.iface.stat.rx_bytes - self.prev_rx_bytes) as f64 / time) / 1024.;
-        let delta_tx = ((self.iface.stat.tx_bytes - self.prev_tx_bytes) as f64 / time) / 1024.;
-        (delta_rx, delta_tx)
+        (
+            (self.iface.stat.rx_bytes - self.prev_rx_bytes) as f64 / time,
+            (self.iface.stat.tx_bytes - self.prev_tx_bytes) as f64 / time,
+        )
     }
 
     fn update(&mut self) {
@@ -101,16 +102,16 @@ impl IfaceMonitor {
     }
 
     fn current_rx_speed(&self) -> String {
-        format!("{}/s", conv_fb(self.curr_rx_speed * 1024.))
+        format!("{}/s", conv_fb(self.curr_rx_speed))
     }
     fn current_tx_speed(&self) -> String {
-        format!("{}/s", conv_fb(self.curr_tx_speed * 1024.))
+        format!("{}/s", conv_fb(self.curr_tx_speed))
     }
     fn total_rx(&self) -> String {
-        conv_fb(self.total_rx * 1024.)
+        conv_fb(self.total_rx)
     }
     fn total_tx(&self) -> String {
-        conv_fb(self.total_tx * 1024.)
+        conv_fb(self.total_tx)
     }
     fn rx_info(&self) -> Spans {
         Spans::from(vec![
@@ -215,12 +216,12 @@ impl IfaceMonitor {
                     .style(Style::default().fg(Color::Gray))
                     .labels(vec![
                         Span::raw("0"),
-                        Span::raw(format!("{}/s", conv_fb(self.monitor.max_y() * (1.0 / 5.0) * 1024.))),
-                        Span::raw(format!("{}/s", conv_fb(self.monitor.max_y() * (2.0 / 5.0) * 1024.))),
-                        Span::raw(format!("{}/s", conv_fb(self.monitor.max_y() * (3.0 / 5.0) * 1024.))),
-                        Span::raw(format!("{}/s", conv_fb(self.monitor.max_y() * (4.0 / 5.0) * 1024.))),
+                        Span::raw(format!("{}/s", conv_fb(self.monitor.max_y() * (1.0 / 5.0)))),
+                        Span::raw(format!("{}/s", conv_fb(self.monitor.max_y() * (2.0 / 5.0)))),
+                        Span::raw(format!("{}/s", conv_fb(self.monitor.max_y() * (3.0 / 5.0)))),
+                        Span::raw(format!("{}/s", conv_fb(self.monitor.max_y() * (4.0 / 5.0)))),
                         Span::styled(
-                            format!("{}/s", conv_fb(self.monitor.max_y() * 1024.)),
+                            format!("{}/s", conv_fb(self.monitor.max_y())),
                             Style::default().add_modifier(Modifier::BOLD),
                         ),
                     ])
