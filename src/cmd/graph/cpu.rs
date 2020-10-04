@@ -3,7 +3,7 @@ use super::{
     get_terminal, DataSeries,
 };
 use crate::util::{conv_fhz, conv_hz};
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use rsys::linux::cpu::{processor, Core, Processor};
 use std::time::Instant;
 use termion::event::Key;

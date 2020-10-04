@@ -52,7 +52,7 @@ impl RsysCli {
                 PrintFormat::Json,
                 pretty,
             )?;
-            print!("\n");
+            println!();
             let print_duration = print_start.elapsed().as_millis();
             if loop_start.elapsed() > duration {
                 break;
