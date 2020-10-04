@@ -2,10 +2,7 @@ mod events;
 mod interface;
 use crate::RsysCli;
 use interface::graph_net_interface;
-use std::{
-    error::Error,
-    io::{self, stdout},
-};
+use std::io::{self, stdout};
 use structopt::StructOpt;
 use termion::{
     input::MouseTerminal,
@@ -15,13 +12,14 @@ use termion::{
 use tui::{backend::TermionBackend, Terminal};
 
 type Term = Terminal<TermionBackend<AlternateScreen<MouseTerminal<RawTerminal<io::Stdout>>>>>;
+use anyhow::{anyhow, Result};
 
-pub(crate) fn get_terminal() -> Result<Term, Box<dyn Error>> {
+pub(crate) fn get_terminal() -> Result<Term> {
     let stdout = stdout().into_raw_mode()?;
     let stdout = MouseTerminal::from(stdout);
     let stdout = AlternateScreen::from(stdout);
     let backend = TermionBackend::new(stdout);
-    Ok(Terminal::new(backend)?)
+    Terminal::new(backend).map_err(|e| anyhow!("Failed to get terminal handle - {}", e))
 }
 
 #[derive(StructOpt, Clone)]
@@ -32,8 +30,12 @@ pub enum GraphCmd {
 
 impl RsysCli {
     pub(crate) fn graph(&self, cmd: GraphCmd) {
-        match cmd {
-            GraphCmd::Interface { name } => graph_net_interface(&name).unwrap(),
+        let result = match cmd {
+            GraphCmd::Interface { name } => graph_net_interface(&name),
+        };
+
+        if let Err(e) = result {
+            eprintln!("Error: {}", e);
         }
     }
 }

@@ -2,8 +2,9 @@ use super::{
     events::{Event, Events},
     get_terminal,
 };
+use anyhow::{anyhow, Result};
 use rsys::linux::net::{iface, Interface};
-use std::{error::Error, time::Instant};
+use std::time::Instant;
 use termion::event::Key;
 use tui::{
     layout::{Constraint, Direction, Layout},
@@ -33,11 +34,11 @@ struct IfaceMonitor {
 }
 
 impl IfaceMonitor {
-    fn new(name: &str) -> IfaceMonitor {
-        let iface = iface(name).unwrap().unwrap();
+    fn new(name: &str) -> Result<IfaceMonitor> {
+        let iface = iface(name)?.ok_or_else(|| anyhow!("Interface `{}` not found", name))?;
         let rx = iface.stat.rx_bytes;
         let tx = iface.stat.tx_bytes;
-        IfaceMonitor {
+        Ok(IfaceMonitor {
             rx_speed: vec![(0., 0.)],
             tx_speed: vec![(0., 0.)],
             iface,
@@ -51,7 +52,7 @@ impl IfaceMonitor {
             total_rx: 0.,
             total_tx: 0.,
             window: [0., X_AXIS_TIME_MAX],
-        }
+        })
     }
 
     fn update(&mut self) {
@@ -186,10 +187,10 @@ impl IfaceMonitor {
     }
 }
 
-pub fn graph_net_interface(name: &str) -> Result<(), Box<dyn Error>> {
+pub fn graph_net_interface(name: &str) -> Result<()> {
     let mut terminal = get_terminal()?;
     let events = Events::new();
-    let mut monitor = IfaceMonitor::new(name);
+    let mut monitor = IfaceMonitor::new(name)?;
 
     loop {
         terminal.draw(|f| {
