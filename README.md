@@ -3,6 +3,21 @@
 CLI tool for quick access to system information. For now Linux only.
 
 ## Available commands
+### `graph`
+```
+USAGE:
+    rsys graph <SUBCOMMAND>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+SUBCOMMANDS:
+    help         Prints this message or the help of the given subcommand(s)
+    interface    Draw interface rx/tx speed
+```
+![Example graph](https://github.com/wojciechkepka/rsys-cli/blob/master/example_output/graph.gif)
+
 ### `get`
 Gets a specified parameter.
 ```
