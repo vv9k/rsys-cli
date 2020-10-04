@@ -71,6 +71,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "08c48aae112d48ed9f069b33538ea9e3e90aa263cfa3d1c24309612b1f7472de"
 
 [[package]]
+name = "cc"
+version = "1.0.60"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ef611cc68ff783f18535d77ddd080185275713d852c4f5cbb6122c462a7a825c"
+
+[[package]]
 name = "cfg-if"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -209,6 +215,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3728d817d99e5ac407411fa471ff9800a778d88a24685968b36824eaf4bee400"
 
 [[package]]
+name = "nix"
+version = "0.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "83450fe6a6142ddd95fb064b746083fc4ef1705fe81f64a64e1d4b39f54a1055"
+dependencies = [
+ "bitflags",
+ "cc",
+ "cfg-if",
+ "libc",
+]
+
+[[package]]
 name = "prettytable-rs"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -293,10 +311,11 @@ dependencies = [
 [[package]]
 name = "rsys"
 version = "0.5.5"
-source = "git+https://github.com/wojciechkepka/rsys#a3f37a147d9901d376e631f7d192f24f907672e6"
+source = "git+https://github.com/wojciechkepka/rsys#c5ef136bc2e71b31f755ba15b17ce17db413c74b"
 dependencies = [
  "cfg-if",
  "libc",
+ "nix",
  "rsys_macro",
  "serde",
  "thiserror",
@@ -318,7 +337,7 @@ dependencies = [
 [[package]]
 name = "rsys_macro"
 version = "0.1.2"
-source = "git+https://github.com/wojciechkepka/rsys#a3f37a147d9901d376e631f7d192f24f907672e6"
+source = "git+https://github.com/wojciechkepka/rsys#c5ef136bc2e71b31f755ba15b17ce17db413c74b"
 dependencies = [
  "proc-macro2",
 ]

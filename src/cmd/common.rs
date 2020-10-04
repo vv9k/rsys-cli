@@ -219,7 +219,7 @@ impl SystemInfo {
             net_table.set_format(*format::consts::FORMAT_NO_LINESEP);
             stats_table.set_format(*format::consts::FORMAT_NO_LINESEP);
 
-            net_table.add_row(row![ c => "name", "ipv4", "mac", "speed", "mtu",]);
+            net_table.add_row(row![ c => "name", "ipv4", "ipv6", "mac", "speed", "mtu",]);
             stats_table.add_row(row![ c =>
                 "name",
                 "bytes",
@@ -235,6 +235,7 @@ impl SystemInfo {
                 net_table.add_row(row![
                     iface.name,
                     iface.ipv4,
+                    iface.ipv6,
                     iface.mac_address,
                     format!("{} mb/s", iface.speed),
                     iface.mtu,
