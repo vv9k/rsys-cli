@@ -1,6 +1,7 @@
 use super::{
+    common::{DataSeries, Monitor},
     events::{Config, Event, Events},
-    get_terminal, DataSeries, Monitor,
+    get_terminal,
 };
 use crate::util::{conv_fhz, conv_hz};
 use anyhow::Result;
@@ -107,7 +108,7 @@ impl CpuMonitor {
                     .name(&core.name)
                     .marker(symbols::Marker::Dot)
                     .style(Style::default().fg(core.color))
-                    .data(&core.data.data),
+                    .data(&core.data.data()),
             );
         }
         data

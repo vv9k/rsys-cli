@@ -1,6 +1,7 @@
 use super::{
+    common::{DataSeries, Monitor},
     events::{Event, Events},
-    get_terminal, DataSeries, Monitor,
+    get_terminal,
 };
 use crate::util::conv_fb;
 use anyhow::{anyhow, Result};
@@ -183,12 +184,12 @@ impl IfaceMonitor {
                 .name("rx")
                 .marker(symbols::Marker::Dot)
                 .style(Style::default().fg(Color::Cyan))
-                .data(&self.rx_data.data),
+                .data(&self.rx_data.data()),
             Dataset::default()
                 .name("tx")
                 .marker(symbols::Marker::Braille)
                 .style(Style::default().fg(Color::Blue))
-                .data(&self.tx_data.data),
+                .data(&self.tx_data.data()),
         ]
     }
     fn render_graph_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
