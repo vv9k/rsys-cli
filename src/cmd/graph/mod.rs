@@ -1,6 +1,8 @@
+mod cpu;
 mod events;
 mod interface;
 use crate::RsysCli;
+use cpu::graph_cpu;
 use interface::graph_net_interface;
 use std::io::{self, stdout};
 use structopt::StructOpt;
@@ -26,12 +28,15 @@ pub(crate) fn get_terminal() -> Result<Term> {
 pub enum GraphCmd {
     /// Draw interface rx/tx speed
     Interface { name: String },
+    /// Draw core frequencies
+    Cpu,
 }
 
 impl RsysCli {
     pub(crate) fn graph(&self, cmd: GraphCmd) {
         let result = match cmd {
             GraphCmd::Interface { name } => graph_net_interface(&name),
+            GraphCmd::Cpu => graph_cpu(),
         };
 
         if let Err(e) = result {
