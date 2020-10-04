@@ -17,8 +17,8 @@ use tui::{
     Frame,
 };
 
-const X_AXIS_TIME_MAX: f64 = 30.0;
-const X_AXIS_GRAPH_MAX: f64 = X_AXIS_TIME_MAX - 1.6;
+const X_AXIS: (f64, f64) = (0., 30.0);
+const Y_AXIS: (f64, f64) = (0., f64::MAX);
 
 struct CoreStat {
     name: String,
@@ -56,31 +56,35 @@ impl CpuMonitor {
             stats,
             start_time: Instant::now(),
             last_time: Instant::now(),
-            m: Monitor::new((0., X_AXIS_TIME_MAX), (0., f64::MAX)),
+            m: Monitor::new(X_AXIS, Y_AXIS),
         })
     }
 
     fn update(&mut self) {
+        // Time since begining
         let elapsed = self.start_time.elapsed().as_secs_f64();
+
+        // Time since last run
         self.m.add_time(self.last_time.elapsed().as_secs_f64());
-        self.last_time = Instant::now();
-        let cores = self.cpu.cores.clone();
-        cores.iter().enumerate().for_each(|(i, c)| {
-            self.stats[i].data.add(elapsed, c.cur_freq as f64);
-            if c.cur_freq as f64 >= self.m.max_y() {
-                self.m.set_y_max(c.cur_freq as f64 + 100.);
-            }
 
-            if c.cur_freq as f64 <= self.m.min_y() {
-                self.m.set_y_min(c.cur_freq as f64 - 100.);
-            }
-        });
-
+        // Update frequencies on cores
         for core in &mut self.cpu.cores {
             core.update().unwrap();
         }
 
-        if self.m.time() > X_AXIS_GRAPH_MAX {
+        // Set last_time to current time
+        self.last_time = Instant::now();
+
+        // Parse data for each core
+        let cores = self.cpu.cores.clone();
+        cores.iter().enumerate().for_each(|(i, c)| {
+            self.stats[i].data.add(elapsed, c.cur_freq as f64);
+            self.m.set_if_y_max(c.cur_freq as f64 + 100.);
+            self.m.set_if_y_min(c.cur_freq as f64 + 100.);
+        });
+
+        // Move x axis if time reached end
+        if self.m.time() > self.m.max_x() {
             let removed = self.stats[0].data.pop();
             if let Some(point) = self.stats[0].data.first() {
                 self.m.inc_x_axis(point.0 - removed.0);
