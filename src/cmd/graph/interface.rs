@@ -79,6 +79,7 @@ impl IfaceMonitor {
         self.prev_rx_bytes = self.iface.stat.rx_bytes;
         self.prev_tx_bytes = self.iface.stat.tx_bytes;
         self.total_time += time;
+
         if self.total_time > X_AXIS_GRAPH_MAX {
             let removed = self.rx_speed.remove(0);
             self.tx_speed.remove(0);
@@ -131,6 +132,9 @@ impl IfaceMonitor {
             ),
         ])
     }
+    fn iface_stats(&self) -> Paragraph {
+        Paragraph::new(vec![Spans::from(vec![]), self.rx_info(), self.tx_info()])
+    }
     fn iface_info(&self) -> Paragraph {
         Paragraph::new(vec![
             Spans::from(Span::styled(
@@ -158,16 +162,13 @@ impl IfaceMonitor {
             ]),
         ])
     }
-    fn iface_stats(&self) -> Paragraph {
-        Paragraph::new(vec![Spans::from(vec![]), self.rx_info(), self.tx_info()])
-    }
     fn render_info_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
             .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
             .split(area);
-        f.render_widget(self.iface_info(), chunks[0]);
         f.render_widget(self.iface_stats(), chunks[1]);
+        f.render_widget(self.iface_info(), chunks[0]);
     }
     fn datasets(&self) -> Vec<Dataset> {
         vec![
@@ -183,10 +184,10 @@ impl IfaceMonitor {
                 .data(&self.tx_speed),
         ]
     }
-    fn graph_widget(&self) -> Chart {
+    fn render_graph_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let datasets = self.datasets();
         let top_speed = self.current_max_y;
-        Chart::new(datasets)
+        let chart = Chart::new(datasets)
             .block(
                 Block::default()
                     .title(Span::styled(
@@ -217,7 +218,18 @@ impl IfaceMonitor {
                         ),
                     ])
                     .bounds(self.y_bounds()),
-            )
+            );
+        f.render_widget(chart, area);
+    }
+
+    fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+        let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Percentage(85), Constraint::Percentage(15)].as_ref())
+            .split(area);
+
+        self.render_graph_widget(f, chunks[0]);
+        self.render_info_widget(f, chunks[1]);
     }
 }
 
@@ -229,14 +241,8 @@ pub fn graph_net_interface(name: &str) -> Result<()> {
     loop {
         terminal.draw(|f| {
             let size = f.size();
-            let chunks = Layout::default()
-                .direction(Direction::Vertical)
-                .constraints([Constraint::Percentage(90), Constraint::Percentage(10)].as_ref())
-                .split(size);
-            let chart = monitor.graph_widget();
-
-            f.render_widget(chart, chunks[0]);
-            monitor.render_info_widget(f, chunks[1]);
+            let layout = Layout::default().constraints([Constraint::Percentage(100)]).split(size);
+            monitor.render_widget(f, layout[0]);
         })?;
 
         match events.next()? {
