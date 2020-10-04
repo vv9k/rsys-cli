@@ -88,6 +88,7 @@ impl DataSeries {
     }
 }
 
+#[derive(Debug)]
 pub(crate) struct Monitor {
     x_axis: [f64; 2],
     y_axis: [f64; 2],
@@ -130,7 +131,7 @@ impl Monitor {
     }
     #[inline]
     pub fn set_if_y_min(&mut self, y: f64) {
-        if y > self.min_y() {
+        if y < self.min_y() {
             self.set_y_min(y)
         }
     }
