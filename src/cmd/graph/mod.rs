@@ -123,12 +123,33 @@ impl Monitor {
         self.y_axis[0] = y;
     }
     #[inline]
+    pub fn set_if_y_max(&mut self, y: f64) {
+        if y > self.max_y() {
+            self.set_y_max(y)
+        }
+    }
+    #[inline]
+    pub fn set_if_y_min(&mut self, y: f64) {
+        if y > self.min_y() {
+            self.set_y_min(y)
+        }
+    }
+    #[inline]
     pub fn max_y(&self) -> f64 {
         self.y_axis[1]
     }
     #[inline]
     pub fn min_y(&self) -> f64 {
         self.y_axis[0]
+    }
+    #[inline]
+    pub fn max_x(&self) -> f64 {
+        self.x_axis[1]
+    }
+    #[inline]
+    #[allow(dead_code)]
+    pub fn min_x(&self) -> f64 {
+        self.x_axis[0]
     }
     #[inline]
     pub fn y(&self) -> [f64; 2] {
