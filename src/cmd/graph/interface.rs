@@ -1,6 +1,6 @@
 use super::{
     events::{Event, Events},
-    get_terminal, DataSeries,
+    get_terminal, DataSeries, Monitor,
 };
 use crate::util::conv_fb;
 use anyhow::{anyhow, Result};
@@ -17,23 +17,21 @@ use tui::{
     Frame,
 };
 
-const X_AXIS_TIME_MAX: f64 = 30.0;
-const X_AXIS_GRAPH_MAX: f64 = X_AXIS_TIME_MAX - 1.6;
+const X_AXIS: (f64, f64) = (0., 30.0);
+const Y_AXIS: (f64, f64) = (0., 100.0);
 
 struct IfaceMonitor {
-    rx_speed: DataSeries,
-    tx_speed: DataSeries,
+    rx_data: DataSeries,
+    tx_data: DataSeries,
     iface: Interface,
     prev_rx_bytes: u64,
     prev_tx_bytes: u64,
     prev_time: Instant,
-    total_time: f64,
-    current_max_y: f64,
     curr_rx_speed: f64,
     curr_tx_speed: f64,
     total_rx: f64,
     total_tx: f64,
-    window: [f64; 2],
+    monitor: Monitor,
 }
 
 impl IfaceMonitor {
@@ -42,56 +40,63 @@ impl IfaceMonitor {
         let rx = iface.stat.rx_bytes;
         let tx = iface.stat.tx_bytes;
         Ok(IfaceMonitor {
-            rx_speed: DataSeries::new(),
-            tx_speed: DataSeries::new(),
+            rx_data: DataSeries::new(),
+            tx_data: DataSeries::new(),
             iface,
             prev_rx_bytes: rx,
             prev_tx_bytes: tx,
             prev_time: Instant::now(),
-            current_max_y: 100.,
             curr_rx_speed: 0.,
             curr_tx_speed: 0.,
-            total_time: 0.,
             total_rx: 0.,
             total_tx: 0.,
-            window: [0., X_AXIS_TIME_MAX],
+            monitor: Monitor::new(X_AXIS, Y_AXIS),
         })
     }
 
-    fn update(&mut self) {
-        self.iface.update().unwrap();
-        let time = self.prev_time.elapsed().as_secs_f64();
-        self.prev_time = Instant::now();
+    fn delta(&mut self, time: f64) -> (f64, f64) {
         let delta_rx = ((self.iface.stat.rx_bytes - self.prev_rx_bytes) as f64 / time) / 1024.;
         let delta_tx = ((self.iface.stat.tx_bytes - self.prev_tx_bytes) as f64 / time) / 1024.;
-        self.total_rx += delta_rx;
-        self.total_tx += delta_tx;
-        self.rx_speed.add(time + self.total_time, delta_rx);
-        self.tx_speed.add(time + self.total_time, delta_tx);
-        self.curr_rx_speed = delta_rx;
-        self.curr_tx_speed = delta_tx;
-        if self.current_max_y < delta_rx {
-            self.current_max_y = delta_rx + 100.;
-        }
-        if self.current_max_y < delta_tx {
-            self.current_max_y = delta_tx + 100.;
-        }
-        self.prev_rx_bytes = self.iface.stat.rx_bytes;
-        self.prev_tx_bytes = self.iface.stat.tx_bytes;
-        self.total_time += time;
-
-        if self.total_time > X_AXIS_GRAPH_MAX {
-            let removed = self.rx_speed.pop();
-            self.tx_speed.pop();
-            if let Some(point) = self.rx_speed.first() {
-                self.window[0] += point.0 - removed.0;
-                self.window[1] += point.0 - removed.0;
-            }
-        }
+        (delta_rx, delta_tx)
     }
 
-    fn y_bounds(&self) -> [f64; 2] {
-        [0., self.current_max_y]
+    fn update(&mut self) {
+        // Update interface
+        self.iface.update().unwrap();
+
+        // time between previous run and now
+        let time = self.prev_time.elapsed().as_secs_f64();
+
+        let (delta_rx, delta_tx) = self.delta(time);
+
+        self.prev_time = Instant::now();
+        self.monitor.add_time(time);
+
+        self.total_rx += delta_rx;
+        self.total_tx += delta_tx;
+        self.rx_data.add(self.monitor.time(), delta_rx);
+        self.tx_data.add(self.monitor.time(), delta_tx);
+        self.curr_rx_speed = delta_rx;
+        self.curr_tx_speed = delta_tx;
+
+        // If the values are bigger than current max y
+        // update y axis
+        self.monitor.set_if_y_max(delta_rx + 100.);
+        self.monitor.set_if_y_max(delta_tx + 100.);
+
+        self.prev_rx_bytes = self.iface.stat.rx_bytes;
+        self.prev_tx_bytes = self.iface.stat.tx_bytes;
+
+        // If total time elapsed passed max x coordinate
+        // pop first item of dataset and move x axis
+        // by time difference of popped and last element
+        if self.monitor.time() > self.monitor.max_x() {
+            let removed = self.rx_data.pop();
+            self.tx_data.pop();
+            if let Some(point) = self.rx_data.first() {
+                self.monitor.inc_x_axis(point.0 - removed.0);
+            }
+        }
     }
 
     fn current_rx_speed(&self) -> String {
@@ -178,17 +183,16 @@ impl IfaceMonitor {
                 .name("rx")
                 .marker(symbols::Marker::Dot)
                 .style(Style::default().fg(Color::Cyan))
-                .data(&self.rx_speed.data),
+                .data(&self.rx_data.data),
             Dataset::default()
                 .name("tx")
                 .marker(symbols::Marker::Braille)
                 .style(Style::default().fg(Color::Blue))
-                .data(&self.tx_speed.data),
+                .data(&self.tx_data.data),
         ]
     }
     fn render_graph_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let datasets = self.datasets();
-        let top_speed = self.current_max_y;
         let chart = Chart::new(datasets)
             .block(
                 Block::default()
@@ -202,7 +206,7 @@ impl IfaceMonitor {
                 Axis::default()
                     .title("Time")
                     .style(Style::default().fg(Color::Gray))
-                    .bounds(self.window),
+                    .bounds(self.monitor.x()),
             )
             .y_axis(
                 Axis::default()
@@ -210,16 +214,16 @@ impl IfaceMonitor {
                     .style(Style::default().fg(Color::Gray))
                     .labels(vec![
                         Span::raw("0"),
-                        Span::raw(format!("{}/s", conv_fb(top_speed * (1.0 / 5.0) * 1024.))),
-                        Span::raw(format!("{}/s", conv_fb(top_speed * (2.0 / 5.0) * 1024.))),
-                        Span::raw(format!("{}/s", conv_fb(top_speed * (3.0 / 5.0) * 1024.))),
-                        Span::raw(format!("{}/s", conv_fb(top_speed * (4.0 / 5.0) * 1024.))),
+                        Span::raw(format!("{}/s", conv_fb(self.monitor.max_y() * (1.0 / 5.0) * 1024.))),
+                        Span::raw(format!("{}/s", conv_fb(self.monitor.max_y() * (2.0 / 5.0) * 1024.))),
+                        Span::raw(format!("{}/s", conv_fb(self.monitor.max_y() * (3.0 / 5.0) * 1024.))),
+                        Span::raw(format!("{}/s", conv_fb(self.monitor.max_y() * (4.0 / 5.0) * 1024.))),
                         Span::styled(
-                            format!("{}/s", conv_fb(top_speed * 1024.)),
+                            format!("{}/s", conv_fb(self.monitor.max_y() * 1024.)),
                             Style::default().add_modifier(Modifier::BOLD),
                         ),
                     ])
-                    .bounds(self.y_bounds()),
+                    .bounds(self.monitor.y()),
             );
         f.render_widget(chart, area);
     }
