@@ -18,7 +18,9 @@ use tui::{
 };
 
 const X_AXIS: (f64, f64) = (0., 30.0);
-const Y_AXIS: (f64, f64) = (0., f64::MAX);
+const Y_AXIS: (f64, f64) = (f64::MAX, 0.);
+const TICK_RATE: u64 = 250;
+const QUIT_KEY: char = 'q';
 
 struct CoreStat {
     name: String,
@@ -78,9 +80,11 @@ impl CpuMonitor {
         // Parse data for each core
         let cores = self.cpu.cores.clone();
         cores.iter().enumerate().for_each(|(i, c)| {
-            self.stats[i].data.add(elapsed, c.cur_freq as f64);
-            self.m.set_if_y_max(c.cur_freq as f64 + 100.);
-            self.m.set_if_y_min(c.cur_freq as f64 + 100.);
+            let freq = c.cur_freq as f64;
+
+            self.stats[i].data.add(elapsed, freq);
+            self.m.set_if_y_max(freq + 100_000.);
+            self.m.set_if_y_min(freq + 100_000.);
         });
 
         // Move x axis if time reached end
@@ -203,7 +207,7 @@ impl CpuMonitor {
 
 pub fn graph_cpu() -> Result<()> {
     let mut terminal = get_terminal()?;
-    let cfg = Config::new(250);
+    let cfg = Config::new(TICK_RATE);
     let events = Events::with_config(cfg);
     let mut monitor = CpuMonitor::new()?;
 
@@ -216,7 +220,7 @@ pub fn graph_cpu() -> Result<()> {
 
         match events.next()? {
             Event::Input(input) => {
-                if input == Key::Char('q') {
+                if input == Key::Char(QUIT_KEY) {
                     break;
                 }
             }
