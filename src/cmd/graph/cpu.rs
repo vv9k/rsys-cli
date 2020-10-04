@@ -1,6 +1,6 @@
 use super::{
     events::{Config, Event, Events},
-    get_terminal, DataSeries,
+    get_terminal, DataSeries, Monitor,
 };
 use crate::util::{conv_fhz, conv_hz};
 use anyhow::Result;
@@ -40,10 +40,7 @@ struct CpuMonitor {
     stats: Vec<CoreStat>,
     start_time: Instant,
     last_time: Instant,
-    total_time: f64,
-    current_max_y: f64,
-    current_min_y: f64,
-    window: [f64; 2],
+    m: Monitor,
 }
 
 impl CpuMonitor {
@@ -59,31 +56,23 @@ impl CpuMonitor {
             stats,
             start_time: Instant::now(),
             last_time: Instant::now(),
-            total_time: 0.,
-            current_max_y: 0.,
-            current_min_y: f64::MAX,
-            window: [0., X_AXIS_TIME_MAX],
+            m: Monitor::new((0., X_AXIS_TIME_MAX), (0., f64::MAX)),
         })
-    }
-
-    fn window_move(&mut self, n: f64) {
-        self.window[0] += n;
-        self.window[1] += n;
     }
 
     fn update(&mut self) {
         let elapsed = self.start_time.elapsed().as_secs_f64();
-        self.total_time += self.last_time.elapsed().as_secs_f64();
+        self.m.add_time(self.last_time.elapsed().as_secs_f64());
         self.last_time = Instant::now();
         let cores = self.cpu.cores.clone();
         cores.iter().enumerate().for_each(|(i, c)| {
             self.stats[i].data.add(elapsed, c.cur_freq as f64);
-            if c.cur_freq as f64 >= self.current_max_y {
-                self.current_max_y = c.cur_freq as f64 + 100.
+            if c.cur_freq as f64 >= self.m.max_y() {
+                self.m.set_y_max(c.cur_freq as f64 + 100.);
             }
 
-            if c.cur_freq as f64 <= self.current_min_y {
-                self.current_min_y = c.cur_freq as f64 - 100.
+            if c.cur_freq as f64 <= self.m.min_y() {
+                self.m.set_y_min(c.cur_freq as f64 - 100.);
             }
         });
 
@@ -91,11 +80,10 @@ impl CpuMonitor {
             core.update().unwrap();
         }
 
-        if self.total_time > X_AXIS_GRAPH_MAX {
+        if self.m.time() > X_AXIS_GRAPH_MAX {
             let removed = self.stats[0].data.pop();
             if let Some(point) = self.stats[0].data.first() {
-                self.window[0] += point.0 - removed.0;
-                self.window[1] += point.0 - removed.0;
+                self.m.inc_x_axis(point.0 - removed.0);
             }
             self.stats.iter_mut().skip(1).for_each(|c| {
                 c.data.pop();
@@ -103,9 +91,6 @@ impl CpuMonitor {
         }
     }
 
-    fn y_bounds(&self) -> [f64; 2] {
-        [self.current_min_y, self.current_max_y]
-    }
     fn datasets(&self) -> Vec<Dataset> {
         let mut data = Vec::new();
         for core in &self.stats {
@@ -121,7 +106,6 @@ impl CpuMonitor {
     }
     fn render_graph_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let datasets = self.datasets();
-        let top_freq = self.current_max_y;
         let chart = Chart::new(datasets)
             .block(
                 Block::default()
@@ -135,26 +119,26 @@ impl CpuMonitor {
                 Axis::default()
                     .title("Time")
                     .style(Style::default().fg(Color::Gray))
-                    .bounds(self.window),
+                    .bounds(self.m.x()),
             )
             .y_axis(
                 Axis::default()
                     .title("Core Frequency")
                     .style(Style::default().fg(Color::Gray))
                     .labels(vec![
-                        Span::raw(conv_fhz(self.current_min_y)),
+                        Span::raw(conv_fhz(self.m.min_y())),
                         Span::raw(conv_fhz(
-                            self.current_min_y + ((top_freq - self.current_min_y) * (1.0 / 4.0)),
+                            self.m.min_y() + ((self.m.max_y() - self.m.min_y()) * (1.0 / 4.0)),
                         )),
                         Span::raw(conv_fhz(
-                            self.current_min_y + ((top_freq - self.current_min_y) * (2.0 / 4.0)),
+                            self.m.min_y() + ((self.m.max_y() - self.m.min_y()) * (2.0 / 4.0)),
                         )),
                         Span::raw(conv_fhz(
-                            self.current_min_y + ((top_freq - self.current_min_y) * (3.0 / 4.0)),
+                            self.m.min_y() + ((self.m.max_y() - self.m.min_y()) * (3.0 / 4.0)),
                         )),
-                        Span::styled(conv_fhz(top_freq), Style::default().add_modifier(Modifier::BOLD)),
+                        Span::styled(conv_fhz(self.m.max_y()), Style::default().add_modifier(Modifier::BOLD)),
                     ])
-                    .bounds(self.y_bounds()),
+                    .bounds(self.m.y()),
             );
         f.render_widget(chart, area);
     }
