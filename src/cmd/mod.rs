@@ -1,8 +1,10 @@
 pub(crate) mod common;
 pub(crate) mod dump;
 pub(crate) mod get;
+pub(crate) mod graph;
 pub(crate) mod watch;
 use get::Property;
+pub use graph::GraphCmd;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
@@ -103,5 +105,10 @@ pub enum RsysCmd {
         #[structopt(short, long)]
         /// How long to wait between runs in milliseconds. Default is 1000
         interval: Option<u64>,
+    },
+    Graph {
+        #[structopt(subcommand)]
+        /// A graph to draw
+        graph: GraphCmd,
     },
 }

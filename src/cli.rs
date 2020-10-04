@@ -72,6 +72,7 @@ impl RsysCli {
                 } => self.watch(
                     *pretty, *cpu, *memory, *network, *storage, *all, *stats, *duration, *interval,
                 )?,
+                RsysCmd::Graph { graph: cmd } => self.graph(cmd.clone()),
             }
         }
 
