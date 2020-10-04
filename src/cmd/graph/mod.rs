@@ -26,6 +26,7 @@ pub(crate) fn get_terminal() -> Result<Term, Box<dyn Error>> {
 
 #[derive(StructOpt, Clone)]
 pub enum GraphCmd {
+    /// Draw interface rx/tx speed
     Interface { name: String },
 }
 

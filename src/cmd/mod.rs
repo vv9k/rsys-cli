@@ -106,9 +106,10 @@ pub enum RsysCmd {
         /// How long to wait between runs in milliseconds. Default is 1000
         interval: Option<u64>,
     },
+    /// Draws graphs with specified data
     Graph {
         #[structopt(subcommand)]
-        /// A graph to draw
+        /// What data to draw
         graph: GraphCmd,
     },
 }
