@@ -66,6 +66,11 @@ impl CpuMonitor {
         })
     }
 
+    fn window_move(&mut self, n: f64) {
+        self.window[0] += n;
+        self.window[1] += n;
+    }
+
     fn update(&mut self) {
         let elapsed = self.start_time.elapsed().as_secs_f64();
         self.total_time += self.last_time.elapsed().as_secs_f64();
@@ -89,8 +94,8 @@ impl CpuMonitor {
         if self.total_time > X_AXIS_GRAPH_MAX {
             let removed = self.stats[0].data.pop();
             if let Some(point) = self.stats[0].data.first() {
-                self.window[0] += point.0 - removed.1;
-                self.window[1] += point.0 - removed.1;
+                self.window[0] += point.0 - removed.0;
+                self.window[1] += point.0 - removed.0;
             }
             self.stats.iter_mut().skip(1).for_each(|c| {
                 c.data.pop();
@@ -210,7 +215,7 @@ impl CpuMonitor {
 
 pub fn graph_cpu() -> Result<()> {
     let mut terminal = get_terminal()?;
-    let cfg = Config::new(200);
+    let cfg = Config::new(250);
     let events = Events::with_config(cfg);
     let mut monitor = CpuMonitor::new()?;
 
