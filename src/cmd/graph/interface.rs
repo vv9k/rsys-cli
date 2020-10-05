@@ -1,5 +1,5 @@
 use super::{
-    common::{graph_loop, DataSeries, GraphWidget, Monitor},
+    common::{graph_loop, kv_span, spans_from, DataSeries, GraphWidget, Monitor},
     events::Config,
 };
 use crate::util::conv_fb;
@@ -127,31 +127,15 @@ impl IfaceMonitor {
         conv_fb(self.total_tx)
     }
     fn rx_info(&self) -> Spans {
-        Spans::from(vec![
-            Span::raw("  Current rx speed: "),
-            Span::styled(
-                self.current_rx_speed(),
-                Style::default().add_modifier(Modifier::BOLD).fg(Color::Cyan),
-            ),
-            Span::raw(", Total received: "),
-            Span::styled(
-                self.total_rx(),
-                Style::default().add_modifier(Modifier::BOLD).fg(Color::Cyan),
-            ),
+        spans_from(vec![
+            kv_span("  Current rx speed: ", &self.current_rx_speed(), Color::Cyan, true),
+            kv_span(", Total received: ", &self.total_rx(), Color::Cyan, true),
         ])
     }
     fn tx_info(&self) -> Spans {
-        Spans::from(vec![
-            Span::raw("  Current tx speed: "),
-            Span::styled(
-                self.current_tx_speed(),
-                Style::default().add_modifier(Modifier::BOLD).fg(Color::Blue),
-            ),
-            Span::raw(", Total transferred: "),
-            Span::styled(
-                self.total_tx(),
-                Style::default().add_modifier(Modifier::BOLD).fg(Color::Blue),
-            ),
+        spans_from(vec![
+            kv_span("  Current tx speed: ", &self.current_tx_speed(), Color::Blue, true),
+            kv_span(", Total received: ", &self.total_tx(), Color::Blue, true),
         ])
     }
     fn iface_stats(&self) -> Paragraph {
@@ -163,25 +147,15 @@ impl IfaceMonitor {
                 &self.iface.name,
                 Style::default().add_modifier(Modifier::BOLD).fg(Color::Green),
             )),
-            Spans::from(vec![
-                Span::raw("  ipv4: "),
-                Span::styled(&self.iface.ipv4, Style::default().add_modifier(Modifier::BOLD)),
-            ]),
-            Spans::from(vec![
-                Span::raw("  ipv6: "),
-                Span::styled(&self.iface.ipv6, Style::default().add_modifier(Modifier::BOLD)),
-            ]),
-            Spans::from(vec![
-                Span::raw("  mtu:  "),
-                Span::styled(
-                    self.iface.mtu.to_string(),
-                    Style::default().add_modifier(Modifier::BOLD),
-                ),
-            ]),
-            Spans::from(vec![
-                Span::raw("  mac:  "),
-                Span::styled(&self.iface.mac_address, Style::default().add_modifier(Modifier::BOLD)),
-            ]),
+            spans_from(vec![kv_span("  ipv4: ", &self.iface.ipv4, Color::White, true)]),
+            spans_from(vec![kv_span("  ipv6: ", &self.iface.ipv6, Color::White, true)]),
+            spans_from(vec![kv_span(
+                "  mtu: ",
+                &self.iface.mtu.to_string(),
+                Color::White,
+                true,
+            )]),
+            spans_from(vec![kv_span("  mac: ", &self.iface.mac_address, Color::White, true)]),
         ])
     }
     fn render_info_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {

@@ -1,5 +1,5 @@
 use super::{
-    common::{graph_loop, DataSeries, GraphWidget, Monitor},
+    common::{graph_loop, kv_span, spans_from, DataSeries, GraphWidget, Monitor},
     events::Config,
 };
 use crate::util::{conv_fhz, conv_hz};
@@ -11,7 +11,7 @@ use tui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     symbols,
-    text::{Span, Spans},
+    text::Span,
     widgets::{Axis, Block, Borders, Chart, Dataset, Paragraph},
     Frame,
 };
@@ -183,23 +183,21 @@ impl CpuMonitor {
 
         for i in 0..(count / 2) {
             let current = &self.stats[i];
-            first.push(Spans::from(vec![
-                Span::raw(format!("cpu{}: ", current.core.id)),
-                Span::styled(
-                    conv_hz(current.core.cur_freq),
-                    Style::default().add_modifier(Modifier::BOLD).fg(current.color),
-                ),
-            ]));
+            first.push(spans_from(vec![kv_span(
+                format!("cpu{}: ", current.core.id),
+                conv_hz(current.core.cur_freq),
+                current.color,
+                true,
+            )]));
         }
         for i in (count / 2)..count {
             let current = &self.stats[i];
-            second.push(Spans::from(vec![
-                Span::raw(format!("cpu{}: ", current.core.id)),
-                Span::styled(
-                    conv_hz(current.core.cur_freq),
-                    Style::default().add_modifier(Modifier::BOLD).fg(current.color),
-                ),
-            ]));
+            second.push(spans_from(vec![kv_span(
+                format!("cpu{}: ", current.core.id),
+                conv_hz(current.core.cur_freq),
+                current.color,
+                true,
+            )]));
         }
 
         let first_col = Paragraph::new(first);
