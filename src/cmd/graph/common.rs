@@ -10,6 +10,8 @@ use tui::{
     Frame,
 };
 
+/// Trait grouping all graph widgets together providing functionality
+/// like graph_loop.
 pub(crate) trait GraphWidget {
     fn update(&mut self);
     fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect);

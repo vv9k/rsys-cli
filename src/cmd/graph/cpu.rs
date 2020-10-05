@@ -3,8 +3,8 @@ use super::{
     events::Config,
 };
 use crate::util::{conv_fhz, conv_hz};
-use anyhow::Result;
-use rsys::linux::cpu::{processor, Core, Processor};
+use anyhow::{anyhow, Result};
+use rsys::linux::cpu::{processor, Core};
 use std::time::Instant;
 use tui::{
     backend::Backend,
@@ -20,23 +20,36 @@ const X_AXIS: (f64, f64) = (0., 30.0);
 const Y_AXIS: (f64, f64) = (f64::MAX, 0.);
 const TICK_RATE: u64 = 250;
 
+// Stats of a single core
 struct CoreStat {
     name: String,
     color: Color,
     data: DataSeries,
+    core: Core,
 }
 impl CoreStat {
-    fn from_core(core: &Core) -> CoreStat {
+    fn from_core(core: Core) -> CoreStat {
         Self {
             name: format!("cpu{}", core.id),
             color: Color::Indexed(core.id as u8),
             data: DataSeries::new(),
+            core,
         }
+    }
+    // Updates core and returns its new frequency
+    fn update(&mut self) -> Result<f64> {
+        self.core
+            .update()
+            .map_err(|e| anyhow!("Failed to update core `{}` frequency - {}", self.name, e))?;
+        Ok(self.core.cur_freq as f64)
+    }
+
+    fn add_current(&mut self, time: f64) {
+        self.data.add(time, self.core.cur_freq as f64);
     }
 }
 
 pub(crate) struct CpuMonitor {
-    cpu: Processor,
     stats: Vec<CoreStat>,
     start_time: Instant,
     last_time: Instant,
@@ -52,22 +65,16 @@ impl GraphWidget for CpuMonitor {
         self.m.add_time(self.last_time.elapsed().as_secs_f64());
 
         // Update frequencies on cores
-        for core in &mut self.cpu.cores {
-            core.update().unwrap();
+        for core in &mut self.stats {
+            // TODO: handle err here somehow
+            let freq = core.update().unwrap();
+            core.add_current(elapsed);
+            self.m.set_if_y_max(freq + 100_000.);
+            self.m.set_if_y_min(freq + 100_000.);
         }
 
         // Set last_time to current time
         self.last_time = Instant::now();
-
-        // Parse data for each core
-        let cores = self.cpu.cores.clone();
-        cores.iter().enumerate().for_each(|(i, c)| {
-            let freq = c.cur_freq as f64;
-
-            self.stats[i].data.add(elapsed, freq);
-            self.m.set_if_y_max(freq + 100_000.);
-            self.m.set_if_y_min(freq + 100_000.);
-        });
 
         // Move x axis if time reached end
         if self.m.time() > self.m.max_x() {
@@ -99,11 +106,10 @@ impl CpuMonitor {
         let cpu = processor()?;
         let mut stats = Vec::new();
         for core in &cpu.cores {
-            stats.push(CoreStat::from_core(&core));
+            stats.push(CoreStat::from_core(core.clone()));
         }
 
         Ok(CpuMonitor {
-            cpu,
             stats,
             start_time: Instant::now(),
             last_time: Instant::now(),
@@ -170,32 +176,28 @@ impl CpuMonitor {
             .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
             .split(area);
 
-        let count = self.cpu.core_count();
+        let count = self.stats.len();
 
         let mut first = Vec::new();
         let mut second = Vec::new();
 
         for i in 0..(count / 2) {
-            let core = &self.cpu.cores[i];
+            let current = &self.stats[i];
             first.push(Spans::from(vec![
-                Span::raw(format!("cpu{}: ", core.id)),
+                Span::raw(format!("cpu{}: ", current.core.id)),
                 Span::styled(
-                    conv_hz(core.cur_freq),
-                    Style::default()
-                        .add_modifier(Modifier::BOLD)
-                        .fg(Color::Indexed(i as u8)),
+                    conv_hz(current.core.cur_freq),
+                    Style::default().add_modifier(Modifier::BOLD).fg(current.color),
                 ),
             ]));
         }
         for i in (count / 2)..count {
-            let core = &self.cpu.cores[i];
+            let current = &self.stats[i];
             second.push(Spans::from(vec![
-                Span::raw(format!("cpu{}: ", core.id)),
+                Span::raw(format!("cpu{}: ", current.core.id)),
                 Span::styled(
-                    conv_hz(core.cur_freq),
-                    Style::default()
-                        .add_modifier(Modifier::BOLD)
-                        .fg(Color::Indexed(i as u8)),
+                    conv_hz(current.core.cur_freq),
+                    Style::default().add_modifier(Modifier::BOLD).fg(current.color),
                 ),
             ]));
         }
