@@ -4,7 +4,7 @@ mod events;
 mod interface;
 use crate::RsysCli;
 use cpu::CpuMonitor;
-use interface::graph_net_interface;
+use interface::IfaceMonitor;
 use std::io::{self, stdout};
 use structopt::StructOpt;
 use termion::{
@@ -36,7 +36,7 @@ pub enum GraphCmd {
 impl RsysCli {
     pub(crate) fn graph(&self, cmd: GraphCmd) {
         let result = match cmd {
-            GraphCmd::Interface { name } => graph_net_interface(&name),
+            GraphCmd::Interface { name } => IfaceMonitor::graph_loop(&name),
             GraphCmd::Cpu => CpuMonitor::graph_loop(),
         };
 

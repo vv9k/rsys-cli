@@ -1,6 +1,6 @@
 use super::{
     common::{DataSeries, Monitor},
-    events::{Event, Events},
+    events::{Config, Event},
     get_terminal,
 };
 use crate::util::conv_fb;
@@ -21,7 +21,7 @@ use tui::{
 const X_AXIS: (f64, f64) = (0., 30.0);
 const Y_AXIS: (f64, f64) = (0., 100.0);
 
-struct IfaceMonitor {
+pub(crate) struct IfaceMonitor {
     rx_data: DataSeries,
     tx_data: DataSeries,
     iface: Interface,
@@ -36,7 +36,7 @@ struct IfaceMonitor {
 }
 
 impl IfaceMonitor {
-    fn new(name: &str) -> Result<IfaceMonitor> {
+    pub(crate) fn new(name: &str) -> Result<IfaceMonitor> {
         let iface = iface(name)?.ok_or_else(|| anyhow!("Interface `{}` not found", name))?;
         let rx = iface.stat.rx_bytes;
         let tx = iface.stat.tx_bytes;
@@ -51,7 +51,7 @@ impl IfaceMonitor {
             curr_tx_speed: 0.,
             total_rx: 0.,
             total_tx: 0.,
-            monitor: Monitor::new(X_AXIS, Y_AXIS),
+            monitor: Monitor::new(X_AXIS, Y_AXIS, Config::new(300)),
         })
     }
 
@@ -230,7 +230,7 @@ impl IfaceMonitor {
         f.render_widget(chart, area);
     }
 
-    fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+    pub(crate) fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints([Constraint::Percentage(85), Constraint::Percentage(15)].as_ref())
@@ -239,31 +239,28 @@ impl IfaceMonitor {
         self.render_graph_widget(f, chunks[0]);
         self.render_info_widget(f, chunks[1]);
     }
-}
 
-pub fn graph_net_interface(name: &str) -> Result<()> {
-    let mut terminal = get_terminal()?;
-    let events = Events::new();
-    let mut monitor = IfaceMonitor::new(name)?;
+    pub(crate) fn graph_loop(name: &str) -> Result<()> {
+        let mut terminal = get_terminal()?;
+        let mut monitor = IfaceMonitor::new(name)?;
+        loop {
+            terminal.draw(|f| {
+                let size = f.size();
+                let layout = Layout::default().constraints([Constraint::Percentage(100)]).split(size);
+                monitor.render_widget(f, layout[0]);
+            })?;
 
-    loop {
-        terminal.draw(|f| {
-            let size = f.size();
-            let layout = Layout::default().constraints([Constraint::Percentage(100)]).split(size);
-            monitor.render_widget(f, layout[0]);
-        })?;
-
-        match events.next()? {
-            Event::Input(input) => {
-                if input == Key::Char('q') {
-                    break;
+            match monitor.monitor.next_event()? {
+                Event::Input(input) => {
+                    if input == Key::Char('q') {
+                        break;
+                    }
+                }
+                Event::Tick => {
+                    monitor.update();
                 }
             }
-            Event::Tick => {
-                monitor.update();
-            }
         }
+        Ok(())
     }
-
-    Ok(())
 }
