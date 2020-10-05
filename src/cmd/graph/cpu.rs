@@ -7,7 +7,6 @@ use crate::util::{conv_fhz, conv_hz};
 use anyhow::Result;
 use rsys::linux::cpu::{processor, Core, Processor};
 use std::time::Instant;
-use termion::event::Key;
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
@@ -21,7 +20,6 @@ use tui::{
 const X_AXIS: (f64, f64) = (0., 30.0);
 const Y_AXIS: (f64, f64) = (f64::MAX, 0.);
 const TICK_RATE: u64 = 250;
-const QUIT_KEY: char = 'q';
 
 struct CoreStat {
     name: String,
@@ -219,7 +217,7 @@ impl CpuMonitor {
 
             match monitor.m.next_event()? {
                 Event::Input(input) => {
-                    if input == Key::Char(QUIT_KEY) {
+                    if input == monitor.m.exit_key() {
                         break;
                     }
                 }

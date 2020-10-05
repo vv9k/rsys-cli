@@ -7,7 +7,6 @@ use crate::util::conv_fb;
 use anyhow::{anyhow, Result};
 use rsys::linux::net::{iface, Interface};
 use std::time::Instant;
-use termion::event::Key;
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
@@ -20,6 +19,7 @@ use tui::{
 
 const X_AXIS: (f64, f64) = (0., 30.0);
 const Y_AXIS: (f64, f64) = (0., 100.0);
+const TICK_RATE: u64 = 300;
 
 pub(crate) struct IfaceMonitor {
     rx_data: DataSeries,
@@ -32,7 +32,7 @@ pub(crate) struct IfaceMonitor {
     curr_tx_speed: f64,
     total_rx: f64,
     total_tx: f64,
-    monitor: Monitor,
+    m: Monitor,
 }
 
 impl IfaceMonitor {
@@ -51,7 +51,7 @@ impl IfaceMonitor {
             curr_tx_speed: 0.,
             total_rx: 0.,
             total_tx: 0.,
-            monitor: Monitor::new(X_AXIS, Y_AXIS, Config::new(300)),
+            m: Monitor::new(X_AXIS, Y_AXIS, Config::new(TICK_RATE)),
         })
     }
 
@@ -72,19 +72,19 @@ impl IfaceMonitor {
         let (delta_rx, delta_tx) = self.delta(time);
 
         self.prev_time = Instant::now();
-        self.monitor.add_time(time);
+        self.m.add_time(time);
 
         self.total_rx += delta_rx;
         self.total_tx += delta_tx;
-        self.rx_data.add(self.monitor.time(), delta_rx);
-        self.tx_data.add(self.monitor.time(), delta_tx);
+        self.rx_data.add(self.m.time(), delta_rx);
+        self.tx_data.add(self.m.time(), delta_tx);
         self.curr_rx_speed = delta_rx;
         self.curr_tx_speed = delta_tx;
 
         // If the values are bigger than current max y
         // update y axis
-        self.monitor.set_if_y_max(delta_rx + 100.);
-        self.monitor.set_if_y_max(delta_tx + 100.);
+        self.m.set_if_y_max(delta_rx + 100.);
+        self.m.set_if_y_max(delta_tx + 100.);
 
         self.prev_rx_bytes = self.iface.stat.rx_bytes;
         self.prev_tx_bytes = self.iface.stat.tx_bytes;
@@ -92,11 +92,11 @@ impl IfaceMonitor {
         // If total time elapsed passed max x coordinate
         // pop first item of dataset and move x axis
         // by time difference of popped and last element
-        if self.monitor.time() > self.monitor.max_x() {
+        if self.m.time() > self.m.max_x() {
             let removed = self.rx_data.pop();
             self.tx_data.pop();
             if let Some(point) = self.rx_data.first() {
-                self.monitor.inc_x_axis(point.0 - removed.0);
+                self.m.inc_x_axis(point.0 - removed.0);
             }
         }
     }
@@ -208,7 +208,7 @@ impl IfaceMonitor {
                 Axis::default()
                     .title("Time")
                     .style(Style::default().fg(Color::Gray))
-                    .bounds(self.monitor.x()),
+                    .bounds(self.m.x()),
             )
             .y_axis(
                 Axis::default()
@@ -216,16 +216,16 @@ impl IfaceMonitor {
                     .style(Style::default().fg(Color::Gray))
                     .labels(vec![
                         Span::raw("0"),
-                        Span::raw(format!("{}/s", conv_fb(self.monitor.max_y() * (1.0 / 5.0)))),
-                        Span::raw(format!("{}/s", conv_fb(self.monitor.max_y() * (2.0 / 5.0)))),
-                        Span::raw(format!("{}/s", conv_fb(self.monitor.max_y() * (3.0 / 5.0)))),
-                        Span::raw(format!("{}/s", conv_fb(self.monitor.max_y() * (4.0 / 5.0)))),
+                        Span::raw(format!("{}/s", conv_fb(self.m.max_y() * (1.0 / 5.0)))),
+                        Span::raw(format!("{}/s", conv_fb(self.m.max_y() * (2.0 / 5.0)))),
+                        Span::raw(format!("{}/s", conv_fb(self.m.max_y() * (3.0 / 5.0)))),
+                        Span::raw(format!("{}/s", conv_fb(self.m.max_y() * (4.0 / 5.0)))),
                         Span::styled(
-                            format!("{}/s", conv_fb(self.monitor.max_y())),
+                            format!("{}/s", conv_fb(self.m.max_y())),
                             Style::default().add_modifier(Modifier::BOLD),
                         ),
                     ])
-                    .bounds(self.monitor.y()),
+                    .bounds(self.m.y()),
             );
         f.render_widget(chart, area);
     }
@@ -250,9 +250,9 @@ impl IfaceMonitor {
                 monitor.render_widget(f, layout[0]);
             })?;
 
-            match monitor.monitor.next_event()? {
+            match monitor.m.next_event()? {
                 Event::Input(input) => {
-                    if input == Key::Char('q') {
+                    if input == monitor.m.exit_key() {
                         break;
                     }
                 }

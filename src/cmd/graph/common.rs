@@ -128,4 +128,8 @@ impl Monitor {
     pub fn x(&self) -> [f64; 2] {
         self.x_axis
     }
+
+    pub fn exit_key(&self) -> Key {
+        self.events.exit_key()
+    }
 }

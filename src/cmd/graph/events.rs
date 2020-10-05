@@ -12,6 +12,7 @@ pub enum Event<I> {
 #[derive(Debug)]
 pub struct Events {
     rx: mpsc::Receiver<Event<Key>>,
+    config: Config,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -72,10 +73,14 @@ impl Events {
                 thread::sleep(config.tick_rate);
             })
         };
-        Events { rx }
+        Events { rx, config }
     }
 
     pub fn next(&self) -> Result<Event<Key>, mpsc::RecvError> {
         self.rx.recv()
+    }
+
+    pub fn exit_key(&self) -> Key {
+        self.config.exit_key
     }
 }
