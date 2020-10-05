@@ -31,11 +31,10 @@ pub(crate) fn get_terminal() -> Result<Term> {
 #[derive(StructOpt, Clone)]
 pub enum GraphCmd {
     /// Draw interface rx/tx speed
-    Interface {
-        name: String,
-    },
+    Interface { name: String },
     /// Draw core frequencies
     Cpu,
+    /// Display I/O stats for storage devices
     Storage,
     /// Display all graphs at once
     All,

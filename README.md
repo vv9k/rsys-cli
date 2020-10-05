@@ -13,7 +13,11 @@ FLAGS:
     -V, --version    Prints version information
 
 SUBCOMMANDS:
+    all          Display all graphs at once
+    cpu          Draw core frequencies
     help         Prints this message or the help of the given subcommand(s)
+    interface    Draw interface rx/tx speed
+    storage      Display I/O stats for storage devices
     interface    Draw interface rx/tx speed
 ```
 ![Example graph](https://github.com/wojciechkepka/rsys-cli/blob/master/example_output/graph.gif)
