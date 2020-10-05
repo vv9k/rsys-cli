@@ -2,8 +2,7 @@ use super::{
     events::{Config, Event, Events},
     get_terminal,
 };
-use anyhow::{anyhow, Result};
-use termion::event::Key;
+use anyhow::Result;
 use tui::{
     backend::Backend,
     layout::{Constraint, Layout, Rect},
@@ -16,29 +15,29 @@ pub(crate) trait GraphWidget {
     fn update(&mut self);
     fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect);
     fn monitor(&mut self) -> &mut Monitor;
+}
+pub(crate) fn graph_loop<W: GraphWidget>(widget: &mut W, config: Config) -> Result<()> {
+    let mut terminal = get_terminal()?;
+    let events = Events::with_config(config);
+    loop {
+        terminal.draw(|f| {
+            let size = f.size();
+            let layout = Layout::default().constraints([Constraint::Percentage(100)]).split(size);
+            widget.render_widget(f, layout[0]);
+        })?;
 
-    fn _graph_loop(&mut self) -> Result<()> {
-        let mut terminal = get_terminal()?;
-        loop {
-            terminal.draw(|f| {
-                let size = f.size();
-                let layout = Layout::default().constraints([Constraint::Percentage(100)]).split(size);
-                self.render_widget(f, layout[0]);
-            })?;
-
-            match self.monitor().next_event()? {
-                Event::Input(input) => {
-                    if input == self.monitor().exit_key() {
-                        break;
-                    }
-                }
-                Event::Tick => {
-                    self.update();
+        match events.next()? {
+            Event::Input(input) => {
+                if input == events.exit_key() {
+                    break;
                 }
             }
+            Event::Tick => {
+                widget.update();
+            }
         }
-        Ok(())
     }
+    Ok(())
 }
 
 /// Wrapper stuct for graph datapoints used by Datasets.
@@ -92,15 +91,13 @@ pub(crate) struct Monitor {
     x_axis: [f64; 2],
     y_axis: [f64; 2],
     total_time: f64,
-    events: Events,
 }
 impl Monitor {
-    pub fn new(x: (f64, f64), y: (f64, f64), config: Config) -> Self {
+    pub fn new(x: (f64, f64), y: (f64, f64)) -> Self {
         Self {
             x_axis: [x.0, x.1],
             y_axis: [y.0, y.1],
             total_time: 0.,
-            events: Events::with_config(config),
         }
     }
 
@@ -110,12 +107,6 @@ impl Monitor {
 
     pub fn time(&self) -> f64 {
         self.total_time
-    }
-
-    pub fn next_event(&mut self) -> Result<Event<Key>> {
-        self.events
-            .next()
-            .map_err(|e| anyhow!("Failed to get next key event - {}", e))
     }
 
     pub fn inc_x_axis(&mut self, n: f64) {
@@ -166,9 +157,5 @@ impl Monitor {
 
     pub fn x(&self) -> [f64; 2] {
         self.x_axis
-    }
-
-    pub fn exit_key(&self) -> Key {
-        self.events.exit_key()
     }
 }

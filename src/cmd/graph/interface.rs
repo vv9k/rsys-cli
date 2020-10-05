@@ -1,5 +1,5 @@
 use super::{
-    common::{DataSeries, GraphWidget, Monitor},
+    common::{graph_loop, DataSeries, GraphWidget, Monitor},
     events::Config,
 };
 use crate::util::conv_fb;
@@ -103,7 +103,7 @@ impl IfaceMonitor {
             curr_tx_speed: 0.,
             total_rx: 0.,
             total_tx: 0.,
-            m: Monitor::new(X_AXIS, Y_AXIS, Config::new(TICK_RATE)),
+            m: Monitor::new(X_AXIS, Y_AXIS),
         })
     }
 
@@ -245,6 +245,6 @@ impl IfaceMonitor {
 
     pub(crate) fn graph_loop(name: &str) -> Result<()> {
         let mut monitor = IfaceMonitor::new(name)?;
-        monitor._graph_loop()
+        graph_loop(&mut monitor, Config::new(TICK_RATE))
     }
 }

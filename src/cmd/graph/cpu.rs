@@ -1,5 +1,5 @@
 use super::{
-    common::{DataSeries, GraphWidget, Monitor},
+    common::{graph_loop, DataSeries, GraphWidget, Monitor},
     events::Config,
 };
 use crate::util::{conv_fhz, conv_hz};
@@ -102,7 +102,7 @@ impl GraphWidget for CpuMonitor {
 }
 
 impl CpuMonitor {
-    pub(crate) fn new(tick_rate: Option<u64>) -> Result<CpuMonitor> {
+    pub(crate) fn new() -> Result<CpuMonitor> {
         let cpu = processor()?;
         let mut stats = Vec::new();
         for core in &cpu.cores {
@@ -113,7 +113,7 @@ impl CpuMonitor {
             stats,
             start_time: Instant::now(),
             last_time: Instant::now(),
-            m: Monitor::new(X_AXIS, Y_AXIS, Config::new_or_default(tick_rate)),
+            m: Monitor::new(X_AXIS, Y_AXIS),
         })
     }
 
@@ -210,7 +210,7 @@ impl CpuMonitor {
     }
 
     pub(crate) fn graph_loop() -> Result<()> {
-        let mut monitor = CpuMonitor::new(Some(TICK_RATE))?;
-        monitor._graph_loop()
+        let mut monitor = CpuMonitor::new()?;
+        graph_loop(&mut monitor, Config::new(TICK_RATE))
     }
 }
