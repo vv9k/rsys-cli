@@ -1,3 +1,7 @@
+use super::events::{Config, Event, Events};
+use anyhow::{anyhow, Result};
+use termion::event::Key;
+
 /// Wrapper stuct for graph datapoints used by Datasets.
 pub(crate) struct DataSeries {
     data: Vec<(f64, f64)>,
@@ -49,13 +53,15 @@ pub(crate) struct Monitor {
     x_axis: [f64; 2],
     y_axis: [f64; 2],
     total_time: f64,
+    events: Events,
 }
 impl Monitor {
-    pub fn new(x: (f64, f64), y: (f64, f64)) -> Self {
+    pub fn new(x: (f64, f64), y: (f64, f64), config: Config) -> Self {
         Self {
             x_axis: [x.0, x.1],
             y_axis: [y.0, y.1],
             total_time: 0.,
+            events: Events::with_config(config),
         }
     }
 
@@ -65,6 +71,12 @@ impl Monitor {
 
     pub fn time(&self) -> f64 {
         self.total_time
+    }
+
+    pub fn next_event(&mut self) -> Result<Event<Key>> {
+        self.events
+            .next()
+            .map_err(|e| anyhow!("Failed to get next key event - {}", e))
     }
 
     pub fn inc_x_axis(&mut self, n: f64) {
