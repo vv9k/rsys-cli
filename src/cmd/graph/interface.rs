@@ -1,7 +1,6 @@
 use super::{
-    common::{DataSeries, Monitor},
-    events::{Config, Event},
-    get_terminal,
+    common::{DataSeries, GraphWidget, Monitor},
+    events::Config,
 };
 use crate::util::conv_fb;
 use anyhow::{anyhow, Result};
@@ -35,33 +34,7 @@ pub(crate) struct IfaceMonitor {
     m: Monitor,
 }
 
-impl IfaceMonitor {
-    pub(crate) fn new(name: &str) -> Result<IfaceMonitor> {
-        let iface = iface(name)?.ok_or_else(|| anyhow!("Interface `{}` not found", name))?;
-        let rx = iface.stat.rx_bytes;
-        let tx = iface.stat.tx_bytes;
-        Ok(IfaceMonitor {
-            rx_data: DataSeries::new(),
-            tx_data: DataSeries::new(),
-            iface,
-            prev_rx_bytes: rx,
-            prev_tx_bytes: tx,
-            prev_time: Instant::now(),
-            curr_rx_speed: 0.,
-            curr_tx_speed: 0.,
-            total_rx: 0.,
-            total_tx: 0.,
-            m: Monitor::new(X_AXIS, Y_AXIS, Config::new(TICK_RATE)),
-        })
-    }
-
-    fn delta(&mut self, time: f64) -> (f64, f64) {
-        (
-            (self.iface.stat.rx_bytes - self.prev_rx_bytes) as f64 / time,
-            (self.iface.stat.tx_bytes - self.prev_tx_bytes) as f64 / time,
-        )
-    }
-
+impl GraphWidget for IfaceMonitor {
     fn update(&mut self) {
         // Update interface
         self.iface.update().unwrap();
@@ -99,6 +72,46 @@ impl IfaceMonitor {
                 self.m.inc_x_axis(point.0 - removed.0);
             }
         }
+    }
+    fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+        let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Percentage(85), Constraint::Percentage(15)].as_ref())
+            .split(area);
+
+        self.render_graph_widget(f, chunks[0]);
+        self.render_info_widget(f, chunks[1]);
+    }
+    fn monitor(&mut self) -> &mut Monitor {
+        &mut self.m
+    }
+}
+
+impl IfaceMonitor {
+    pub(crate) fn new(name: &str) -> Result<IfaceMonitor> {
+        let iface = iface(name)?.ok_or_else(|| anyhow!("Interface `{}` not found", name))?;
+        let rx = iface.stat.rx_bytes;
+        let tx = iface.stat.tx_bytes;
+        Ok(IfaceMonitor {
+            rx_data: DataSeries::new(),
+            tx_data: DataSeries::new(),
+            iface,
+            prev_rx_bytes: rx,
+            prev_tx_bytes: tx,
+            prev_time: Instant::now(),
+            curr_rx_speed: 0.,
+            curr_tx_speed: 0.,
+            total_rx: 0.,
+            total_tx: 0.,
+            m: Monitor::new(X_AXIS, Y_AXIS, Config::new(TICK_RATE)),
+        })
+    }
+
+    fn delta(&mut self, time: f64) -> (f64, f64) {
+        (
+            (self.iface.stat.rx_bytes - self.prev_rx_bytes) as f64 / time,
+            (self.iface.stat.tx_bytes - self.prev_tx_bytes) as f64 / time,
+        )
     }
 
     fn current_rx_speed(&self) -> String {
@@ -230,37 +243,8 @@ impl IfaceMonitor {
         f.render_widget(chart, area);
     }
 
-    pub(crate) fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
-        let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Percentage(85), Constraint::Percentage(15)].as_ref())
-            .split(area);
-
-        self.render_graph_widget(f, chunks[0]);
-        self.render_info_widget(f, chunks[1]);
-    }
-
     pub(crate) fn graph_loop(name: &str) -> Result<()> {
-        let mut terminal = get_terminal()?;
         let mut monitor = IfaceMonitor::new(name)?;
-        loop {
-            terminal.draw(|f| {
-                let size = f.size();
-                let layout = Layout::default().constraints([Constraint::Percentage(100)]).split(size);
-                monitor.render_widget(f, layout[0]);
-            })?;
-
-            match monitor.m.next_event()? {
-                Event::Input(input) => {
-                    if input == monitor.m.exit_key() {
-                        break;
-                    }
-                }
-                Event::Tick => {
-                    monitor.update();
-                }
-            }
-        }
-        Ok(())
+        monitor._graph_loop()
     }
 }

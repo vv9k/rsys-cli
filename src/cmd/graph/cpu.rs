@@ -1,7 +1,6 @@
 use super::{
-    common::{DataSeries, Monitor},
-    events::{Config, Event},
-    get_terminal,
+    common::{DataSeries, GraphWidget, Monitor},
+    events::Config,
 };
 use crate::util::{conv_fhz, conv_hz};
 use anyhow::Result;
@@ -44,23 +43,7 @@ pub(crate) struct CpuMonitor {
     m: Monitor,
 }
 
-impl CpuMonitor {
-    pub(crate) fn new(tick_rate: Option<u64>) -> Result<CpuMonitor> {
-        let cpu = processor()?;
-        let mut stats = Vec::new();
-        for core in &cpu.cores {
-            stats.push(CoreStat::from_core(&core));
-        }
-
-        Ok(CpuMonitor {
-            cpu,
-            stats,
-            start_time: Instant::now(),
-            last_time: Instant::now(),
-            m: Monitor::new(X_AXIS, Y_AXIS, Config::new_or_default(tick_rate)),
-        })
-    }
-
+impl GraphWidget for CpuMonitor {
     fn update(&mut self) {
         // Time since begining
         let elapsed = self.start_time.elapsed().as_secs_f64();
@@ -96,6 +79,36 @@ impl CpuMonitor {
                 c.data.pop();
             });
         }
+    }
+    fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+        let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Percentage(85), Constraint::Percentage(15)].as_ref())
+            .split(area);
+
+        self.render_graph_widget(f, chunks[0]);
+        self.render_cores_info_widget(f, chunks[1]);
+    }
+    fn monitor(&mut self) -> &mut Monitor {
+        &mut self.m
+    }
+}
+
+impl CpuMonitor {
+    pub(crate) fn new(tick_rate: Option<u64>) -> Result<CpuMonitor> {
+        let cpu = processor()?;
+        let mut stats = Vec::new();
+        for core in &cpu.cores {
+            stats.push(CoreStat::from_core(&core));
+        }
+
+        Ok(CpuMonitor {
+            cpu,
+            stats,
+            start_time: Instant::now(),
+            last_time: Instant::now(),
+            m: Monitor::new(X_AXIS, Y_AXIS, Config::new_or_default(tick_rate)),
+        })
     }
 
     fn datasets(&self) -> Vec<Dataset> {
@@ -194,39 +207,8 @@ impl CpuMonitor {
         f.render_widget(second_col, chunks[1]);
     }
 
-    pub(crate) fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
-        let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Percentage(85), Constraint::Percentage(15)].as_ref())
-            .split(area);
-
-        self.render_graph_widget(f, chunks[0]);
-        self.render_cores_info_widget(f, chunks[1]);
-    }
-
     pub(crate) fn graph_loop() -> Result<()> {
-        let mut terminal = get_terminal()?;
         let mut monitor = CpuMonitor::new(Some(TICK_RATE))?;
-
-        loop {
-            terminal.draw(|f| {
-                let size = f.size();
-                let layout = Layout::default().constraints([Constraint::Percentage(100)]).split(size);
-                monitor.render_widget(f, layout[0]);
-            })?;
-
-            match monitor.m.next_event()? {
-                Event::Input(input) => {
-                    if input == monitor.m.exit_key() {
-                        break;
-                    }
-                }
-                Event::Tick => {
-                    monitor.update();
-                }
-            }
-        }
-
-        Ok(())
+        monitor._graph_loop()
     }
 }
