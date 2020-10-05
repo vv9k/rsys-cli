@@ -5,6 +5,11 @@ use serde_yaml as yaml;
 use std::any::type_name;
 use std::fmt::{Debug, Display};
 
+const KILO: f64 = 1000.;
+const MEGA: f64 = KILO * KILO;
+const GIGA: f64 = KILO * KILO * KILO;
+const TERA: f64 = KILO * KILO * KILO * KILO;
+
 pub(crate) enum PrintFormat {
     Normal,
     Json,
@@ -55,40 +60,34 @@ pub(crate) fn handle_err<T: Default>(res: Result<T>) -> T {
     }
 }
 
+fn conv_metric(value: f64, unit: &str) -> String {
+    let (val, u) = if value < KILO {
+        (value, "")
+    } else if KILO <= value && value < MEGA {
+        (value / KILO, "K")
+    } else if MEGA <= value && value < GIGA {
+        (value / MEGA, "M")
+    } else if GIGA <= value && value < TERA {
+        (value / GIGA, "G")
+    } else {
+        (value / TERA, "T")
+    };
+
+    format!("{:.2} {}{}", val, u, unit)
+}
+
+pub(crate) fn conv_fb(bytes: f64) -> String {
+    conv_metric(bytes, "B")
+}
+
 pub(crate) fn conv_b(bytes: u64) -> String {
     conv_fb(bytes as f64)
 }
 
-pub(crate) fn conv_fb(bytes: f64) -> String {
-    if bytes < 1_024. {
-        format!("{:.2} B", bytes)
-    } else if 1_024. <= bytes && bytes < u64::pow(1_024, 2) as f64 {
-        format!("{:.2} KB", bytes / 1_024.)
-    } else if u64::pow(1_024, 2) as f64 <= bytes && bytes < u64::pow(1_024, 3) as f64 {
-        format!("{:.2} MB", bytes / u64::pow(1_024, 2) as f64)
-    } else if u64::pow(1_024, 3) as f64 <= bytes && bytes < u64::pow(1_024, 4) as f64 {
-        format!("{:.2} GB", bytes / u64::pow(1_024, 3) as f64)
-    } else {
-        format!("{:.2} TB", bytes / u64::pow(1_024, 4) as f64)
-    }
-}
-
 pub(crate) fn conv_hz(hz: u64) -> String {
-    if hz < 1_000 {
-        format!("{} Hz", hz)
-    } else if hz < 1_000_000 {
-        format!("{:.2} MHz", (hz as f64 / 1_000.0))
-    } else {
-        format!("{:.2} GHz", (hz as f64 / 1_000_000.0))
-    }
+    conv_fhz(hz as f64)
 }
 
 pub(crate) fn conv_fhz(hz: f64) -> String {
-    if hz < 1_000. {
-        format!("{:.2} Hz", hz)
-    } else if hz < 1_000_000. {
-        format!("{:.2} MHz", (hz / 1_000.0))
-    } else {
-        format!("{:.2} GHz", (hz / 1_000_000.0))
-    }
+    conv_metric(hz, "Hz")
 }
