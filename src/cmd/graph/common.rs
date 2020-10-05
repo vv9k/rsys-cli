@@ -1,8 +1,11 @@
 use super::{
+    cpu::CpuMonitor,
     events::{Config, Event, Events},
     get_terminal,
+    interface::IfaceMonitor,
 };
 use anyhow::Result;
+use rsys::linux;
 use tui::{
     backend::Backend,
     layout::{Constraint, Layout, Rect},
@@ -37,6 +40,37 @@ pub(crate) fn graph_loop<W: GraphWidget>(widget: &mut W, config: Config) -> Resu
             }
         }
     }
+    Ok(())
+}
+
+pub(crate) fn graph_all_loop() -> Result<()> {
+    let mut terminal = get_terminal()?;
+    let events = Events::with_config(Config::new(300));
+    let mut cpumon = CpuMonitor::new()?;
+    let mut ifacemon = IfaceMonitor::new(&linux::net::default_iface()?)?;
+    loop {
+        terminal.draw(|f| {
+            let size = f.size();
+            let layout = Layout::default()
+                .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+                .split(size);
+            cpumon.render_widget(f, layout[0]);
+            ifacemon.render_widget(f, layout[1]);
+        })?;
+
+        match events.next()? {
+            Event::Input(input) => {
+                if input == events.exit_key() {
+                    break;
+                }
+            }
+            Event::Tick => {
+                cpumon.update();
+                ifacemon.update();
+            }
+        }
+    }
+
     Ok(())
 }
 

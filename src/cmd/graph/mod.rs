@@ -3,6 +3,7 @@ mod cpu;
 mod events;
 mod interface;
 use crate::RsysCli;
+use common::graph_all_loop;
 use cpu::CpuMonitor;
 use interface::IfaceMonitor;
 use std::io::{self, stdout};
@@ -31,6 +32,8 @@ pub enum GraphCmd {
     Interface { name: String },
     /// Draw core frequencies
     Cpu,
+    /// Display all graphs at once
+    All,
 }
 
 impl RsysCli {
@@ -38,6 +41,7 @@ impl RsysCli {
         let result = match cmd {
             GraphCmd::Interface { name } => IfaceMonitor::graph_loop(&name),
             GraphCmd::Cpu => CpuMonitor::graph_loop(),
+            GraphCmd::All => graph_all_loop(),
         };
 
         if let Err(e) = result {
