@@ -3,6 +3,7 @@ use super::{
     events::{Config, Event, Events},
     get_terminal,
     interface::IfaceMonitor,
+    storage::StorageMonitor,
 };
 use anyhow::Result;
 use rsys::linux;
@@ -48,14 +49,20 @@ pub(crate) fn graph_all_loop() -> Result<()> {
     let events = Events::with_config(Config::new(300));
     let mut cpumon = CpuMonitor::new()?;
     let mut ifacemon = IfaceMonitor::new(&linux::net::default_iface()?)?;
+    let mut stormon = StorageMonitor::new()?;
     loop {
         terminal.draw(|f| {
             let size = f.size();
             let layout = Layout::default()
-                .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+                .constraints([
+                    Constraint::Percentage(33),
+                    Constraint::Percentage(33),
+                    Constraint::Percentage(33),
+                ])
                 .split(size);
             cpumon.render_widget(f, layout[0]);
             ifacemon.render_widget(f, layout[1]);
+            stormon.render_widget(f, layout[2]);
         })?;
 
         match events.next()? {
@@ -67,6 +74,7 @@ pub(crate) fn graph_all_loop() -> Result<()> {
             Event::Tick => {
                 cpumon.update();
                 ifacemon.update();
+                stormon.update();
             }
         }
     }
