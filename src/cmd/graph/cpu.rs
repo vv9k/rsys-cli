@@ -1,6 +1,6 @@
 use super::{
     common::{DataSeries, Monitor},
-    events::{Config, Event, Events},
+    events::{Config, Event},
     get_terminal,
 };
 use crate::util::{conv_fhz, conv_hz};
@@ -38,7 +38,7 @@ impl CoreStat {
     }
 }
 
-struct CpuMonitor {
+pub(crate) struct CpuMonitor {
     cpu: Processor,
     stats: Vec<CoreStat>,
     start_time: Instant,
@@ -47,7 +47,7 @@ struct CpuMonitor {
 }
 
 impl CpuMonitor {
-    fn new() -> Result<CpuMonitor> {
+    pub(crate) fn new(tick_rate: Option<u64>) -> Result<CpuMonitor> {
         let cpu = processor()?;
         let mut stats = Vec::new();
         for core in &cpu.cores {
@@ -59,7 +59,7 @@ impl CpuMonitor {
             stats,
             start_time: Instant::now(),
             last_time: Instant::now(),
-            m: Monitor::new(X_AXIS, Y_AXIS),
+            m: Monitor::new(X_AXIS, Y_AXIS, Config::new_or_default(tick_rate)),
         })
     }
 
@@ -113,6 +113,7 @@ impl CpuMonitor {
         }
         data
     }
+
     fn render_graph_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let datasets = self.datasets();
         let chart = Chart::new(datasets)
@@ -195,7 +196,7 @@ impl CpuMonitor {
         f.render_widget(second_col, chunks[1]);
     }
 
-    fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+    pub(crate) fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints([Constraint::Percentage(85), Constraint::Percentage(15)].as_ref())
@@ -204,32 +205,30 @@ impl CpuMonitor {
         self.render_graph_widget(f, chunks[0]);
         self.render_cores_info_widget(f, chunks[1]);
     }
-}
 
-pub fn graph_cpu() -> Result<()> {
-    let mut terminal = get_terminal()?;
-    let cfg = Config::new(TICK_RATE);
-    let events = Events::with_config(cfg);
-    let mut monitor = CpuMonitor::new()?;
+    pub(crate) fn graph_loop() -> Result<()> {
+        let mut terminal = get_terminal()?;
+        let mut monitor = CpuMonitor::new(Some(TICK_RATE))?;
 
-    loop {
-        terminal.draw(|f| {
-            let size = f.size();
-            let layout = Layout::default().constraints([Constraint::Percentage(100)]).split(size);
-            monitor.render_widget(f, layout[0]);
-        })?;
+        loop {
+            terminal.draw(|f| {
+                let size = f.size();
+                let layout = Layout::default().constraints([Constraint::Percentage(100)]).split(size);
+                monitor.render_widget(f, layout[0]);
+            })?;
 
-        match events.next()? {
-            Event::Input(input) => {
-                if input == Key::Char(QUIT_KEY) {
-                    break;
+            match monitor.m.next_event()? {
+                Event::Input(input) => {
+                    if input == Key::Char(QUIT_KEY) {
+                        break;
+                    }
+                }
+                Event::Tick => {
+                    monitor.update();
                 }
             }
-            Event::Tick => {
-                monitor.update();
-            }
         }
-    }
 
-    Ok(())
+        Ok(())
+    }
 }

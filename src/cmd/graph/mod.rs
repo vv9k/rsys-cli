@@ -3,7 +3,7 @@ mod cpu;
 mod events;
 mod interface;
 use crate::RsysCli;
-use cpu::graph_cpu;
+use cpu::CpuMonitor;
 use interface::graph_net_interface;
 use std::io::{self, stdout};
 use structopt::StructOpt;
@@ -37,7 +37,7 @@ impl RsysCli {
     pub(crate) fn graph(&self, cmd: GraphCmd) {
         let result = match cmd {
             GraphCmd::Interface { name } => graph_net_interface(&name),
-            GraphCmd::Cpu => graph_cpu(),
+            GraphCmd::Cpu => CpuMonitor::graph_loop(),
         };
 
         if let Err(e) = result {
