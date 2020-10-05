@@ -1,6 +1,43 @@
-use super::events::{Config, Event, Events};
+use super::{
+    events::{Config, Event, Events},
+    get_terminal,
+};
 use anyhow::{anyhow, Result};
 use termion::event::Key;
+use tui::{
+    backend::Backend,
+    layout::{Constraint, Layout, Rect},
+    Frame,
+};
+
+pub(crate) trait GraphWidget {
+    fn update(&mut self);
+    fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect);
+    fn monitor(&mut self) -> &mut Monitor;
+
+    fn _graph_loop(&mut self) -> Result<()> {
+        let mut terminal = get_terminal()?;
+        loop {
+            terminal.draw(|f| {
+                let size = f.size();
+                let layout = Layout::default().constraints([Constraint::Percentage(100)]).split(size);
+                self.render_widget(f, layout[0]);
+            })?;
+
+            match self.monitor().next_event()? {
+                Event::Input(input) => {
+                    if input == self.monitor().exit_key() {
+                        break;
+                    }
+                }
+                Event::Tick => {
+                    self.update();
+                }
+            }
+        }
+        Ok(())
+    }
+}
 
 /// Wrapper stuct for graph datapoints used by Datasets.
 pub(crate) struct DataSeries {
