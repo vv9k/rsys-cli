@@ -74,6 +74,7 @@ pub(crate) fn graph_all_loop() -> Result<()> {
     Ok(())
 }
 
+#[derive(Debug)]
 /// Wrapper stuct for graph datapoints used by Datasets.
 pub(crate) struct DataSeries {
     data: Vec<(f64, f64)>,

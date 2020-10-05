@@ -2,11 +2,13 @@ mod common;
 mod cpu;
 mod events;
 mod interface;
+mod storage;
 use crate::RsysCli;
 use common::graph_all_loop;
 use cpu::CpuMonitor;
 use interface::IfaceMonitor;
 use std::io::{self, stdout};
+use storage::StorageMonitor;
 use structopt::StructOpt;
 use termion::{
     input::MouseTerminal,
@@ -29,9 +31,12 @@ pub(crate) fn get_terminal() -> Result<Term> {
 #[derive(StructOpt, Clone)]
 pub enum GraphCmd {
     /// Draw interface rx/tx speed
-    Interface { name: String },
+    Interface {
+        name: String,
+    },
     /// Draw core frequencies
     Cpu,
+    Storage,
     /// Display all graphs at once
     All,
 }
@@ -41,6 +46,7 @@ impl RsysCli {
         let result = match cmd {
             GraphCmd::Interface { name } => IfaceMonitor::graph_loop(&name),
             GraphCmd::Cpu => CpuMonitor::graph_loop(),
+            GraphCmd::Storage => StorageMonitor::graph_loop(),
             GraphCmd::All => graph_all_loop(),
         };
 
