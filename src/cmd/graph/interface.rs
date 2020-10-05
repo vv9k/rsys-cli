@@ -75,12 +75,12 @@ impl GraphWidget for IfaceMonitor {
     }
     fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Percentage(85), Constraint::Percentage(15)].as_ref())
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Percentage(20), Constraint::Percentage(80)].as_ref())
             .split(area);
 
-        self.render_graph_widget(f, chunks[0]);
-        self.render_info_widget(f, chunks[1]);
+        self.render_info_widget(f, chunks[0]);
+        self.render_graph_widget(f, chunks[1]);
     }
     fn monitor(&mut self) -> &mut Monitor {
         &mut self.m
@@ -126,44 +126,32 @@ impl IfaceMonitor {
     fn total_tx(&self) -> String {
         conv_fb(self.total_tx)
     }
-    fn rx_info(&self) -> Spans {
-        spans_from(vec![
-            kv_span("  Current rx speed: ", &self.current_rx_speed(), Color::Cyan, true),
-            kv_span(", Total received: ", &self.total_rx(), Color::Cyan, true),
-        ])
-    }
-    fn tx_info(&self) -> Spans {
-        spans_from(vec![
-            kv_span("  Current tx speed: ", &self.current_tx_speed(), Color::Blue, true),
-            kv_span(", Total received: ", &self.total_tx(), Color::Blue, true),
-        ])
-    }
-    fn iface_stats(&self) -> Paragraph {
-        Paragraph::new(vec![Spans::from(vec![]), self.rx_info(), self.tx_info()])
-    }
     fn iface_info(&self) -> Paragraph {
         Paragraph::new(vec![
             Spans::from(Span::styled(
                 &self.iface.name,
                 Style::default().add_modifier(Modifier::BOLD).fg(Color::Green),
             )),
-            spans_from(vec![kv_span("  ipv4: ", &self.iface.ipv4, Color::White, true)]),
-            spans_from(vec![kv_span("  ipv6: ", &self.iface.ipv6, Color::White, true)]),
+            spans_from(vec![kv_span(" ipv4: ", &self.iface.ipv4, Color::White, true)]),
+            spans_from(vec![kv_span(" ipv6: ", &self.iface.ipv6, Color::White, true)]),
             spans_from(vec![kv_span(
-                "  mtu: ",
+                " mtu : ",
                 &self.iface.mtu.to_string(),
                 Color::White,
                 true,
             )]),
-            spans_from(vec![kv_span("  mac: ", &self.iface.mac_address, Color::White, true)]),
+            spans_from(vec![kv_span(" mac : ", &self.iface.mac_address, Color::White, true)]),
+            spans_from(vec![kv_span(" Vrx : ", &self.current_rx_speed(), Color::Cyan, true)]),
+            spans_from(vec![kv_span(" Σrx : ", &self.total_rx(), Color::Cyan, true)]),
+            spans_from(vec![kv_span(" Vtx : ", &self.current_tx_speed(), Color::Blue, true)]),
+            spans_from(vec![kv_span(" Σtx : ", &self.total_tx(), Color::Blue, true)]),
         ])
     }
     fn render_info_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+            .constraints([Constraint::Percentage(100)])
             .split(area);
-        f.render_widget(self.iface_stats(), chunks[1]);
         f.render_widget(self.iface_info(), chunks[0]);
     }
     fn datasets(&self) -> Vec<Dataset> {

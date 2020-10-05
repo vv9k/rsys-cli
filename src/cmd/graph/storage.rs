@@ -124,12 +124,12 @@ impl GraphWidget for StorageMonitor {
     }
     fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Percentage(30), Constraint::Percentage(70)].as_ref())
             .split(area);
 
-        self.render_graph_widget(f, chunks[0]);
-        self.render_storage_info_widget(f, chunks[1]);
+        self.render_storage_info_widget(f, chunks[0]);
+        self.render_graph_widget(f, chunks[1]);
     }
     fn monitor(&mut self) -> &mut Monitor {
         &mut self.m
@@ -212,14 +212,10 @@ impl StorageMonitor {
     fn render_storage_info_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
-            .constraints([
-                Constraint::Percentage(20),
-                Constraint::Percentage(60),
-                Constraint::Percentage(20),
-            ])
+            .constraints([Constraint::Percentage(100)])
             .split(area);
 
-        let headers = ["name", "rx speed", "wx speed", "rx total", "wx total"];
+        let headers = ["name", "rx/s", "wx/s", "Σrx", "Σwx"];
         let data = self.stats.iter().enumerate().map(|(i, s)| {
             Row::StyledData(
                 vec![
@@ -235,14 +231,14 @@ impl StorageMonitor {
         });
 
         let table = Table::new(headers.iter(), data).widths(&[
-            Constraint::Percentage(12),
+            Constraint::Percentage(10),
             Constraint::Percentage(20),
             Constraint::Percentage(20),
             Constraint::Percentage(20),
             Constraint::Percentage(20),
         ]);
 
-        f.render_widget(table, chunks[1]);
+        f.render_widget(table, chunks[0]);
     }
 
     pub(crate) fn graph_loop() -> Result<()> {

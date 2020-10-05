@@ -1,5 +1,5 @@
 use super::{
-    common::{graph_loop, kv_span, spans_from, DataSeries, GraphWidget, Monitor},
+    common::{graph_loop, DataSeries, GraphWidget, Monitor},
     events::Config,
 };
 use crate::util::{conv_fhz, conv_hz};
@@ -12,7 +12,7 @@ use tui::{
     style::{Color, Modifier, Style},
     symbols,
     text::Span,
-    widgets::{Axis, Block, Borders, Chart, Dataset, Paragraph},
+    widgets::{Axis, Block, Borders, Chart, Dataset, Row, Table},
     Frame,
 };
 
@@ -89,12 +89,12 @@ impl GraphWidget for CpuMonitor {
     }
     fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Percentage(85), Constraint::Percentage(15)].as_ref())
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Percentage(20), Constraint::Min(80)].as_ref())
             .split(area);
 
-        self.render_graph_widget(f, chunks[0]);
-        self.render_cores_info_widget(f, chunks[1]);
+        self.render_cores_info_widget(f, chunks[0]);
+        self.render_graph_widget(f, chunks[1]);
     }
     fn monitor(&mut self) -> &mut Monitor {
         &mut self.m
@@ -123,7 +123,7 @@ impl CpuMonitor {
             data.push(
                 Dataset::default()
                     .name(&core.name)
-                    .marker(symbols::Marker::Dot)
+                    .marker(symbols::Marker::Braille)
                     .style(Style::default().fg(core.color))
                     .data(&core.data.data()),
             );
@@ -173,38 +173,20 @@ impl CpuMonitor {
     fn render_cores_info_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+            .constraints([Constraint::Percentage(10), Constraint::Percentage(90)])
             .split(area);
 
-        let count = self.stats.len();
+        let headers = ["core", "frequency"];
+        let data = self.stats.iter().map(|s| {
+            Row::StyledData(
+                vec![s.name.clone(), conv_hz(s.core.cur_freq)].into_iter(),
+                Style::default().fg(s.color),
+            )
+        });
 
-        let mut first = Vec::new();
-        let mut second = Vec::new();
+        let table = Table::new(headers.iter(), data).widths(&[Constraint::Percentage(25), Constraint::Percentage(60)]);
 
-        for i in 0..(count / 2) {
-            let current = &self.stats[i];
-            first.push(spans_from(vec![kv_span(
-                format!("cpu{}: ", current.core.id),
-                conv_hz(current.core.cur_freq),
-                current.color,
-                true,
-            )]));
-        }
-        for i in (count / 2)..count {
-            let current = &self.stats[i];
-            second.push(spans_from(vec![kv_span(
-                format!("cpu{}: ", current.core.id),
-                conv_hz(current.core.cur_freq),
-                current.color,
-                true,
-            )]));
-        }
-
-        let first_col = Paragraph::new(first);
-        let second_col = Paragraph::new(second);
-
-        f.render_widget(first_col, chunks[0]);
-        f.render_widget(second_col, chunks[1]);
+        f.render_widget(table, chunks[1]);
     }
 
     pub(crate) fn graph_loop() -> Result<()> {
