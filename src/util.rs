@@ -73,7 +73,7 @@ fn conv_metric(value: f64, unit: &str) -> String {
         (value / TERA, "T")
     };
 
-    format!("{:.2} {}{}", val, u, unit)
+    format!("{:.2}{}{}", val, u, unit)
 }
 
 pub(crate) fn conv_fb(bytes: f64) -> String {
