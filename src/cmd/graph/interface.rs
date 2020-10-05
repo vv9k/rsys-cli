@@ -42,17 +42,17 @@ impl GraphWidget for IfaceMonitor {
         // time between previous run and now
         let time = self.prev_time.elapsed().as_secs_f64();
 
-        let (delta_rx, delta_tx) = self.delta(time);
+        let (delta_rx, delta_tx) = self.delta();
 
         self.prev_time = Instant::now();
         self.m.add_time(time);
 
         self.total_rx += delta_rx;
         self.total_tx += delta_tx;
-        self.rx_data.add(self.m.time(), delta_rx);
-        self.tx_data.add(self.m.time(), delta_tx);
-        self.curr_rx_speed = delta_rx;
-        self.curr_tx_speed = delta_tx;
+        self.curr_rx_speed = delta_rx / time;
+        self.curr_tx_speed = delta_tx / time;
+        self.rx_data.add(self.m.time(), self.curr_rx_speed);
+        self.tx_data.add(self.m.time(), self.curr_tx_speed);
 
         // If the values are bigger than current max y
         // update y axis
@@ -107,10 +107,10 @@ impl IfaceMonitor {
         })
     }
 
-    fn delta(&mut self, time: f64) -> (f64, f64) {
+    fn delta(&mut self) -> (f64, f64) {
         (
-            (self.iface.stat.rx_bytes - self.prev_rx_bytes) as f64 / time,
-            (self.iface.stat.tx_bytes - self.prev_tx_bytes) as f64 / time,
+            (self.iface.stat.rx_bytes - self.prev_rx_bytes) as f64,
+            (self.iface.stat.tx_bytes - self.prev_tx_bytes) as f64,
         )
     }
 
