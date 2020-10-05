@@ -9,11 +9,15 @@ use std::{
 };
 use termion::{event::Key, input::TermRead};
 
+pub(crate) const DEFAULT_TICK_RATE: u64 = 1000;
+
+#[derive(Debug)]
 pub enum Event<I> {
     Input(I),
     Tick,
 }
 
+#[derive(Debug)]
 pub struct Events {
     rx: mpsc::Receiver<Event<Key>>,
 }
@@ -29,6 +33,11 @@ impl Config {
             exit_key: Key::Char('q'),
             tick_rate: Duration::from_millis(tick_rate),
         }
+    }
+
+    pub fn new_or_default(tick_rate: Option<u64>) -> Config {
+        let tick_rate = if let Some(t) = tick_rate { t } else { DEFAULT_TICK_RATE };
+        Config::new(tick_rate)
     }
 }
 
