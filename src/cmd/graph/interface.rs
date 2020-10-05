@@ -56,8 +56,8 @@ impl GraphWidget for IfaceMonitor {
 
         // If the values are bigger than current max y
         // update y axis
-        self.m.set_if_y_max(delta_rx + 100.);
-        self.m.set_if_y_max(delta_tx + 100.);
+        self.m.set_if_y_max(self.curr_rx_speed + 100.);
+        self.m.set_if_y_max(self.curr_rx_speed + 100.);
 
         self.prev_rx_bytes = self.iface.stat.rx_bytes;
         self.prev_tx_bytes = self.iface.stat.tx_bytes;
