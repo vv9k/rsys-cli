@@ -5,7 +5,6 @@ use super::{
 use crate::util::conv_fb;
 use anyhow::{anyhow, Result};
 use rsys::linux::net::{iface, Interface};
-use std::time::Instant;
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
@@ -26,7 +25,6 @@ pub(crate) struct IfaceMonitor {
     iface: Interface,
     prev_rx_bytes: u64,
     prev_tx_bytes: u64,
-    prev_time: Instant,
     curr_rx_speed: f64,
     curr_tx_speed: f64,
     total_rx: f64,
@@ -39,20 +37,14 @@ impl GraphWidget for IfaceMonitor {
         // Update interface
         self.iface.update().unwrap();
 
-        // time between previous run and now
-        let time = self.prev_time.elapsed().as_secs_f64();
-
         let (delta_rx, delta_tx) = self.delta();
-
-        self.prev_time = Instant::now();
-        self.m.add_time(time);
 
         self.total_rx += delta_rx;
         self.total_tx += delta_tx;
-        self.curr_rx_speed = delta_rx / time;
-        self.curr_tx_speed = delta_tx / time;
-        self.rx_data.add(self.m.time(), self.curr_rx_speed);
-        self.tx_data.add(self.m.time(), self.curr_tx_speed);
+        self.curr_rx_speed = delta_rx / self.m.elapsed_since_last();
+        self.curr_tx_speed = delta_tx / self.m.elapsed_since_last();
+        self.rx_data.add(self.m.elapsed_since_start(), self.curr_rx_speed);
+        self.tx_data.add(self.m.elapsed_since_start(), self.curr_tx_speed);
 
         // If the values are bigger than current max y
         // update y axis
@@ -65,7 +57,7 @@ impl GraphWidget for IfaceMonitor {
         // If total time elapsed passed max x coordinate
         // pop first item of dataset and move x axis
         // by time difference of popped and last element
-        if self.m.time() > self.m.max_x() {
+        if self.m.elapsed_since_start() > self.m.max_x() {
             let removed = self.rx_data.pop();
             self.tx_data.pop();
             if let Some(point) = self.rx_data.first() {
@@ -98,7 +90,6 @@ impl IfaceMonitor {
             iface,
             prev_rx_bytes: rx,
             prev_tx_bytes: tx,
-            prev_time: Instant::now(),
             curr_rx_speed: 0.,
             curr_tx_speed: 0.,
             total_rx: 0.,

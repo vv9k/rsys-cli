@@ -7,6 +7,7 @@ use super::{
 };
 use anyhow::Result;
 use rsys::linux;
+use std::time::Instant;
 use tui::{
     backend::Backend,
     layout::{Constraint, Layout, Rect},
@@ -150,23 +151,29 @@ impl DataSeries {
 pub(crate) struct Monitor {
     x_axis: [f64; 2],
     y_axis: [f64; 2],
-    total_time: f64,
+    start_time: Instant,
+    last_time: Instant,
 }
 impl Monitor {
     pub fn new(x: (f64, f64), y: (f64, f64)) -> Self {
         Self {
             x_axis: [x.0, x.1],
             y_axis: [y.0, y.1],
-            total_time: 0.,
+            start_time: Instant::now(),
+            last_time: Instant::now(),
         }
     }
 
-    pub fn add_time(&mut self, time: f64) {
-        self.total_time += time;
+    pub fn elapsed_since_start(&mut self) -> f64 {
+        self.start_time.elapsed().as_secs_f64()
     }
 
-    pub fn time(&self) -> f64 {
-        self.total_time
+    pub fn elapsed_since_last(&mut self) -> f64 {
+        self.last_time.elapsed().as_secs_f64()
+    }
+
+    pub fn update_last_time(&mut self) {
+        self.last_time = Instant::now();
     }
 
     pub fn inc_x_axis(&mut self, n: f64) {

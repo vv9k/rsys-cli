@@ -5,7 +5,6 @@ use super::{
 use crate::util::{conv_fb, random_color};
 use anyhow::{anyhow, Result};
 use rsys::linux::storage::{storage_devices_info, BlockStorageInfo};
-use std::time::Instant;
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
@@ -18,7 +17,7 @@ use tui::{
 
 const X_AXIS: (f64, f64) = (0., 30.0);
 const Y_AXIS: (f64, f64) = (0., 100.);
-const TICK_RATE: u64 = 1000;
+const TICK_RATE: u64 = 200;
 const SECTOR_SIZE: f64 = 512.;
 
 #[derive(Debug)]
@@ -87,30 +86,21 @@ impl BlockDeviceStat {
 
 pub(crate) struct StorageMonitor {
     stats: Vec<BlockDeviceStat>,
-    start_time: Instant,
-    last_time: Instant,
     m: Monitor,
 }
 
 impl GraphWidget for StorageMonitor {
     fn update(&mut self) {
-        // Time since last run
-        let elapsed_last = self.last_time.elapsed().as_secs_f64();
-        let elapsed_start = self.start_time.elapsed().as_secs_f64();
-        self.m.add_time(elapsed_last);
-
         for storage in &mut self.stats {
-            let (rx, wx) = storage.update(elapsed_last).unwrap();
-            storage.add_current(elapsed_start);
+            let (rx, wx) = storage.update(self.m.elapsed_since_last()).unwrap();
+            storage.add_current(self.m.elapsed_since_start());
             self.m.set_if_y_max(rx + 100.);
             self.m.set_if_y_max(wx + 100.);
         }
-
-        // Set last_time to current time
-        self.last_time = Instant::now();
+        self.m.update_last_time();
 
         // Move x axis if time reached end
-        if self.m.time() > self.m.max_x() {
+        if self.m.elapsed_since_start() > self.m.max_x() {
             let removed = self.stats[0].rx_data.pop();
             self.stats[0].wx_data.pop();
             if let Some(point) = self.stats[0].rx_data.first() {
@@ -148,8 +138,6 @@ impl StorageMonitor {
 
         Ok(StorageMonitor {
             stats,
-            start_time: Instant::now(),
-            last_time: Instant::now(),
             m: Monitor::new(X_AXIS, Y_AXIS),
         })
     }

@@ -5,7 +5,6 @@ use super::{
 use crate::util::{conv_fhz, conv_hz, random_color};
 use anyhow::{anyhow, Result};
 use rsys::linux::cpu::{processor, Core};
-use std::time::Instant;
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
@@ -51,33 +50,22 @@ impl CoreStat {
 
 pub(crate) struct CpuMonitor {
     stats: Vec<CoreStat>,
-    start_time: Instant,
-    last_time: Instant,
     m: Monitor,
 }
 
 impl GraphWidget for CpuMonitor {
     fn update(&mut self) {
-        // Time since begining
-        let elapsed = self.start_time.elapsed().as_secs_f64();
-
-        // Time since last run
-        self.m.add_time(self.last_time.elapsed().as_secs_f64());
-
         // Update frequencies on cores
         for core in &mut self.stats {
             // TODO: handle err here somehow
             let freq = core.update().unwrap();
-            core.add_current(elapsed);
+            core.add_current(self.m.elapsed_since_start());
             self.m.set_if_y_max(freq + 100_000.);
             self.m.set_if_y_min(freq + 100_000.);
         }
 
-        // Set last_time to current time
-        self.last_time = Instant::now();
-
         // Move x axis if time reached end
-        if self.m.time() > self.m.max_x() {
+        if self.m.elapsed_since_start() > self.m.max_x() {
             let removed = self.stats[0].data.pop();
             if let Some(point) = self.stats[0].data.first() {
                 self.m.inc_x_axis(point.0 - removed.0);
@@ -112,8 +100,6 @@ impl CpuMonitor {
 
         Ok(CpuMonitor {
             stats,
-            start_time: Instant::now(),
-            last_time: Instant::now(),
             m: Monitor::new(X_AXIS, Y_AXIS),
         })
     }
