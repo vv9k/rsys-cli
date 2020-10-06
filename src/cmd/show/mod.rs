@@ -29,7 +29,7 @@ pub fn get_terminal() -> Result<Term> {
 }
 
 #[derive(StructOpt, Clone)]
-pub enum GraphCmd {
+pub enum ShowCmd {
     /// Draw interface rx/tx speed
     Interface { name: String },
     /// Draw core frequencies
@@ -41,12 +41,12 @@ pub enum GraphCmd {
 }
 
 impl RsysCli {
-    pub fn graph(&self, cmd: GraphCmd) {
+    pub fn show(&self, cmd: ShowCmd) {
         let result = match cmd {
-            GraphCmd::Interface { name } => IfaceMonitor::graph_loop(&name),
-            GraphCmd::Cpu => CpuMonitor::graph_loop(),
-            GraphCmd::Storage => StorageMonitor::graph_loop(),
-            GraphCmd::All => graph_all_loop(),
+            ShowCmd::Interface { name } => IfaceMonitor::graph_loop(&name),
+            ShowCmd::Cpu => CpuMonitor::graph_loop(),
+            ShowCmd::Storage => StorageMonitor::graph_loop(),
+            ShowCmd::All => graph_all_loop(),
         };
 
         if let Err(e) = result {

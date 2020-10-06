@@ -1,10 +1,10 @@
 pub mod common;
 pub mod dump;
 pub mod get;
-pub mod graph;
+pub mod show;
 pub mod watch;
 use get::Property;
-pub use graph::GraphCmd;
+pub use show::ShowCmd;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
@@ -107,9 +107,9 @@ pub enum RsysCmd {
         interval: Option<u64>,
     },
     /// Draws graphs with specified data
-    Graph {
+    Show {
         #[structopt(subcommand)]
         /// What data to draw
-        graph: GraphCmd,
+        cmd: ShowCmd,
     },
 }
