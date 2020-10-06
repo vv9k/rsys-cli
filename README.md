@@ -3,10 +3,10 @@
 CLI tool for quick access to system information. For now Linux only.
 
 ## Available commands
-### `graph`
+### `show`
 ```
 USAGE:
-    rsys graph <SUBCOMMAND>
+    rsys show <SUBCOMMAND>
 
 FLAGS:
     -h, --help       Prints help information
@@ -18,7 +18,6 @@ SUBCOMMANDS:
     help         Prints this message or the help of the given subcommand(s)
     interface    Draw interface rx/tx speed
     storage      Display I/O stats for storage devices
-    interface    Draw interface rx/tx speed
 ```
 ![Example graph](https://github.com/wojciechkepka/rsys-cli/blob/master/example_output/graph.gif)
 
