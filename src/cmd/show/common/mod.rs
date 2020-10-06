@@ -26,13 +26,13 @@ use tui::{
 
 /// Trait grouping all graph widgets together providing functionality
 /// like graph_loop.
-pub trait GraphWidget {
+pub trait StatefulWidget {
     fn update(&mut self);
     fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect);
 }
 
 /// Loop a single widget on full screen endlessly
-pub fn graph_loop<W: GraphWidget>(widget: &mut W, config: Config) -> Result<()> {
+pub fn graph_loop<W: StatefulWidget>(widget: &mut W, config: Config) -> Result<()> {
     let mut terminal = get_terminal()?;
     let events = Events::with_config(config);
     loop {

@@ -1,5 +1,5 @@
 use super::{
-    common::{graph_loop, DataSeries, GraphWidget, Monitor, RxTx},
+    common::{graph_loop, DataSeries, Monitor, RxTx, StatefulWidget},
     events::Config,
 };
 use crate::util::{conv_fb, random_color};
@@ -83,7 +83,7 @@ pub struct StorageMonitor {
     m: Monitor,
 }
 
-impl GraphWidget for StorageMonitor {
+impl StatefulWidget for StorageMonitor {
     fn update(&mut self) {
         for storage in &mut self.stats {
             let (rx, wx) = storage.update(self.m.elapsed_since_last()).unwrap();

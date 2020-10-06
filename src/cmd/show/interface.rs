@@ -1,5 +1,5 @@
 use super::{
-    common::{graph_loop, kv_span, spans_from, DataSeries, GraphWidget, Monitor, RxTx},
+    common::{graph_loop, kv_span, spans_from, DataSeries, Monitor, RxTx, StatefulWidget},
     events::Config,
 };
 use crate::util::conv_fb;
@@ -28,7 +28,7 @@ pub struct IfaceMonitor {
     total: RxTx<f64>,
 }
 
-impl GraphWidget for IfaceMonitor {
+impl StatefulWidget for IfaceMonitor {
     fn update(&mut self) {
         // Update interface
         self.iface.update().unwrap();

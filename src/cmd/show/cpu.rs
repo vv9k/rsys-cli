@@ -1,5 +1,5 @@
 use super::{
-    common::{graph_loop, DataSeries, GraphWidget, Monitor},
+    common::{graph_loop, DataSeries, Monitor, StatefulWidget},
     events::Config,
 };
 use crate::util::{conv_fhz, conv_hz, random_color};
@@ -55,7 +55,7 @@ pub struct CpuMonitor {
     m: Monitor,
 }
 
-impl GraphWidget for CpuMonitor {
+impl StatefulWidget for CpuMonitor {
     fn update(&mut self) {
         // Update frequencies on cores
         for core in &mut self.stats {
