@@ -78,6 +78,10 @@ fn conv_metric(value: f64, unit: &str) -> String {
     format!("{:.2}{}{}", val, u, unit)
 }
 
+pub fn conv_fbs(bytes: f64) -> String {
+    conv_metric(bytes, "B/s")
+}
+
 pub fn conv_fb(bytes: f64) -> String {
     conv_metric(bytes, "B")
 }
