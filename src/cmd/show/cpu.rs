@@ -1,5 +1,5 @@
 use super::{
-    common::{graph_loop, DataSeries, Monitor, StatefulWidget},
+    common::{single_widget_loop, DataSeries, Monitor, StatefulWidget},
     events::Config,
 };
 use crate::util::{conv_fhz, conv_hz, random_color};
@@ -177,6 +177,6 @@ impl CpuMonitor {
 
     pub fn graph_loop() -> Result<()> {
         let mut monitor = CpuMonitor::new()?;
-        graph_loop(&mut monitor, Config::new(TICK_RATE))
+        single_widget_loop(&mut monitor, Config::new(TICK_RATE))
     }
 }

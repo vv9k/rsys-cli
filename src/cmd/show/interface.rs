@@ -1,5 +1,5 @@
 use super::{
-    common::{graph_loop, kv_span, spans_from, DataSeries, Monitor, RxTx, StatefulWidget},
+    common::{kv_span, single_widget_loop, spans_from, DataSeries, Monitor, RxTx, StatefulWidget},
     events::Config,
 };
 use crate::util::conv_fb;
@@ -190,6 +190,6 @@ impl IfaceMonitor {
 
     pub fn graph_loop(name: &str) -> Result<()> {
         let mut monitor = IfaceMonitor::new(name)?;
-        graph_loop(&mut monitor, Config::new(TICK_RATE))
+        single_widget_loop(&mut monitor, Config::new(TICK_RATE))
     }
 }

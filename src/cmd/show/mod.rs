@@ -4,7 +4,7 @@ mod events;
 mod interface;
 mod storage;
 use crate::RsysCli;
-use common::graph_all_loop;
+use common::show_all_loop;
 use cpu::CpuMonitor;
 use interface::IfaceMonitor;
 use std::io::{self, stdout};
@@ -46,7 +46,7 @@ impl RsysCli {
             ShowCmd::Interface { name } => IfaceMonitor::graph_loop(&name),
             ShowCmd::Cpu => CpuMonitor::graph_loop(),
             ShowCmd::Storage => StorageMonitor::graph_loop(),
-            ShowCmd::All => graph_all_loop(),
+            ShowCmd::All => show_all_loop(),
         };
 
         if let Err(e) = result {

@@ -1,5 +1,5 @@
 use super::{
-    common::{graph_loop, DataSeries, Monitor, RxTx, StatefulWidget},
+    common::{single_widget_loop, DataSeries, Monitor, RxTx, StatefulWidget},
     events::Config,
 };
 use crate::util::{conv_fb, random_color};
@@ -225,6 +225,6 @@ impl StorageMonitor {
 
     pub fn graph_loop() -> Result<()> {
         let mut monitor = StorageMonitor::new()?;
-        graph_loop(&mut monitor, Config::new(TICK_RATE))
+        single_widget_loop(&mut monitor, Config::new(TICK_RATE))
     }
 }

@@ -32,7 +32,7 @@ pub trait StatefulWidget {
 }
 
 /// Loop a single widget on full screen endlessly
-pub fn graph_loop<W: StatefulWidget>(widget: &mut W, config: Config) -> Result<()> {
+pub fn single_widget_loop<W: StatefulWidget>(widget: &mut W, config: Config) -> Result<()> {
     let mut terminal = get_terminal()?;
     let events = Events::with_config(config);
     loop {
@@ -57,7 +57,7 @@ pub fn graph_loop<W: StatefulWidget>(widget: &mut W, config: Config) -> Result<(
 }
 
 /// A loop with all graph widgets groupped together
-pub fn graph_all_loop() -> Result<()> {
+pub fn show_all_loop() -> Result<()> {
     let mut terminal = get_terminal()?;
     let events = Events::with_config(Config::new(200));
     let mut cpumon = CpuMonitor::new()?;
