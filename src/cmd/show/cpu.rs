@@ -121,15 +121,16 @@ impl GraphWidget for CpuMonitor {
 
 impl CpuMonitor {
     pub fn new() -> Result<CpuMonitor> {
-        let cpu = processor()?;
-        let mut stats = Vec::new();
-        for core in cpu.cores {
-            stats.push(CoreStat::from(core));
-        }
-        stats.sort_by(|s1, s2| s1.core.id.cmp(&s2.core.id));
-
         Ok(CpuMonitor {
-            stats,
+            stats: {
+                let mut stats = processor()?
+                    .cores
+                    .into_iter()
+                    .map(CoreStat::from)
+                    .collect::<Vec<CoreStat>>();
+                stats.sort_by(|s1, s2| s1.core.id.cmp(&s2.core.id));
+                stats
+            },
             m: Monitor::new(X_AXIS, Y_AXIS),
         })
     }

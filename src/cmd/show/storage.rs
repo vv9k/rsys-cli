@@ -160,16 +160,16 @@ impl GraphWidget for StorageMonitor {
 
 impl StorageMonitor {
     pub fn new() -> Result<StorageMonitor> {
-        let infos = storage_devices_info().map_err(|e| anyhow!("Failed to get storage devices info - {}", e))?;
-        let mut stats = Vec::new();
-        for info in infos.into_iter() {
-            stats.push(BlockDeviceStat::from(info));
-        }
-
-        stats.sort_by(|s1, s2| s1.name.cmp(&s2.name));
-
         Ok(StorageMonitor {
-            stats,
+            stats: {
+                let mut stats = storage_devices_info()
+                    .map_err(|e| anyhow!("Failed to get storage devices info - {}", e))?
+                    .into_iter()
+                    .map(BlockDeviceStat::from)
+                    .collect::<Vec<BlockDeviceStat>>();
+                stats.sort_by(|s1, s2| s1.name.cmp(&s2.name));
+                stats
+            },
             m: Monitor::new(X_AXIS, Y_AXIS),
         })
     }
