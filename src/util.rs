@@ -1,9 +1,11 @@
+use rand::seq::IteratorRandom;
 use rsys::{Error, Result};
 use serde::Serialize;
 use serde_json as json;
 use serde_yaml as yaml;
 use std::any::type_name;
 use std::fmt::{Debug, Display};
+use tui::style::Color;
 
 const KILO: f64 = 1000.;
 const MEGA: f64 = KILO * KILO;
@@ -90,4 +92,15 @@ pub(crate) fn conv_hz(hz: u64) -> String {
 
 pub(crate) fn conv_fhz(hz: f64) -> String {
     conv_metric(hz, "Hz")
+}
+
+pub(crate) fn random_color(min: Option<u8>) -> Color {
+    let mut rng = rand::thread_rng();
+    let mut color: [u8; 3] = [0, 0, 0];
+
+    let low = if let Some(min) = min { min } else { 0 };
+    let range = (low..255).into_iter();
+
+    range.choose_multiple_fill(&mut rng, &mut color);
+    Color::Rgb(color[0], color[1], color[2])
 }
