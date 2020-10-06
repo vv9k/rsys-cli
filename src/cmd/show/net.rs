@@ -90,7 +90,7 @@ impl IfaceStat {
         ])
     }
 
-    fn update(&mut self, m: &mut Monitor) -> Result<()> {
+    fn update(&mut self, m: &Monitor) -> Result<()> {
         self.iface
             .update()
             .map_err(|e| anyhow!("Failed to update interface `{}` - {}", self.iface.name, e.to_string()))?;
@@ -102,11 +102,6 @@ impl IfaceStat {
         self.curr_speed = RxTx((delta_rx / m.elapsed_since_last(), delta_tx / m.elapsed_since_last()));
         self.data.rx_mut().add(m.elapsed_since_start(), *self.curr_speed.rx());
         self.data.tx_mut().add(m.elapsed_since_start(), *self.curr_speed.tx());
-
-        // If the values are bigger than current max y
-        // update y axis
-        m.set_if_y_max(self.curr_speed.rx() + 100.);
-        m.set_if_y_max(self.curr_speed.tx() + 100.);
 
         self.prev_bytes = RxTx((self.iface.stat.rx_bytes, self.iface.stat.tx_bytes));
         Ok(())
@@ -127,6 +122,11 @@ impl StatefulWidget for NetMonitor {
     fn update(&mut self) {
         for iface in &mut self.stats {
             iface.update(&mut self.m).unwrap();
+
+            // If the values are bigger than current max y
+            // update y axis
+            self.m.set_if_y_max(iface.curr_speed.rx() + 100.);
+            self.m.set_if_y_max(iface.curr_speed.tx() + 100.);
         }
         // If total time elapsed passed max x coordinate
         // pop first item of dataset and move x axis

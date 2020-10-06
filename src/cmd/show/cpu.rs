@@ -38,10 +38,11 @@ impl From<Core> for CoreStat {
 }
 impl CoreStat {
     // Updates core and returns its new frequency
-    fn update(&mut self) -> Result<f64> {
+    fn update(&mut self, time: f64) -> Result<f64> {
         self.core
             .update()
             .map_err(|e| anyhow!("Failed to update core `{}` frequency - {}", self.name, e))?;
+        self.add_current(time);
         Ok(self.core.cur_freq as f64)
     }
 
@@ -60,8 +61,7 @@ impl StatefulWidget for CpuMonitor {
         // Update frequencies on cores
         for core in &mut self.stats {
             // TODO: handle err here somehow
-            let freq = core.update().unwrap();
-            core.add_current(self.m.elapsed_since_start());
+            let freq = core.update(self.m.elapsed_since_start()).unwrap();
             self.m.set_if_y_max(freq + 100_000.);
             self.m.set_if_y_min(freq + 100_000.);
         }

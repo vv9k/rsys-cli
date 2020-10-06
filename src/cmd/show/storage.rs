@@ -54,8 +54,9 @@ impl BlockDeviceStat {
         }
     }
     // Updates core and returns its new frequency
-    fn update(&mut self, time_delta: f64) -> Result<(f64, f64)> {
+    fn update(&mut self, monitor: &Monitor) -> Result<()> {
         let (rx_before, wx_before) = self.sectors();
+        let time_delta = monitor.elapsed_since_last();
 
         self.device
             .update_stats()
@@ -69,7 +70,9 @@ impl BlockDeviceStat {
         self.total.inc(rx_delta, wx_delta);
         self.speed = RxTx((rx_delta / time_delta, wx_delta / time_delta));
 
-        Ok(self.speed.0)
+        self.add_current(monitor.elapsed_since_start());
+
+        Ok(())
     }
 
     fn add_current(&mut self, time: f64) {
@@ -86,10 +89,10 @@ pub struct StorageMonitor {
 impl StatefulWidget for StorageMonitor {
     fn update(&mut self) {
         for storage in &mut self.stats {
-            let (rx, wx) = storage.update(self.m.elapsed_since_last()).unwrap();
-            storage.add_current(self.m.elapsed_since_start());
-            self.m.set_if_y_max(rx + 100.);
-            self.m.set_if_y_max(wx + 100.);
+            storage.update(&mut self.m).unwrap();
+
+            self.m.set_if_y_max(storage.speed.rx() + 100.);
+            self.m.set_if_y_max(storage.speed.tx() + 100.);
         }
         self.m.update_last_time();
 
