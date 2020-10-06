@@ -141,14 +141,14 @@ impl GraphWidget for StorageMonitor {
         }
         data
     }
-    fn title(&self) -> (&str, Style) {
-        ("Storage devices", Style::default().add_modifier(Modifier::BOLD))
+    fn title(&self) -> Span {
+        Span::styled("Storage devices", Style::default().add_modifier(Modifier::BOLD))
     }
-    fn x_axis(&self) -> (&str, Style) {
-        ("Time", Style::default())
+    fn x_axis(&self) -> Span {
+        Span::styled("Time", Style::default())
     }
-    fn y_axis(&self) -> (&str, Style) {
-        ("r/w speed", Style::default())
+    fn y_axis(&self) -> Span {
+        Span::styled("r/w speed", Style::default())
     }
     fn labels(&self) -> Vec<Span> {
         self.m.bounds_labels(conv_fbs, 5)

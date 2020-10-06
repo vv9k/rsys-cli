@@ -102,14 +102,14 @@ impl GraphWidget for CpuMonitor {
         }
         data
     }
-    fn title(&self) -> (&str, Style) {
-        ("Cpu Frequency", Style::default().add_modifier(Modifier::BOLD))
+    fn title(&self) -> Span {
+        Span::styled("Cpu Frequency", Style::default().add_modifier(Modifier::BOLD))
     }
-    fn x_axis(&self) -> (&str, Style) {
-        ("Time", Style::default().fg(Color::White))
+    fn x_axis(&self) -> Span {
+        Span::styled("Time", Style::default().fg(Color::White))
     }
-    fn y_axis(&self) -> (&str, Style) {
-        ("Frequency", Style::default().fg(Color::White))
+    fn y_axis(&self) -> Span {
+        Span::styled("Frequency", Style::default().fg(Color::White))
     }
     fn labels(&self) -> Vec<Span> {
         self.m.bounds_labels(conv_fhz, 4)
