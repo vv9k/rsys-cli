@@ -212,13 +212,16 @@ impl StorageMonitor {
             )
         });
 
-        let table = Table::new(headers.iter(), data).widths(&[
-            Constraint::Percentage(10),
-            Constraint::Percentage(20),
-            Constraint::Percentage(20),
-            Constraint::Percentage(20),
-            Constraint::Percentage(20),
-        ]);
+        let table = Table::new(headers.iter(), data)
+            .widths(&[
+                Constraint::Percentage(10),
+                Constraint::Percentage(20),
+                Constraint::Percentage(20),
+                Constraint::Percentage(16),
+                Constraint::Percentage(16),
+            ])
+            .header_gap(1)
+            .column_spacing(1);
 
         f.render_widget(table, chunks[0]);
     }
