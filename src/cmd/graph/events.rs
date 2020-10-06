@@ -27,14 +27,6 @@ impl Config {
             tick_rate: Duration::from_millis(tick_rate),
         }
     }
-
-    pub fn new_or_default(tick_rate: Option<u64>) -> Config {
-        if let Some(t) = tick_rate {
-            Config::new(t)
-        } else {
-            Config::default()
-        }
-    }
 }
 
 impl Default for Config {
