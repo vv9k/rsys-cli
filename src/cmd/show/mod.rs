@@ -1,7 +1,7 @@
 mod common;
 mod cpu;
 mod events;
-mod interface;
+mod net;
 mod ps;
 mod storage;
 
@@ -9,7 +9,7 @@ use crate::RsysCli;
 use common::StatefulWidget;
 use cpu::CpuMonitor;
 use events::{Config, Event, Events};
-use interface::IfaceMonitor;
+use net::NetMonitor;
 use ps::ProcessMonitor;
 use storage::StorageMonitor;
 
@@ -50,16 +50,18 @@ pub enum ShowCmd {
     /// Display all graphs at once
     All,
     Ps,
+    Net,
 }
 
 impl RsysCli {
     pub fn show(&self, cmd: ShowCmd) {
         let result = match cmd {
-            ShowCmd::Interface { name } => IfaceMonitor::graph_loop(&name),
+            ShowCmd::Interface { name } => NetMonitor::single_iface_loop(&name),
             ShowCmd::Cpu => CpuMonitor::graph_loop(),
             ShowCmd::Storage => StorageMonitor::graph_loop(),
             ShowCmd::All => show_all_loop(),
             ShowCmd::Ps => ProcessMonitor::display_loop(),
+            ShowCmd::Net => NetMonitor::graph_loop(None),
         };
 
         if let Err(e) = result {
@@ -73,7 +75,7 @@ pub fn show_all_loop() -> Result<()> {
     let mut terminal = get_terminal()?;
     let events = Events::with_config(Config::new(200));
     let mut cpumon = CpuMonitor::new()?;
-    let mut ifacemon = IfaceMonitor::default()?;
+    let mut ifacemon = NetMonitor::new(None)?;
     let mut stormon = StorageMonitor::new()?;
     loop {
         terminal.draw(|f| {
