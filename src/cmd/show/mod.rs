@@ -6,8 +6,9 @@ mod ps;
 mod storage;
 
 use crate::RsysCli;
-use common::show_all_loop;
+use common::StatefulWidget;
 use cpu::CpuMonitor;
+use events::{Config, Event, Events};
 use interface::IfaceMonitor;
 use ps::ProcessMonitor;
 use storage::StorageMonitor;
@@ -19,7 +20,11 @@ use termion::{
     raw::{IntoRawMode, RawTerminal},
     screen::AlternateScreen,
 };
-use tui::{backend::TermionBackend, Terminal};
+use tui::{
+    backend::TermionBackend,
+    layout::{Constraint, Layout},
+    Terminal,
+};
 
 type Term = Terminal<TermionBackend<AlternateScreen<MouseTerminal<RawTerminal<io::Stdout>>>>>;
 use anyhow::{anyhow, Result};
@@ -61,4 +66,43 @@ impl RsysCli {
             eprintln!("Error: {}", e);
         }
     }
+}
+
+/// A loop with all graph widgets groupped together
+pub fn show_all_loop() -> Result<()> {
+    let mut terminal = get_terminal()?;
+    let events = Events::with_config(Config::new(200));
+    let mut cpumon = CpuMonitor::new()?;
+    let mut ifacemon = IfaceMonitor::default()?;
+    let mut stormon = StorageMonitor::new()?;
+    loop {
+        terminal.draw(|f| {
+            let size = f.size();
+            let layout = Layout::default()
+                .constraints([
+                    Constraint::Percentage(33),
+                    Constraint::Percentage(33),
+                    Constraint::Percentage(33),
+                ])
+                .split(size);
+            cpumon.render_widget(f, layout[0]);
+            ifacemon.render_widget(f, layout[1]);
+            stormon.render_widget(f, layout[2]);
+        })?;
+
+        match events.next()? {
+            Event::Input(input) => {
+                if input == events.exit_key() {
+                    break;
+                }
+            }
+            Event::Tick => {
+                cpumon.update();
+                ifacemon.update();
+                stormon.update();
+            }
+        }
+    }
+
+    Ok(())
 }
