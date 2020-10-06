@@ -8,7 +8,7 @@ use rsys::linux::cpu::{processor, Core};
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
-    style::{Color, Style},
+    style::{Color, Modifier, Style},
     symbols,
     text::Span,
     widgets::{Dataset, Row, Table},
@@ -102,14 +102,14 @@ impl GraphWidget for CpuMonitor {
         }
         data
     }
-    fn title(&self) -> &str {
-        "Cpu Frequency"
+    fn title(&self) -> (&str, Style) {
+        ("Cpu Frequency", Style::default().add_modifier(Modifier::BOLD))
     }
-    fn x_axis(&self) -> &str {
-        "Time"
+    fn x_axis(&self) -> (&str, Style) {
+        ("Time", Style::default().fg(Color::White))
     }
-    fn y_axis(&self) -> &str {
-        "Frequency"
+    fn y_axis(&self) -> (&str, Style) {
+        ("Frequency", Style::default().fg(Color::White))
     }
     fn labels(&self) -> Vec<Span> {
         self.m.bounds_labels(conv_fhz, 4)

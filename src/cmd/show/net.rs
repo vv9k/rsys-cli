@@ -176,14 +176,14 @@ impl GraphWidget for NetMonitor {
         }
         data
     }
-    fn title(&self) -> &str {
-        "Network Speed"
+    fn title(&self) -> (&str, Style) {
+        ("Network Speed", Style::default().add_modifier(Modifier::BOLD))
     }
-    fn x_axis(&self) -> &str {
-        "Time"
+    fn x_axis(&self) -> (&str, Style) {
+        ("Time", Style::default().fg(Color::White))
     }
-    fn y_axis(&self) -> &str {
-        "Speed"
+    fn y_axis(&self) -> (&str, Style) {
+        ("Speed", Style::default().fg(Color::White))
     }
     fn labels(&self) -> Vec<Span> {
         self.m.bounds_labels(conv_fbs, 5)

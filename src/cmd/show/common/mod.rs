@@ -17,7 +17,7 @@ use anyhow::Result;
 use tui::{
     backend::Backend,
     layout::{Constraint, Layout, Rect},
-    style::{Color, Modifier, Style},
+    style::Style,
     text::Span,
     widgets::{Axis, Block, Borders, Chart, Dataset},
     Frame,
@@ -33,34 +33,30 @@ pub trait StatefulWidget {
 /// Trait providing more readable way of creating graph widgets
 pub trait GraphWidget {
     fn datasets(&self) -> Vec<Dataset>;
-    fn title(&self) -> &str;
+    fn title(&self) -> (&str, Style);
     // Name of x axis
-    fn x_axis(&self) -> &str;
+    fn x_axis(&self) -> (&str, Style);
     // Name of y axis
-    fn y_axis(&self) -> &str;
+    fn y_axis(&self) -> (&str, Style);
     fn labels(&self) -> Vec<Span>;
     fn monitor(&self) -> &Monitor;
 
     fn chart(&self) -> Chart {
+        let (title, title_style) = self.title();
+        let (x_name, x_style) = self.x_axis();
+        let (y_name, y_style) = self.y_axis();
         Chart::new(self.datasets())
             .block(
                 Block::default()
-                    .title(Span::styled(
-                        self.title(),
-                        Style::default().add_modifier(Modifier::BOLD),
-                    ))
+                    .title(Span::styled(title, title_style))
                     .borders(Borders::ALL),
             )
-            .x_axis(
-                Axis::default()
-                    .title(self.x_axis())
-                    .style(Style::default().fg(Color::Gray))
-                    .bounds(self.monitor().x()),
-            )
+            .x_axis(Axis::default().title(x_name).style(x_style).bounds(self.monitor().x()))
             .y_axis(
                 Axis::default()
-                    .title(self.y_axis())
-                    .style(Style::default().fg(Color::Gray))
+                    .title(y_name)
+                    .labels(self.labels())
+                    .style(y_style)
                     .bounds(self.monitor().y()),
             )
     }

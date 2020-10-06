@@ -8,7 +8,7 @@ use rsys::linux::storage::{storage_devices_info, BlockStorageInfo};
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
-    style::{Color, Style},
+    style::{Color, Modifier, Style},
     symbols,
     text::Span,
     widgets::{Dataset, Row, Table},
@@ -141,14 +141,14 @@ impl GraphWidget for StorageMonitor {
         }
         data
     }
-    fn title(&self) -> &str {
-        "Storage devices"
+    fn title(&self) -> (&str, Style) {
+        ("Storage devices", Style::default().add_modifier(Modifier::BOLD))
     }
-    fn x_axis(&self) -> &str {
-        "Time"
+    fn x_axis(&self) -> (&str, Style) {
+        ("Time", Style::default())
     }
-    fn y_axis(&self) -> &str {
-        "r/w speed"
+    fn y_axis(&self) -> (&str, Style) {
+        ("r/w speed", Style::default())
     }
     fn labels(&self) -> Vec<Span> {
         self.m.bounds_labels(conv_fbs, 5)
