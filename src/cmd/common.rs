@@ -20,7 +20,7 @@ use std::fmt::{self, Formatter};
 const SECTOR_SIZE: u64 = 512;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct SystemInfo {
+pub struct SystemInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     arch: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -55,7 +55,7 @@ pub(crate) struct SystemInfo {
     display_all: bool,
 }
 impl SystemInfo {
-    pub(crate) fn new(
+    pub fn new(
         r: &Rsys,
         arch: bool,
         hostname: bool,

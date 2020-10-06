@@ -6,7 +6,7 @@ use crate::{
 use rsys::Result;
 
 impl RsysCli {
-    pub(crate) fn dump(
+    pub fn dump(
         &self,
         format: PrintFormat,
         pretty: bool,

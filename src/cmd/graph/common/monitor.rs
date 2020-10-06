@@ -1,7 +1,7 @@
 use std::time::Instant;
 
 #[derive(Debug)]
-pub(crate) struct Monitor {
+pub struct Monitor {
     x_axis: [f64; 2],
     y_axis: [f64; 2],
     start_time: Instant,

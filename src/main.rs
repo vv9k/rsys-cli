@@ -1,8 +1,8 @@
 #[macro_use]
 extern crate prettytable;
-pub(crate) mod cli;
-pub(crate) mod cmd;
-pub(crate) mod util;
+pub mod cli;
+pub mod cmd;
+pub mod util;
 use cli::RsysCli;
 use rsys::Result;
 

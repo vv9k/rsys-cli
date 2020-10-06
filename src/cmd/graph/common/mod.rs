@@ -3,10 +3,10 @@ mod display;
 mod monitor;
 mod rxtx;
 
-pub(crate) use data::DataSeries;
-pub(crate) use display::*;
-pub(crate) use monitor::Monitor;
-pub(crate) use rxtx::RxTx;
+pub use data::DataSeries;
+pub use display::*;
+pub use monitor::Monitor;
+pub use rxtx::RxTx;
 
 use super::{
     cpu::CpuMonitor,
@@ -25,12 +25,12 @@ use tui::{
 
 /// Trait grouping all graph widgets together providing functionality
 /// like graph_loop.
-pub(crate) trait GraphWidget {
+pub trait GraphWidget {
     fn update(&mut self);
     fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect);
     fn monitor(&mut self) -> &mut Monitor;
 }
-pub(crate) fn graph_loop<W: GraphWidget>(widget: &mut W, config: Config) -> Result<()> {
+pub fn graph_loop<W: GraphWidget>(widget: &mut W, config: Config) -> Result<()> {
     let mut terminal = get_terminal()?;
     let events = Events::with_config(config);
     loop {
@@ -54,7 +54,7 @@ pub(crate) fn graph_loop<W: GraphWidget>(widget: &mut W, config: Config) -> Resu
     Ok(())
 }
 
-pub(crate) fn graph_all_loop() -> Result<()> {
+pub fn graph_all_loop() -> Result<()> {
     let mut terminal = get_terminal()?;
     let events = Events::with_config(Config::new(200));
     let mut cpumon = CpuMonitor::new()?;

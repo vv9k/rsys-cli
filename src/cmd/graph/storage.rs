@@ -76,7 +76,7 @@ impl BlockDeviceStat {
     }
 }
 
-pub(crate) struct StorageMonitor {
+pub struct StorageMonitor {
     stats: Vec<BlockDeviceStat>,
     m: Monitor,
 }
@@ -119,7 +119,7 @@ impl GraphWidget for StorageMonitor {
 }
 
 impl StorageMonitor {
-    pub(crate) fn new() -> Result<StorageMonitor> {
+    pub fn new() -> Result<StorageMonitor> {
         let infos = storage_devices_info().map_err(|e| anyhow!("Failed to get storage devices info - {}", e))?;
         let mut stats = Vec::new();
         for info in infos.into_iter() {
@@ -224,7 +224,7 @@ impl StorageMonitor {
         f.render_widget(table, chunks[0]);
     }
 
-    pub(crate) fn graph_loop() -> Result<()> {
+    pub fn graph_loop() -> Result<()> {
         let mut monitor = StorageMonitor::new()?;
         graph_loop(&mut monitor, Config::new(TICK_RATE))
     }

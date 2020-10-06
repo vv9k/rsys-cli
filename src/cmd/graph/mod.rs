@@ -20,7 +20,7 @@ use tui::{backend::TermionBackend, Terminal};
 type Term = Terminal<TermionBackend<AlternateScreen<MouseTerminal<RawTerminal<io::Stdout>>>>>;
 use anyhow::{anyhow, Result};
 
-pub(crate) fn get_terminal() -> Result<Term> {
+pub fn get_terminal() -> Result<Term> {
     let stdout = stdout().into_raw_mode()?;
     let stdout = MouseTerminal::from(stdout);
     let stdout = AlternateScreen::from(stdout);
@@ -41,7 +41,7 @@ pub enum GraphCmd {
 }
 
 impl RsysCli {
-    pub(crate) fn graph(&self, cmd: GraphCmd) {
+    pub fn graph(&self, cmd: GraphCmd) {
         let result = match cmd {
             GraphCmd::Interface { name } => IfaceMonitor::graph_loop(&name),
             GraphCmd::Cpu => CpuMonitor::graph_loop(),

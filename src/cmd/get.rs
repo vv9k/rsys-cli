@@ -51,7 +51,7 @@ pub enum Property {
 }
 
 impl RsysCli {
-    pub(crate) fn get(&self, property: &Property, format: PrintFormat, pretty: bool) -> Result<()> {
+    pub fn get(&self, property: &Property, format: PrintFormat, pretty: bool) -> Result<()> {
         use Property::*;
         match property {
             arch => print(self.system.arch()?, format, pretty)?,

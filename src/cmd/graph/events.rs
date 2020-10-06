@@ -1,7 +1,7 @@
 use std::{io, sync::mpsc, thread, time::Duration};
 use termion::{event::Key, input::TermRead};
 
-pub(crate) const DEFAULT_TICK_RATE: u64 = 1000;
+pub const DEFAULT_TICK_RATE: u64 = 1000;
 
 #[derive(Debug)]
 pub enum Event<I> {

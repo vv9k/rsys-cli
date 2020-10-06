@@ -19,7 +19,7 @@ const X_AXIS: (f64, f64) = (0., 30.0);
 const Y_AXIS: (f64, f64) = (0., 100.0);
 const TICK_RATE: u64 = 300;
 
-pub(crate) struct IfaceMonitor {
+pub struct IfaceMonitor {
     iface: Interface,
     m: Monitor,
     data: RxTx<DataSeries>,
@@ -81,7 +81,7 @@ impl GraphWidget for IfaceMonitor {
 }
 
 impl IfaceMonitor {
-    pub(crate) fn new(name: &str) -> Result<IfaceMonitor> {
+    pub fn new(name: &str) -> Result<IfaceMonitor> {
         let iface = iface(name)?.ok_or_else(|| anyhow!("Interface `{}` not found", name))?;
         let rx = iface.stat.rx_bytes;
         let tx = iface.stat.tx_bytes;
@@ -191,7 +191,7 @@ impl IfaceMonitor {
         f.render_widget(chart, area);
     }
 
-    pub(crate) fn graph_loop(name: &str) -> Result<()> {
+    pub fn graph_loop(name: &str) -> Result<()> {
         let mut monitor = IfaceMonitor::new(name)?;
         graph_loop(&mut monitor, Config::new(TICK_RATE))
     }

@@ -1,8 +1,8 @@
-pub(crate) mod common;
-pub(crate) mod dump;
-pub(crate) mod get;
-pub(crate) mod graph;
-pub(crate) mod watch;
+pub mod common;
+pub mod dump;
+pub mod get;
+pub mod graph;
+pub mod watch;
 use get::Property;
 pub use graph::GraphCmd;
 use structopt::StructOpt;

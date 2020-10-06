@@ -1,6 +1,6 @@
 #[derive(Default, Debug)]
 /// Wrapper stuct for graph datapoints used by Datasets.
-pub(crate) struct DataSeries {
+pub struct DataSeries {
     data: Vec<(f64, f64)>,
     len: usize,
 }

@@ -12,13 +12,13 @@ const MEGA: f64 = KILO * KILO;
 const GIGA: f64 = KILO * KILO * KILO;
 const TERA: f64 = KILO * KILO * KILO * KILO;
 
-pub(crate) enum PrintFormat {
+pub enum PrintFormat {
     Normal,
     Json,
     Yaml,
 }
 
-pub(crate) fn json_to_string<T: Serialize>(val: T, pretty: bool) -> Result<String> {
+pub fn json_to_string<T: Serialize>(val: T, pretty: bool) -> Result<String> {
     let f = if pretty {
         json::to_string_pretty
     } else {
@@ -28,7 +28,7 @@ pub(crate) fn json_to_string<T: Serialize>(val: T, pretty: bool) -> Result<Strin
     f(&val).map_err(|e| Error::SerializeError(type_name::<T>().to_string(), e.to_string()))
 }
 
-pub(crate) fn print<T: Debug + Display + Serialize>(val: T, format: PrintFormat, pretty: bool) -> Result<()> {
+pub fn print<T: Debug + Display + Serialize>(val: T, format: PrintFormat, pretty: bool) -> Result<()> {
     match format {
         PrintFormat::Normal => {
             if pretty {
@@ -52,7 +52,7 @@ pub(crate) fn print<T: Debug + Display + Serialize>(val: T, format: PrintFormat,
     Ok(())
 }
 
-pub(crate) fn handle_err<T: Default>(res: Result<T>) -> T {
+pub fn handle_err<T: Default>(res: Result<T>) -> T {
     match res {
         Ok(val) => val,
         Err(e) => {
@@ -78,23 +78,23 @@ fn conv_metric(value: f64, unit: &str) -> String {
     format!("{:.2}{}{}", val, u, unit)
 }
 
-pub(crate) fn conv_fb(bytes: f64) -> String {
+pub fn conv_fb(bytes: f64) -> String {
     conv_metric(bytes, "B")
 }
 
-pub(crate) fn conv_b(bytes: u64) -> String {
+pub fn conv_b(bytes: u64) -> String {
     conv_fb(bytes as f64)
 }
 
-pub(crate) fn conv_hz(hz: u64) -> String {
+pub fn conv_hz(hz: u64) -> String {
     conv_fhz(hz as f64)
 }
 
-pub(crate) fn conv_fhz(hz: f64) -> String {
+pub fn conv_fhz(hz: f64) -> String {
     conv_metric(hz, "Hz")
 }
 
-pub(crate) fn random_color(min: Option<u8>) -> Color {
+pub fn random_color(min: Option<u8>) -> Color {
     let mut rng = rand::thread_rng();
     let mut color: [u8; 3] = [0, 0, 0];
 

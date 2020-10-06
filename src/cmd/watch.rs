@@ -10,7 +10,7 @@ use std::{
 };
 
 impl RsysCli {
-    pub(crate) fn watch(
+    pub fn watch(
         &self,
         pretty: bool,
         cpu: bool,

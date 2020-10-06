@@ -48,7 +48,7 @@ impl CoreStat {
     }
 }
 
-pub(crate) struct CpuMonitor {
+pub struct CpuMonitor {
     stats: Vec<CoreStat>,
     m: Monitor,
 }
@@ -90,7 +90,7 @@ impl GraphWidget for CpuMonitor {
 }
 
 impl CpuMonitor {
-    pub(crate) fn new() -> Result<CpuMonitor> {
+    pub fn new() -> Result<CpuMonitor> {
         let cpu = processor()?;
         let mut stats = Vec::new();
         for core in &cpu.cores {
@@ -176,7 +176,7 @@ impl CpuMonitor {
         f.render_widget(table, chunks[1]);
     }
 
-    pub(crate) fn graph_loop() -> Result<()> {
+    pub fn graph_loop() -> Result<()> {
         let mut monitor = CpuMonitor::new()?;
         graph_loop(&mut monitor, Config::new(TICK_RATE))
     }
