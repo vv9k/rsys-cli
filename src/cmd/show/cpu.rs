@@ -86,9 +86,6 @@ impl GraphWidget for CpuMonitor {
         self.render_cores_info_widget(f, chunks[0]);
         self.render_graph_widget(f, chunks[1]);
     }
-    fn monitor(&mut self) -> &mut Monitor {
-        &mut self.m
-    }
 }
 
 impl CpuMonitor {

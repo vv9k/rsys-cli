@@ -29,7 +29,6 @@ use tui::{
 pub trait GraphWidget {
     fn update(&mut self);
     fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect);
-    fn monitor(&mut self) -> &mut Monitor;
 }
 
 /// Loop a single widget on full screen endlessly

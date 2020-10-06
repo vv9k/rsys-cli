@@ -115,9 +115,6 @@ impl GraphWidget for StorageMonitor {
         self.render_storage_info_widget(f, chunks[0]);
         self.render_graph_widget(f, chunks[1]);
     }
-    fn monitor(&mut self) -> &mut Monitor {
-        &mut self.m
-    }
 }
 
 impl StorageMonitor {

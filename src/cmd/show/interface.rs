@@ -75,9 +75,6 @@ impl GraphWidget for IfaceMonitor {
         self.render_info_widget(f, chunks[0]);
         self.render_graph_widget(f, chunks[1]);
     }
-    fn monitor(&mut self) -> &mut Monitor {
-        &mut self.m
-    }
 }
 
 impl IfaceMonitor {
