@@ -1,5 +1,5 @@
 use super::{
-    common::{single_widget_loop, DataSeries, Monitor, RxTx, StatefulWidget},
+    common::{single_widget_loop, DataSeries, GraphWidget, Monitor, RxTx, StatefulWidget},
     events::Config,
 };
 use crate::util::{conv_fbs, random_color};
@@ -8,10 +8,10 @@ use rsys::linux::storage::{storage_devices_info, BlockStorageInfo};
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
-    style::{Color, Modifier, Style},
+    style::{Color, Style},
     symbols,
     text::Span,
-    widgets::{Axis, Block, Borders, Chart, Dataset, Row, Table},
+    widgets::{Dataset, Row, Table},
     Frame,
 };
 
@@ -120,22 +120,7 @@ impl StatefulWidget for StorageMonitor {
     }
 }
 
-impl StorageMonitor {
-    pub fn new() -> Result<StorageMonitor> {
-        let infos = storage_devices_info().map_err(|e| anyhow!("Failed to get storage devices info - {}", e))?;
-        let mut stats = Vec::new();
-        for info in infos.into_iter() {
-            stats.push(BlockDeviceStat::from(info));
-        }
-
-        stats.sort_by(|s1, s2| s1.name.cmp(&s2.name));
-
-        Ok(StorageMonitor {
-            stats,
-            m: Monitor::new(X_AXIS, Y_AXIS),
-        })
-    }
-
+impl GraphWidget for StorageMonitor {
     fn datasets(&self) -> Vec<Dataset> {
         let mut data = Vec::new();
         for device in &self.stats {
@@ -156,34 +141,38 @@ impl StorageMonitor {
         }
         data
     }
-
-    fn render_graph_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
-        let datasets = self.datasets();
-        let chart = Chart::new(datasets)
-            .block(
-                Block::default()
-                    .title(Span::styled(
-                        "Storage devices",
-                        Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
-                    ))
-                    .borders(Borders::ALL),
-            )
-            .x_axis(
-                Axis::default()
-                    .title("Time")
-                    .style(Style::default().fg(Color::Gray))
-                    .bounds(self.m.x()),
-            )
-            .y_axis(
-                Axis::default()
-                    .title("r/w speed")
-                    .style(Style::default().fg(Color::Gray))
-                    .labels(self.m.bounds_labels(conv_fbs, 5))
-                    .bounds(self.m.y()),
-            );
-        f.render_widget(chart, area);
+    fn title(&self) -> &str {
+        "Storage devices"
     }
+    fn x_axis(&self) -> &str {
+        "Time"
+    }
+    fn y_axis(&self) -> &str {
+        "r/w speed"
+    }
+    fn labels(&self) -> Vec<Span> {
+        self.m.bounds_labels(conv_fbs, 5)
+    }
+    fn monitor(&self) -> &Monitor {
+        &self.m
+    }
+}
 
+impl StorageMonitor {
+    pub fn new() -> Result<StorageMonitor> {
+        let infos = storage_devices_info().map_err(|e| anyhow!("Failed to get storage devices info - {}", e))?;
+        let mut stats = Vec::new();
+        for info in infos.into_iter() {
+            stats.push(BlockDeviceStat::from(info));
+        }
+
+        stats.sort_by(|s1, s2| s1.name.cmp(&s2.name));
+
+        Ok(StorageMonitor {
+            stats,
+            m: Monitor::new(X_AXIS, Y_AXIS),
+        })
+    }
     fn render_storage_info_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Horizontal)

@@ -1,5 +1,5 @@
 use super::{
-    common::{single_widget_loop, DataSeries, Monitor, StatefulWidget},
+    common::{single_widget_loop, DataSeries, GraphWidget, Monitor, StatefulWidget},
     events::Config,
 };
 use crate::util::{conv_fhz, conv_hz, random_color};
@@ -8,10 +8,10 @@ use rsys::linux::cpu::{processor, Core};
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
-    style::{Color, Modifier, Style},
+    style::{Color, Style},
     symbols,
     text::Span,
-    widgets::{Axis, Block, Borders, Chart, Dataset, Row, Table},
+    widgets::{Dataset, Row, Table},
     Frame,
 };
 
@@ -88,21 +88,7 @@ impl StatefulWidget for CpuMonitor {
     }
 }
 
-impl CpuMonitor {
-    pub fn new() -> Result<CpuMonitor> {
-        let cpu = processor()?;
-        let mut stats = Vec::new();
-        for core in cpu.cores {
-            stats.push(CoreStat::from(core));
-        }
-        stats.sort_by(|s1, s2| s1.core.id.cmp(&s2.core.id));
-
-        Ok(CpuMonitor {
-            stats,
-            m: Monitor::new(X_AXIS, Y_AXIS),
-        })
-    }
-
+impl GraphWidget for CpuMonitor {
     fn datasets(&self) -> Vec<Dataset> {
         let mut data = Vec::new();
         for core in &self.stats {
@@ -116,32 +102,36 @@ impl CpuMonitor {
         }
         data
     }
+    fn title(&self) -> &str {
+        "Cpu Frequency"
+    }
+    fn x_axis(&self) -> &str {
+        "Time"
+    }
+    fn y_axis(&self) -> &str {
+        "Frequency"
+    }
+    fn labels(&self) -> Vec<Span> {
+        self.m.bounds_labels(conv_fhz, 4)
+    }
+    fn monitor(&self) -> &Monitor {
+        &self.m
+    }
+}
 
-    fn render_graph_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
-        let datasets = self.datasets();
-        let chart = Chart::new(datasets)
-            .block(
-                Block::default()
-                    .title(Span::styled(
-                        "CPU Frequencies",
-                        Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
-                    ))
-                    .borders(Borders::ALL),
-            )
-            .x_axis(
-                Axis::default()
-                    .title("Time")
-                    .style(Style::default().fg(Color::Gray))
-                    .bounds(self.m.x()),
-            )
-            .y_axis(
-                Axis::default()
-                    .title("Core Frequency")
-                    .style(Style::default().fg(Color::Gray))
-                    .labels(self.m.bounds_labels(conv_fhz, 4))
-                    .bounds(self.m.y()),
-            );
-        f.render_widget(chart, area);
+impl CpuMonitor {
+    pub fn new() -> Result<CpuMonitor> {
+        let cpu = processor()?;
+        let mut stats = Vec::new();
+        for core in cpu.cores {
+            stats.push(CoreStat::from(core));
+        }
+        stats.sort_by(|s1, s2| s1.core.id.cmp(&s2.core.id));
+
+        Ok(CpuMonitor {
+            stats,
+            m: Monitor::new(X_AXIS, Y_AXIS),
+        })
     }
 
     fn render_cores_info_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {

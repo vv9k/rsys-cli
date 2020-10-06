@@ -17,14 +17,57 @@ use anyhow::Result;
 use tui::{
     backend::Backend,
     layout::{Constraint, Layout, Rect},
+    style::{Color, Modifier, Style},
+    text::Span,
+    widgets::{Axis, Block, Borders, Chart, Dataset},
     Frame,
 };
 
-/// Trait grouping all graph widgets together providing functionality
-/// like graph_loop.
+/// Trait grouping all widgets with state that needs updating
+/// together providing functionality like single_widget_loop.
 pub trait StatefulWidget {
     fn update(&mut self);
     fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect);
+}
+
+/// Trait providing more readable way of creating graph widgets
+pub trait GraphWidget {
+    fn datasets(&self) -> Vec<Dataset>;
+    fn title(&self) -> &str;
+    // Name of x axis
+    fn x_axis(&self) -> &str;
+    // Name of y axis
+    fn y_axis(&self) -> &str;
+    fn labels(&self) -> Vec<Span>;
+    fn monitor(&self) -> &Monitor;
+
+    fn chart(&self) -> Chart {
+        Chart::new(self.datasets())
+            .block(
+                Block::default()
+                    .title(Span::styled(
+                        self.title(),
+                        Style::default().add_modifier(Modifier::BOLD),
+                    ))
+                    .borders(Borders::ALL),
+            )
+            .x_axis(
+                Axis::default()
+                    .title(self.x_axis())
+                    .style(Style::default().fg(Color::Gray))
+                    .bounds(self.monitor().x()),
+            )
+            .y_axis(
+                Axis::default()
+                    .title(self.y_axis())
+                    .style(Style::default().fg(Color::Gray))
+                    .bounds(self.monitor().y()),
+            )
+    }
+    fn render_graph_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+        let chart = self.chart();
+        f.render_widget(chart, area);
+    }
 }
 
 /// Loop a single widget on full screen endlessly

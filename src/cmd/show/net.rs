@@ -1,5 +1,5 @@
 use super::{
-    common::{kv_span, single_widget_loop, spans_from, DataSeries, Monitor, RxTx, StatefulWidget},
+    common::{kv_span, single_widget_loop, spans_from, DataSeries, GraphWidget, Monitor, RxTx, StatefulWidget},
     events::Config,
 };
 use crate::util::{conv_fbs, random_color};
@@ -11,7 +11,7 @@ use tui::{
     style::{Color, Modifier, Style},
     symbols,
     text::{Span, Spans},
-    widgets::{Axis, Block, Borders, Chart, Dataset, Paragraph},
+    widgets::{Dataset, Paragraph},
     Frame,
 };
 
@@ -155,6 +155,44 @@ impl StatefulWidget for NetMonitor {
     }
 }
 
+impl GraphWidget for NetMonitor {
+    fn datasets(&self) -> Vec<Dataset> {
+        let mut data = Vec::new();
+        for iface in &self.stats {
+            data.push(
+                Dataset::default()
+                    .name("rx")
+                    .marker(symbols::Marker::Dot)
+                    .style(Style::default().fg(iface.rx_color))
+                    .data(&iface.data.rx().dataset()),
+            );
+            data.push(
+                Dataset::default()
+                    .name("tx")
+                    .marker(symbols::Marker::Braille)
+                    .style(Style::default().fg(iface.tx_color))
+                    .data(&iface.data.tx().dataset()),
+            );
+        }
+        data
+    }
+    fn title(&self) -> &str {
+        "Network Speed"
+    }
+    fn x_axis(&self) -> &str {
+        "Time"
+    }
+    fn y_axis(&self) -> &str {
+        "Speed"
+    }
+    fn labels(&self) -> Vec<Span> {
+        self.m.bounds_labels(conv_fbs, 5)
+    }
+    fn monitor(&self) -> &Monitor {
+        &self.m
+    }
+}
+
 impl NetMonitor {
     pub fn new(filter: Option<&[&str]>) -> Result<NetMonitor> {
         Ok(NetMonitor {
@@ -196,52 +234,6 @@ impl NetMonitor {
             .iter()
             .enumerate()
             .for_each(|(i, s)| f.render_widget(s.info(), chunks[i]));
-    }
-    fn datasets(&self) -> Vec<Dataset> {
-        let mut data = Vec::new();
-        for iface in &self.stats {
-            data.push(
-                Dataset::default()
-                    .name("rx")
-                    .marker(symbols::Marker::Dot)
-                    .style(Style::default().fg(iface.rx_color))
-                    .data(&iface.data.rx().dataset()),
-            );
-            data.push(
-                Dataset::default()
-                    .name("tx")
-                    .marker(symbols::Marker::Braille)
-                    .style(Style::default().fg(iface.tx_color))
-                    .data(&iface.data.tx().dataset()),
-            );
-        }
-        data
-    }
-    fn render_graph_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
-        let datasets = self.datasets();
-        let chart = Chart::new(datasets)
-            .block(
-                Block::default()
-                    .title(Span::styled(
-                        "Network speed",
-                        Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
-                    ))
-                    .borders(Borders::ALL),
-            )
-            .x_axis(
-                Axis::default()
-                    .title("Time")
-                    .style(Style::default().fg(Color::Gray))
-                    .bounds(self.m.x()),
-            )
-            .y_axis(
-                Axis::default()
-                    .title("Speed")
-                    .style(Style::default().fg(Color::Gray))
-                    .labels(self.m.bounds_labels(conv_fbs, 5))
-                    .bounds(self.m.y()),
-            );
-        f.render_widget(chart, area);
     }
 
     pub fn graph_loop(filter: Option<&[&str]>) -> Result<()> {
