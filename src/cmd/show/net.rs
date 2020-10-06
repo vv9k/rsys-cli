@@ -128,6 +128,7 @@ impl StatefulWidget for NetMonitor {
             self.m.set_if_y_max(iface.curr_speed.rx() + 100.);
             self.m.set_if_y_max(iface.curr_speed.tx() + 100.);
         }
+        self.m.update_last_time();
         // If total time elapsed passed max x coordinate
         // pop first item of dataset and move x axis
         // by time difference of popped and last element
