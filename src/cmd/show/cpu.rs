@@ -30,7 +30,7 @@ impl From<Core> for CoreStat {
     fn from(core: Core) -> Self {
         Self {
             name: format!("cpu{}", core.id),
-            color: random_color(Some(50)),
+            color: random_color(Some(20)),
             data: DataSeries::new(),
             core,
         }

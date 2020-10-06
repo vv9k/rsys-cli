@@ -34,7 +34,7 @@ impl From<BlockStorageInfo> for BlockDeviceStat {
     fn from(info: BlockStorageInfo) -> Self {
         Self {
             name: info.dev.to_string(),
-            color: random_color(Some(50)),
+            color: random_color(Some(20)),
             device: info,
             data: RxTx((DataSeries::new(), DataSeries::new())),
             speed: RxTx::default(),
