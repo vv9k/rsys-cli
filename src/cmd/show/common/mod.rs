@@ -1,4 +1,4 @@
-//! Module containing common functionality used across all graphs widgets.
+//! Module containing common functionality used across all widgets.
 mod data;
 mod display;
 mod monitor;
@@ -17,7 +17,6 @@ use super::{
     storage::StorageMonitor,
 };
 use anyhow::Result;
-use rsys::linux;
 use tui::{
     backend::Backend,
     layout::{Constraint, Layout, Rect},
@@ -61,7 +60,7 @@ pub fn show_all_loop() -> Result<()> {
     let mut terminal = get_terminal()?;
     let events = Events::with_config(Config::new(200));
     let mut cpumon = CpuMonitor::new()?;
-    let mut ifacemon = IfaceMonitor::new(&linux::net::default_iface()?)?;
+    let mut ifacemon = IfaceMonitor::default()?;
     let mut stormon = StorageMonitor::new()?;
     loop {
         terminal.draw(|f| {

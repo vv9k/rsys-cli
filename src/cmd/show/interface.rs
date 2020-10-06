@@ -4,7 +4,7 @@ use super::{
 };
 use crate::util::conv_fb;
 use anyhow::{anyhow, Result};
-use rsys::linux::net::{iface, Interface};
+use rsys::linux::net::{self, iface, Interface};
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
@@ -90,6 +90,10 @@ impl IfaceMonitor {
             total: RxTx::default(),
             m: Monitor::new(X_AXIS, Y_AXIS),
         })
+    }
+
+    pub fn default() -> Result<IfaceMonitor> {
+        Self::new(&net::default_iface()?)
     }
 
     fn delta(&mut self) -> (f64, f64) {
