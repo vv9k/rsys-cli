@@ -18,6 +18,7 @@ use tui::{
 const X_AXIS: (f64, f64) = (0., 30.0);
 const Y_AXIS: (f64, f64) = (f64::MAX, 0.);
 const TICK_RATE: u64 = 250;
+const CPU_INFO_HEADERS: &[&str] = &["core", "frequency"];
 
 // Stats of a single core
 struct CoreStat {
@@ -141,7 +142,6 @@ impl CpuMonitor {
             .constraints([Constraint::Percentage(10), Constraint::Percentage(90)])
             .split(area);
 
-        let headers = ["core", "frequency"];
         let data = self.stats.iter().map(|s| {
             Row::StyledData(
                 vec![s.name.clone(), conv_hz(s.core.cur_freq)].into_iter(),
@@ -149,7 +149,8 @@ impl CpuMonitor {
             )
         });
 
-        let table = Table::new(headers.iter(), data).widths(&[Constraint::Percentage(25), Constraint::Percentage(60)]);
+        let table =
+            Table::new(CPU_INFO_HEADERS.iter(), data).widths(&[Constraint::Percentage(25), Constraint::Percentage(60)]);
 
         f.render_widget(table, chunks[1]);
     }

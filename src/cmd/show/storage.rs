@@ -19,6 +19,7 @@ const X_AXIS: (f64, f64) = (0., 30.0);
 const Y_AXIS: (f64, f64) = (0., 100.);
 const TICK_RATE: u64 = 200;
 const SECTOR_SIZE: f64 = 512.;
+const STORAGE_INFO_HEADERS: &[&str] = &["name", "rx/s", "wx/s", "Σrx", "Σwx"];
 
 #[derive(Debug)]
 // Stats of a single block storage device
@@ -174,12 +175,6 @@ impl StorageMonitor {
         })
     }
     fn render_storage_info_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
-        let chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(100)])
-            .split(area);
-
-        let headers = ["name", "rx/s", "wx/s", "Σrx", "Σwx"];
         let data = self.stats.iter().map(|s| {
             Row::StyledData(
                 vec![
@@ -194,7 +189,7 @@ impl StorageMonitor {
             )
         });
 
-        let table = Table::new(headers.iter(), data)
+        let table = Table::new(STORAGE_INFO_HEADERS.iter(), data)
             .widths(&[
                 Constraint::Percentage(10),
                 Constraint::Percentage(20),
@@ -205,7 +200,7 @@ impl StorageMonitor {
             .header_gap(1)
             .column_spacing(1);
 
-        f.render_widget(table, chunks[0]);
+        f.render_widget(table, area);
     }
 
     pub fn graph_loop() -> Result<()> {

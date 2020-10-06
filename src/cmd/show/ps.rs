@@ -2,15 +2,17 @@ use super::{
     common::{single_widget_loop, StatefulWidget},
     events::Config,
 };
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use rsys::linux::ps::{processes, Process};
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
-    style::{Color, Modifier, Style},
+    style::Style,
     widgets::{Row, Table},
     Frame,
 };
+
+const PS_HEADERS: &[&str] = &["pid", "name", "state", "vsize", "rss", "utime", "stime"];
 
 pub struct ProcessMonitor {
     processes: Vec<Process>,
@@ -40,12 +42,6 @@ impl ProcessMonitor {
     }
 
     fn render_storage_info_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
-        let chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(100)])
-            .split(area);
-
-        let headers = ["pid", "name", "state", "vsize", "rss", "utime", "stime"];
         let data = self.processes.iter().map(|s| {
             Row::StyledData(
                 vec![
@@ -62,7 +58,7 @@ impl ProcessMonitor {
             )
         });
 
-        let table = Table::new(headers.iter(), data).widths(&[
+        let table = Table::new(PS_HEADERS.iter(), data).widths(&[
             Constraint::Percentage(14),
             Constraint::Percentage(14),
             Constraint::Percentage(14),
@@ -72,7 +68,7 @@ impl ProcessMonitor {
             Constraint::Percentage(14),
         ]);
 
-        f.render_widget(table, chunks[0]);
+        f.render_widget(table, area);
     }
 
     pub fn display_loop() -> Result<()> {
