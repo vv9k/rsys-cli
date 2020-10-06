@@ -30,8 +30,8 @@ struct BlockDeviceStat {
     speed: RxTx<f64>,
     total: RxTx<f64>,
 }
-impl BlockDeviceStat {
-    fn from_storage_info(info: BlockStorageInfo) -> BlockDeviceStat {
+impl From<BlockStorageInfo> for BlockDeviceStat {
+    fn from(info: BlockStorageInfo) -> Self {
         Self {
             name: info.dev.to_string(),
             color: random_color(Some(50)),
@@ -41,6 +41,8 @@ impl BlockDeviceStat {
             total: RxTx::default(),
         }
     }
+}
+impl BlockDeviceStat {
     fn sectors(&mut self) -> (f64, f64) {
         if let Some(stat) = &self.device.stat {
             (
@@ -123,7 +125,7 @@ impl StorageMonitor {
         let infos = storage_devices_info().map_err(|e| anyhow!("Failed to get storage devices info - {}", e))?;
         let mut stats = Vec::new();
         for info in infos.into_iter() {
-            stats.push(BlockDeviceStat::from_storage_info(info));
+            stats.push(BlockDeviceStat::from(info));
         }
 
         stats.sort_by(|s1, s2| s1.name.cmp(&s2.name));

@@ -26,8 +26,8 @@ struct CoreStat {
     data: DataSeries,
     core: Core,
 }
-impl CoreStat {
-    fn from_core(core: Core) -> CoreStat {
+impl From<Core> for CoreStat {
+    fn from(core: Core) -> Self {
         Self {
             name: format!("cpu{}", core.id),
             color: random_color(Some(50)),
@@ -35,6 +35,8 @@ impl CoreStat {
             core,
         }
     }
+}
+impl CoreStat {
     // Updates core and returns its new frequency
     fn update(&mut self) -> Result<f64> {
         self.core
@@ -93,8 +95,8 @@ impl CpuMonitor {
     pub fn new() -> Result<CpuMonitor> {
         let cpu = processor()?;
         let mut stats = Vec::new();
-        for core in &cpu.cores {
-            stats.push(CoreStat::from_core(core.clone()));
+        for core in cpu.cores {
+            stats.push(CoreStat::from(core));
         }
         stats.sort_by(|s1, s2| s1.core.id.cmp(&s2.core.id));
 
