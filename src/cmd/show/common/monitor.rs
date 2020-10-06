@@ -23,12 +23,12 @@ impl Monitor {
     }
 
     /// Returns time elapsed since start in seconds
-    pub fn elapsed_since_start(&mut self) -> f64 {
+    pub fn elapsed_since_start(&self) -> f64 {
         self.start_time.elapsed().as_secs_f64()
     }
 
     /// Returns time since last measurement in seconds
-    pub fn elapsed_since_last(&mut self) -> f64 {
+    pub fn elapsed_since_last(&self) -> f64 {
         self.last_time.elapsed().as_secs_f64()
     }
 
