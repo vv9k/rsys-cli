@@ -138,19 +138,7 @@ impl CpuMonitor {
                 Axis::default()
                     .title("Core Frequency")
                     .style(Style::default().fg(Color::Gray))
-                    .labels(vec![
-                        Span::raw(conv_fhz(self.m.min_y())),
-                        Span::raw(conv_fhz(
-                            self.m.min_y() + ((self.m.max_y() - self.m.min_y()) * (1.0 / 4.0)),
-                        )),
-                        Span::raw(conv_fhz(
-                            self.m.min_y() + ((self.m.max_y() - self.m.min_y()) * (2.0 / 4.0)),
-                        )),
-                        Span::raw(conv_fhz(
-                            self.m.min_y() + ((self.m.max_y() - self.m.min_y()) * (3.0 / 4.0)),
-                        )),
-                        Span::styled(conv_fhz(self.m.max_y()), Style::default().add_modifier(Modifier::BOLD)),
-                    ])
+                    .labels(self.m.bounds_labels(conv_fhz, 4))
                     .bounds(self.m.y()),
             );
         f.render_widget(chart, area);

@@ -2,7 +2,7 @@ use super::{
     common::{kv_span, single_widget_loop, spans_from, DataSeries, Monitor, RxTx, StatefulWidget},
     events::Config,
 };
-use crate::util::{conv_fb, random_color};
+use crate::util::{conv_fbs, random_color};
 use anyhow::{anyhow, Result};
 use rsys::linux::net::{ifaces, Interface};
 use tui::{
@@ -238,17 +238,7 @@ impl NetMonitor {
                 Axis::default()
                     .title("Speed")
                     .style(Style::default().fg(Color::Gray))
-                    .labels(vec![
-                        Span::raw("0"),
-                        Span::raw(format!("{}/s", conv_fb(self.m.max_y() * (1.0 / 5.0)))),
-                        Span::raw(format!("{}/s", conv_fb(self.m.max_y() * (2.0 / 5.0)))),
-                        Span::raw(format!("{}/s", conv_fb(self.m.max_y() * (3.0 / 5.0)))),
-                        Span::raw(format!("{}/s", conv_fb(self.m.max_y() * (4.0 / 5.0)))),
-                        Span::styled(
-                            format!("{}/s", conv_fb(self.m.max_y())),
-                            Style::default().add_modifier(Modifier::BOLD),
-                        ),
-                    ])
+                    .labels(self.m.bounds_labels(conv_fbs, 5))
                     .bounds(self.m.y()),
             );
         f.render_widget(chart, area);

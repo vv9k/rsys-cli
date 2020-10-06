@@ -1,4 +1,8 @@
 use std::time::Instant;
+use tui::{
+    style::{Modifier, Style},
+    text::Span,
+};
 
 #[derive(Debug)]
 /// A helper struct for each monitor (cpu, storage, interface...) that
@@ -20,6 +24,31 @@ impl Monitor {
             start_time: Instant::now(),
             last_time: Instant::now(),
         }
+    }
+
+    /// Returns spans of y axis points divided into n parts and values of y axis
+    /// converted with f
+    pub fn bounds_labels<'s, F>(&'s self, f: F, n: u32) -> Vec<Span<'s>>
+    where
+        F: Fn(f64) -> String,
+    {
+        let mut spans = vec![Span::styled(
+            f(self.min_y()),
+            Style::default().add_modifier(Modifier::BOLD),
+        )];
+
+        (1..n).into_iter().for_each(|i| {
+            spans.push(Span::raw(f(
+                self.min_y() + ((self.max_y() - self.min_y()) * (i as f64 / n as f64))
+            )));
+        });
+
+        spans.push(Span::styled(
+            f(self.max_y()),
+            Style::default().add_modifier(Modifier::BOLD),
+        ));
+
+        spans
     }
 
     /// Returns time elapsed since start in seconds

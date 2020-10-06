@@ -25,8 +25,8 @@ impl<T: Default + Debug> RxTx<T> {
 impl<T: Default + Debug + AddAssign> RxTx<T> {
     /// Increments both rx and transfered elements by coresponding values
     pub fn inc(&mut self, r: T, t: T) {
-        (self.0).0.add_assign(r);
-        (self.0).1.add_assign(t);
+        self.rx_mut().add_assign(r);
+        self.tx_mut().add_assign(t);
     }
 }
 impl RxTx<f64> {
