@@ -1,5 +1,5 @@
 use super::{
-    common::{graph_loop, DataSeries, GraphWidget, Monitor},
+    common::{graph_loop, DataSeries, GraphWidget, Monitor, RxTx},
     events::Config,
 };
 use crate::util::{conv_fb, random_color};
@@ -28,10 +28,8 @@ struct BlockDeviceStat {
     rx_data: DataSeries,
     wx_data: DataSeries,
     device: BlockStorageInfo,
-    rx_speed: f64,
-    wx_speed: f64,
-    total_rx: f64,
-    total_wx: f64,
+    speed: RxTx<f64>,
+    total: RxTx<f64>,
 }
 impl BlockDeviceStat {
     fn from_storage_info(info: BlockStorageInfo) -> BlockDeviceStat {
@@ -41,10 +39,8 @@ impl BlockDeviceStat {
             rx_data: DataSeries::new(),
             wx_data: DataSeries::new(),
             device: info,
-            rx_speed: 0.,
-            wx_speed: 0.,
-            total_rx: 0.,
-            total_wx: 0.,
+            speed: RxTx::default(),
+            total: RxTx::default(),
         }
     }
     fn sectors(&mut self) -> (f64, f64) {
@@ -70,17 +66,15 @@ impl BlockDeviceStat {
         let rx_delta = rx_after - rx_before;
         let wx_delta = wx_after - wx_before;
 
-        self.total_rx += rx_delta;
-        self.total_wx += wx_delta;
+        self.total.inc(rx_delta, wx_delta);
+        self.speed = RxTx((rx_delta / time_delta, wx_delta / time_delta));
 
-        self.rx_speed = rx_delta / time_delta;
-        self.wx_speed = wx_delta / time_delta;
-        Ok((self.rx_speed, self.wx_speed))
+        Ok(self.speed.0)
     }
 
     fn add_current(&mut self, time: f64) {
-        self.rx_data.add(time, self.rx_speed);
-        self.wx_data.add(time, self.wx_speed);
+        self.rx_data.add(time, *self.speed.rx());
+        self.wx_data.add(time, *self.speed.tx());
     }
 }
 
@@ -207,14 +201,14 @@ impl StorageMonitor {
             .split(area);
 
         let headers = ["name", "rx/s", "wx/s", "Σrx", "Σwx"];
-        let data = self.stats.iter().enumerate().map(|(i, s)| {
+        let data = self.stats.iter().map(|s| {
             Row::StyledData(
                 vec![
                     s.name.to_string(),
-                    format!("{}/s", conv_fb(s.rx_speed)),
-                    format!("{}/s", conv_fb(s.wx_speed)),
-                    conv_fb(s.total_rx),
-                    conv_fb(s.total_wx),
+                    s.speed.rx_speed_str(),
+                    s.speed.tx_speed_str(),
+                    s.total.rx_bytes_str(),
+                    s.total.tx_bytes_str(),
                 ]
                 .into_iter(),
                 Style::default().fg(s.color),

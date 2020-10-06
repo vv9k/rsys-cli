@@ -1,5 +1,5 @@
 use super::{
-    common::{graph_loop, kv_span, spans_from, DataSeries, GraphWidget, Monitor},
+    common::{graph_loop, kv_span, spans_from, DataSeries, GraphWidget, Monitor, RxTx},
     events::Config,
 };
 use crate::util::conv_fb;
@@ -23,12 +23,9 @@ pub(crate) struct IfaceMonitor {
     rx_data: DataSeries,
     tx_data: DataSeries,
     iface: Interface,
-    prev_rx_bytes: u64,
-    prev_tx_bytes: u64,
-    curr_rx_speed: f64,
-    curr_tx_speed: f64,
-    total_rx: f64,
-    total_tx: f64,
+    prev_bytes: RxTx<u64>,
+    curr_speed: RxTx<f64>,
+    total: RxTx<f64>,
     m: Monitor,
 }
 
@@ -39,20 +36,21 @@ impl GraphWidget for IfaceMonitor {
 
         let (delta_rx, delta_tx) = self.delta();
 
-        self.total_rx += delta_rx;
-        self.total_tx += delta_tx;
-        self.curr_rx_speed = delta_rx / self.m.elapsed_since_last();
-        self.curr_tx_speed = delta_tx / self.m.elapsed_since_last();
-        self.rx_data.add(self.m.elapsed_since_start(), self.curr_rx_speed);
-        self.tx_data.add(self.m.elapsed_since_start(), self.curr_tx_speed);
+        self.total.inc(delta_rx, delta_tx);
+
+        self.curr_speed = RxTx((
+            delta_rx / self.m.elapsed_since_last(),
+            delta_tx / self.m.elapsed_since_last(),
+        ));
+        self.rx_data.add(self.m.elapsed_since_start(), *self.curr_speed.rx());
+        self.tx_data.add(self.m.elapsed_since_start(), *self.curr_speed.tx());
 
         // If the values are bigger than current max y
         // update y axis
-        self.m.set_if_y_max(self.curr_rx_speed + 100.);
-        self.m.set_if_y_max(self.curr_rx_speed + 100.);
+        self.m.set_if_y_max(self.curr_speed.rx() + 100.);
+        self.m.set_if_y_max(self.curr_speed.tx() + 100.);
 
-        self.prev_rx_bytes = self.iface.stat.rx_bytes;
-        self.prev_tx_bytes = self.iface.stat.tx_bytes;
+        self.prev_bytes = RxTx((self.iface.stat.rx_bytes, self.iface.stat.tx_bytes));
 
         // If total time elapsed passed max x coordinate
         // pop first item of dataset and move x axis
@@ -88,35 +86,20 @@ impl IfaceMonitor {
             rx_data: DataSeries::new(),
             tx_data: DataSeries::new(),
             iface,
-            prev_rx_bytes: rx,
-            prev_tx_bytes: tx,
-            curr_rx_speed: 0.,
-            curr_tx_speed: 0.,
-            total_rx: 0.,
-            total_tx: 0.,
+            prev_bytes: RxTx((rx, tx)),
+            curr_speed: RxTx::default(),
+            total: RxTx::default(),
             m: Monitor::new(X_AXIS, Y_AXIS),
         })
     }
 
     fn delta(&mut self) -> (f64, f64) {
         (
-            (self.iface.stat.rx_bytes - self.prev_rx_bytes) as f64,
-            (self.iface.stat.tx_bytes - self.prev_tx_bytes) as f64,
+            (self.iface.stat.rx_bytes - self.prev_bytes.rx()) as f64,
+            (self.iface.stat.tx_bytes - self.prev_bytes.tx()) as f64,
         )
     }
 
-    fn current_rx_speed(&self) -> String {
-        format!("{}/s", conv_fb(self.curr_rx_speed))
-    }
-    fn current_tx_speed(&self) -> String {
-        format!("{}/s", conv_fb(self.curr_tx_speed))
-    }
-    fn total_rx(&self) -> String {
-        conv_fb(self.total_rx)
-    }
-    fn total_tx(&self) -> String {
-        conv_fb(self.total_tx)
-    }
     fn iface_info(&self) -> Paragraph {
         Paragraph::new(vec![
             Spans::from(Span::styled(
@@ -132,10 +115,20 @@ impl IfaceMonitor {
                 true,
             )]),
             spans_from(vec![kv_span(" mac : ", &self.iface.mac_address, Color::White, true)]),
-            spans_from(vec![kv_span(" Vrx : ", &self.current_rx_speed(), Color::Cyan, true)]),
-            spans_from(vec![kv_span(" Σrx : ", &self.total_rx(), Color::Cyan, true)]),
-            spans_from(vec![kv_span(" Vtx : ", &self.current_tx_speed(), Color::Blue, true)]),
-            spans_from(vec![kv_span(" Σtx : ", &self.total_tx(), Color::Blue, true)]),
+            spans_from(vec![kv_span(
+                " Vrx : ",
+                &self.curr_speed.rx_speed_str(),
+                Color::Cyan,
+                true,
+            )]),
+            spans_from(vec![kv_span(" Σrx : ", &self.total.rx_bytes_str(), Color::Cyan, true)]),
+            spans_from(vec![kv_span(
+                " Vtx : ",
+                &self.curr_speed.tx_speed_str(),
+                Color::Blue,
+                true,
+            )]),
+            spans_from(vec![kv_span(" Σtx : ", &self.total.tx_bytes_str(), Color::Blue, true)]),
         ])
     }
     fn render_info_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
