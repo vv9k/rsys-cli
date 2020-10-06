@@ -8,11 +8,7 @@ use super::{
 use crate::util::conv_fb;
 use anyhow::Result;
 use rsys::linux;
-use std::{
-    ops::AddAssign,
-    fmt::Debug,
-    time::Instant
-};
+use std::{fmt::Debug, ops::AddAssign, time::Instant};
 use tui::{
     backend::Backend,
     layout::{Constraint, Layout, Rect},
@@ -150,7 +146,6 @@ impl DataSeries {
     pub fn first(&self) -> Option<(f64, f64)> {
         self.nth(0)
     }
-
 }
 
 #[derive(Debug)]
@@ -237,23 +232,22 @@ impl Monitor {
 pub(crate) struct RxTx<T: Default + Debug>(pub (T, T));
 impl<T: Default + Debug> RxTx<T> {
     pub(crate) fn rx(&self) -> &T {
-        &self.0.0
+        &(self.0).0
     }
     pub(crate) fn tx(&self) -> &T {
-        &self.0.1
+        &(self.0).1
     }
     pub(crate) fn rx_mut(&mut self) -> &mut T {
-        &mut self.0.0
+        &mut (self.0).0
     }
     pub(crate) fn tx_mut(&mut self) -> &mut T {
-        &mut self.0.1
+        &mut (self.0).1
     }
-
 }
 impl<T: Default + Debug + AddAssign> RxTx<T> {
     pub(crate) fn inc(&mut self, r: T, t: T) {
-        self.0.0 += r;
-        self.0.1 += t;
+        (self.0).0 += r;
+        (self.0).1 += t;
     }
 }
 impl RxTx<f64> {
