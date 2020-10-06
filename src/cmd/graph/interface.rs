@@ -20,13 +20,12 @@ const Y_AXIS: (f64, f64) = (0., 100.0);
 const TICK_RATE: u64 = 300;
 
 pub(crate) struct IfaceMonitor {
-    rx_data: DataSeries,
-    tx_data: DataSeries,
     iface: Interface,
+    m: Monitor,
+    data: RxTx<DataSeries>,
     prev_bytes: RxTx<u64>,
     curr_speed: RxTx<f64>,
     total: RxTx<f64>,
-    m: Monitor,
 }
 
 impl GraphWidget for IfaceMonitor {
@@ -42,8 +41,12 @@ impl GraphWidget for IfaceMonitor {
             delta_rx / self.m.elapsed_since_last(),
             delta_tx / self.m.elapsed_since_last(),
         ));
-        self.rx_data.add(self.m.elapsed_since_start(), *self.curr_speed.rx());
-        self.tx_data.add(self.m.elapsed_since_start(), *self.curr_speed.tx());
+        self.data
+            .rx_mut()
+            .add(self.m.elapsed_since_start(), *self.curr_speed.rx());
+        self.data
+            .tx_mut()
+            .add(self.m.elapsed_since_start(), *self.curr_speed.tx());
 
         // If the values are bigger than current max y
         // update y axis
@@ -56,9 +59,9 @@ impl GraphWidget for IfaceMonitor {
         // pop first item of dataset and move x axis
         // by time difference of popped and last element
         if self.m.elapsed_since_start() > self.m.max_x() {
-            let removed = self.rx_data.pop();
-            self.tx_data.pop();
-            if let Some(point) = self.rx_data.first() {
+            let removed = self.data.rx_mut().pop();
+            self.data.tx_mut().pop();
+            if let Some(point) = self.data.rx().first() {
                 self.m.inc_x_axis(point.0 - removed.0);
             }
         }
@@ -83,8 +86,7 @@ impl IfaceMonitor {
         let rx = iface.stat.rx_bytes;
         let tx = iface.stat.tx_bytes;
         Ok(IfaceMonitor {
-            rx_data: DataSeries::new(),
-            tx_data: DataSeries::new(),
+            data: RxTx((DataSeries::new(), DataSeries::new())),
             iface,
             prev_bytes: RxTx((rx, tx)),
             curr_speed: RxTx::default(),
@@ -144,12 +146,12 @@ impl IfaceMonitor {
                 .name("rx")
                 .marker(symbols::Marker::Dot)
                 .style(Style::default().fg(Color::Cyan))
-                .data(&self.rx_data.data()),
+                .data(&self.data.rx().data()),
             Dataset::default()
                 .name("tx")
                 .marker(symbols::Marker::Braille)
                 .style(Style::default().fg(Color::Blue))
-                .data(&self.tx_data.data()),
+                .data(&self.data.rx().data()),
         ]
     }
     fn render_graph_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
