@@ -2,7 +2,7 @@ use super::{
     common::{graph_loop, DataSeries, GraphWidget, Monitor},
     events::Config,
 };
-use crate::util::conv_fb;
+use crate::util::{conv_fb, random_color};
 use anyhow::{anyhow, Result};
 use rsys::linux::storage::{storage_devices_info, BlockStorageInfo};
 use std::time::Instant;
@@ -35,10 +35,10 @@ struct BlockDeviceStat {
     total_wx: f64,
 }
 impl BlockDeviceStat {
-    fn from_storage_info(info: BlockStorageInfo, color: u8) -> BlockDeviceStat {
+    fn from_storage_info(info: BlockStorageInfo) -> BlockDeviceStat {
         Self {
             name: info.dev.to_string(),
-            color: Color::Indexed(color),
+            color: random_color(Some(50)),
             rx_data: DataSeries::new(),
             wx_data: DataSeries::new(),
             device: info,
@@ -140,9 +140,12 @@ impl StorageMonitor {
     pub(crate) fn new() -> Result<StorageMonitor> {
         let infos = storage_devices_info().map_err(|e| anyhow!("Failed to get storage devices info - {}", e))?;
         let mut stats = Vec::new();
-        for (i, info) in infos.into_iter().enumerate() {
-            stats.push(BlockDeviceStat::from_storage_info(info, i as u8));
+        for info in infos.into_iter() {
+            stats.push(BlockDeviceStat::from_storage_info(info));
         }
+
+        stats.sort_by(|s1, s2| s1.name.cmp(&s2.name));
+
         Ok(StorageMonitor {
             stats,
             start_time: Instant::now(),
@@ -226,7 +229,7 @@ impl StorageMonitor {
                     conv_fb(s.total_wx),
                 ]
                 .into_iter(),
-                Style::default().fg(Color::Indexed(i as u8)),
+                Style::default().fg(s.color),
             )
         });
 

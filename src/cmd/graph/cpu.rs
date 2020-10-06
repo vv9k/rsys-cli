@@ -2,7 +2,7 @@ use super::{
     common::{graph_loop, DataSeries, GraphWidget, Monitor},
     events::Config,
 };
-use crate::util::{conv_fhz, conv_hz};
+use crate::util::{conv_fhz, conv_hz, random_color};
 use anyhow::{anyhow, Result};
 use rsys::linux::cpu::{processor, Core};
 use std::time::Instant;
@@ -31,7 +31,7 @@ impl CoreStat {
     fn from_core(core: Core) -> CoreStat {
         Self {
             name: format!("cpu{}", core.id),
-            color: Color::Indexed(core.id as u8),
+            color: random_color(Some(50)),
             data: DataSeries::new(),
             core,
         }
@@ -108,6 +108,7 @@ impl CpuMonitor {
         for core in &cpu.cores {
             stats.push(CoreStat::from_core(core.clone()));
         }
+        stats.sort_by(|s1, s2| s1.core.id.cmp(&s2.core.id));
 
         Ok(CpuMonitor {
             stats,

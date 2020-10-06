@@ -63,7 +63,7 @@ pub(crate) fn graph_loop<W: GraphWidget>(widget: &mut W, config: Config) -> Resu
 
 pub(crate) fn graph_all_loop() -> Result<()> {
     let mut terminal = get_terminal()?;
-    let events = Events::with_config(Config::new(300));
+    let events = Events::with_config(Config::new(200));
     let mut cpumon = CpuMonitor::new()?;
     let mut ifacemon = IfaceMonitor::new(&linux::net::default_iface()?)?;
     let mut stormon = StorageMonitor::new()?;
