@@ -25,9 +25,8 @@ const SECTOR_SIZE: f64 = 512.;
 struct BlockDeviceStat {
     name: String,
     color: Color,
-    rx_data: DataSeries,
-    wx_data: DataSeries,
     device: BlockStorageInfo,
+    data: RxTx<DataSeries>,
     speed: RxTx<f64>,
     total: RxTx<f64>,
 }
@@ -36,9 +35,8 @@ impl BlockDeviceStat {
         Self {
             name: info.dev.to_string(),
             color: random_color(Some(50)),
-            rx_data: DataSeries::new(),
-            wx_data: DataSeries::new(),
             device: info,
+            data: RxTx((DataSeries::new(), DataSeries::new())),
             speed: RxTx::default(),
             total: RxTx::default(),
         }
@@ -73,8 +71,8 @@ impl BlockDeviceStat {
     }
 
     fn add_current(&mut self, time: f64) {
-        self.rx_data.add(time, *self.speed.rx());
-        self.wx_data.add(time, *self.speed.tx());
+        self.data.rx_mut().add(time, *self.speed.rx());
+        self.data.tx_mut().add(time, *self.speed.tx());
     }
 }
 
@@ -95,14 +93,14 @@ impl GraphWidget for StorageMonitor {
 
         // Move x axis if time reached end
         if self.m.elapsed_since_start() > self.m.max_x() {
-            let removed = self.stats[0].rx_data.pop();
-            self.stats[0].wx_data.pop();
-            if let Some(point) = self.stats[0].rx_data.first() {
+            let removed = self.stats[0].data.rx_mut().pop();
+            self.stats[0].data.tx_mut().pop();
+            if let Some(point) = self.stats[0].data.rx().first() {
                 self.m.inc_x_axis(point.0 - removed.0);
             }
             self.stats.iter_mut().skip(1).for_each(|c| {
-                c.rx_data.pop();
-                c.wx_data.pop();
+                c.data.rx_mut().pop();
+                c.data.tx_mut().pop();
             });
         }
     }
@@ -144,14 +142,14 @@ impl StorageMonitor {
                     .name(format!("rx {}", &device.name))
                     .marker(symbols::Marker::Dot)
                     .style(Style::default().fg(device.color))
-                    .data(&device.rx_data.data()),
+                    .data(&device.data.rx().data()),
             );
             data.push(
                 Dataset::default()
                     .name(format!("wx {}", &device.name))
                     .marker(symbols::Marker::Braille)
                     .style(Style::default().fg(device.color))
-                    .data(&device.wx_data.data()),
+                    .data(&device.data.tx().data()),
             );
         }
         data
