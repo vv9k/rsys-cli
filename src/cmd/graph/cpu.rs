@@ -112,7 +112,7 @@ impl CpuMonitor {
                     .name(&core.name)
                     .marker(symbols::Marker::Braille)
                     .style(Style::default().fg(core.color))
-                    .data(&core.data.data()),
+                    .data(&core.data.dataset()),
             );
         }
         data

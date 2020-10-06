@@ -146,12 +146,12 @@ impl IfaceMonitor {
                 .name("rx")
                 .marker(symbols::Marker::Dot)
                 .style(Style::default().fg(Color::Cyan))
-                .data(&self.data.rx().data()),
+                .data(&self.data.rx().dataset()),
             Dataset::default()
                 .name("tx")
                 .marker(symbols::Marker::Braille)
                 .style(Style::default().fg(Color::Blue))
-                .data(&self.data.rx().data()),
+                .data(&self.data.rx().dataset()),
         ]
     }
     fn render_graph_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {

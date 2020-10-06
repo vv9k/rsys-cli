@@ -142,14 +142,14 @@ impl StorageMonitor {
                     .name(format!("rx {}", &device.name))
                     .marker(symbols::Marker::Dot)
                     .style(Style::default().fg(device.color))
-                    .data(&device.data.rx().data()),
+                    .data(&device.data.rx().dataset()),
             );
             data.push(
                 Dataset::default()
                     .name(format!("wx {}", &device.name))
                     .marker(symbols::Marker::Braille)
                     .style(Style::default().fg(device.color))
-                    .data(&device.data.tx().data()),
+                    .data(&device.data.tx().dataset()),
             );
         }
         data

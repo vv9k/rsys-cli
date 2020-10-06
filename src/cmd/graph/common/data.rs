@@ -11,7 +11,8 @@ impl DataSeries {
             len: 0,
         }
     }
-    pub fn data(&self) -> &[(f64, f64)] {
+    /// Return self data as slice readable by tui's Dataset
+    pub fn dataset(&self) -> &[(f64, f64)] {
         &self.data
     }
 

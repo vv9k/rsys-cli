@@ -1,3 +1,4 @@
+//! Module containing common functionality used across all graphs widgets.
 mod data;
 mod display;
 mod monitor;
@@ -30,6 +31,8 @@ pub trait GraphWidget {
     fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect);
     fn monitor(&mut self) -> &mut Monitor;
 }
+
+/// Loop a single widget on full screen endlessly
 pub fn graph_loop<W: GraphWidget>(widget: &mut W, config: Config) -> Result<()> {
     let mut terminal = get_terminal()?;
     let events = Events::with_config(config);
@@ -54,6 +57,7 @@ pub fn graph_loop<W: GraphWidget>(widget: &mut W, config: Config) -> Result<()> 
     Ok(())
 }
 
+/// A loop with all graph widgets groupped together
 pub fn graph_all_loop() -> Result<()> {
     let mut terminal = get_terminal()?;
     let events = Events::with_config(Config::new(200));
