@@ -4,7 +4,7 @@ mod display;
 mod monitor;
 mod rxtx;
 
-pub use data::DataSeries;
+pub use data::*;
 pub use display::*;
 pub use monitor::Monitor;
 pub use rxtx::RxTx;

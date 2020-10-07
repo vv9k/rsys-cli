@@ -1,3 +1,6 @@
+use super::monitor::Monitor;
+use tui::style::Color;
+
 #[derive(Default, Debug)]
 /// Wrapper stuct for graph datapoints used by Datasets.
 pub struct DataSeries {
@@ -41,4 +44,13 @@ impl DataSeries {
     pub fn first(&self) -> Option<(f64, f64)> {
         self.nth(0)
     }
+}
+
+pub trait Statistic {
+    /// Updates the value of this stat and also adjusts monitor y axis
+    fn update(&mut self, m: &mut Monitor) -> Result<()>;
+    fn data(&self) -> &DataSeries;
+    fn data_mut(&mut self) -> &mut DataSeries;
+    fn name(&self) -> &str;
+    fn color(&self) -> Color;
 }
