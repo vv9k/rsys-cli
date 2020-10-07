@@ -143,7 +143,10 @@ impl GraphWidget for StorageMonitor {
         data
     }
     fn title(&self) -> Span {
-        Span::styled("Storage devices", Style::default().add_modifier(Modifier::BOLD))
+        Span::styled(
+            "Storage devices",
+            Style::default().add_modifier(Modifier::BOLD).fg(Color::Blue),
+        )
     }
     fn x_axis(&self) -> Span {
         Span::styled("Time", Style::default())
