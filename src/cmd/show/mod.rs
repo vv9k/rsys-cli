@@ -7,7 +7,7 @@ mod storage;
 
 use crate::RsysCli;
 use common::StatefulWidget;
-use cpu::CpuMonitor;
+use cpu::{CoreFrequencyStat, CoreUsageStat, CpuMonitor};
 use events::{Config, Event, Events};
 use net::NetMonitor;
 use ps::ProcessMonitor;
@@ -43,8 +43,10 @@ pub enum ShowCmd {
     Interface {
         name: String,
     },
-    /// Draw core frequencies
-    Cpu,
+    /// Draw cpu usage
+    CpuUsage,
+    /// Draw cpu core frequencies
+    CpuFreq,
     /// Display I/O stats for storage devices
     Storage,
     /// Display all graphs at once
@@ -57,7 +59,8 @@ impl RsysCli {
     pub fn show(&self, cmd: ShowCmd) {
         let result = match cmd {
             ShowCmd::Interface { name } => NetMonitor::single_iface_loop(&name),
-            ShowCmd::Cpu => CpuMonitor::graph_loop(),
+            ShowCmd::CpuFreq => CpuMonitor::frequency_graph_loop(),
+            ShowCmd::CpuUsage => CpuMonitor::usage_graph_loop(),
             ShowCmd::Storage => StorageMonitor::graph_loop(),
             ShowCmd::All => show_all_loop(),
             ShowCmd::Ps => ProcessMonitor::display_loop(),
@@ -74,7 +77,7 @@ impl RsysCli {
 pub fn show_all_loop() -> Result<()> {
     let mut terminal = get_terminal()?;
     let events = Events::with_config(Config::new(200));
-    let mut cpumon = CpuMonitor::new()?;
+    let mut cpumon = CpuMonitor::<CoreFrequencyStat>::new()?;
     let mut ifacemon = NetMonitor::new(None)?;
     let mut stormon = StorageMonitor::new()?;
     loop {

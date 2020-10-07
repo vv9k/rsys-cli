@@ -16,65 +16,135 @@ use tui::{
 };
 
 const X_AXIS: (f64, f64) = (0., 30.0);
-const Y_AXIS: (f64, f64) = (f64::MAX, 0.);
+const FREQUENCY_Y_AXIS: (f64, f64) = (f64::MAX, 0.);
+const USAGE_Y_AXIS: (f64, f64) = (0., 100.);
 const TICK_RATE: u64 = 250;
 const CPU_INFO_HEADERS: &[&str] = &["core", "frequency"];
 
+pub trait Statistic {
+    /// Updates the value of this stat and also adjusts monitor y axis
+    fn update(&mut self, m: &mut Monitor) -> Result<()>;
+    fn data(&self) -> &DataSeries;
+    fn data_mut(&mut self) -> &mut DataSeries;
+    fn name(&self) -> &str;
+    fn color(&self) -> Color;
+}
+
 // Stats of a single core
-struct CoreStat {
+pub struct CoreFrequencyStat {
+    name: String,
+    color: Color,
+    frequency_data: DataSeries,
+    core: Core,
+}
+impl From<Core> for CoreFrequencyStat {
+    fn from(core: Core) -> Self {
+        Self {
+            name: format!("cpu{}", core.id),
+            color: random_color(Some(20)),
+            frequency_data: DataSeries::new(),
+            core,
+        }
+    }
+}
+impl Statistic for CoreFrequencyStat {
+    // Updates core and returns its new frequency
+    fn update(&mut self, m: &mut Monitor) -> Result<()> {
+        self.core
+            .update()
+            .map_err(|e| anyhow!("Failed to update core `{}` frequency - {}", self.name, e))?;
+        let freq = self.core.cur_freq as f64;
+        self.frequency_data.add(m.elapsed_since_start(), freq);
+
+        m.set_if_y_max(freq + 100_000.);
+        m.set_if_y_min(freq + 100_000.);
+
+        Ok(())
+    }
+    fn data(&self) -> &DataSeries {
+        &self.frequency_data
+    }
+    fn data_mut(&mut self) -> &mut DataSeries {
+        &mut self.frequency_data
+    }
+    fn name(&self) -> &str {
+        &self.name
+    }
+    fn color(&self) -> Color {
+        self.color
+    }
+}
+
+pub struct CoreUsageStat {
     name: String,
     color: Color,
     data: DataSeries,
+    last_total_time: f64,
+    last_idle_time: f64,
+    last_usage: f64,
     core: Core,
 }
-impl From<Core> for CoreStat {
+impl From<Core> for CoreUsageStat {
     fn from(core: Core) -> Self {
         Self {
             name: format!("cpu{}", core.id),
             color: random_color(Some(20)),
             data: DataSeries::new(),
+            last_total_time: 0.,
+            last_idle_time: 0.,
+            last_usage: 0.,
             core,
         }
     }
 }
-impl CoreStat {
-    // Updates core and returns its new frequency
-    fn update(&mut self, time: f64) -> Result<f64> {
-        self.core
-            .update()
-            .map_err(|e| anyhow!("Failed to update core `{}` frequency - {}", self.name, e))?;
-        self.add_current(time);
-        Ok(self.core.cur_freq as f64)
-    }
+impl Statistic for CoreUsageStat {
+    fn update(&mut self, m: &mut Monitor) -> Result<()> {
+        if let Some(times) = self.core.cpu_time()? {
+            let total_time = (times.user + times.nice + times.system + times.iowait + times.irq + times.softirq) as f64;
+            let idle_time = times.idle as f64;
+            self.last_usage = (1. - (idle_time - self.last_idle_time) / (total_time - self.last_total_time)) * 100.;
+            self.data.add(m.elapsed_since_start(), self.last_usage);
+            self.last_total_time = total_time;
+            self.last_idle_time = idle_time;
+        }
 
-    fn add_current(&mut self, time: f64) {
-        self.data.add(time, self.core.cur_freq as f64);
+        Ok(())
+    }
+    fn data(&self) -> &DataSeries {
+        &self.data
+    }
+    fn data_mut(&mut self) -> &mut DataSeries {
+        &mut self.data
+    }
+    fn name(&self) -> &str {
+        &self.name
+    }
+    fn color(&self) -> Color {
+        self.color
     }
 }
 
-pub struct CpuMonitor {
-    stats: Vec<CoreStat>,
+pub struct CpuMonitor<S: Statistic> {
+    stats: Vec<S>,
     m: Monitor,
 }
 
-impl StatefulWidget for CpuMonitor {
+impl<S: Statistic> StatefulWidget for CpuMonitor<S> {
     fn update(&mut self) {
         // Update frequencies on cores
         for core in &mut self.stats {
             // TODO: handle err here somehow
-            let freq = core.update(self.m.elapsed_since_start()).unwrap();
-            self.m.set_if_y_max(freq + 100_000.);
-            self.m.set_if_y_min(freq + 100_000.);
+            core.update(&mut self.m).unwrap();
         }
 
         // Move x axis if time reached end
         if self.m.elapsed_since_start() > self.m.max_x() {
-            let removed = self.stats[0].data.pop();
-            if let Some(point) = self.stats[0].data.first() {
+            let removed = self.stats[0].data_mut().pop();
+            if let Some(point) = self.stats[0].data_mut().first() {
                 self.m.inc_x_axis(point.0 - removed.0);
             }
             self.stats.iter_mut().skip(1).for_each(|c| {
-                c.data.pop();
+                c.data_mut().pop();
             });
         }
     }
@@ -84,27 +154,29 @@ impl StatefulWidget for CpuMonitor {
             .constraints([Constraint::Percentage(20), Constraint::Min(80)].as_ref())
             .split(area);
 
-        self.render_cores_info_widget(f, chunks[0]);
         self.render_graph_widget(f, chunks[1]);
     }
 }
 
-impl GraphWidget for CpuMonitor {
+impl<S: Statistic> GraphWidget for CpuMonitor<S> {
     fn datasets(&self) -> Vec<Dataset> {
         let mut data = Vec::new();
         for core in &self.stats {
             data.push(
                 Dataset::default()
-                    .name(&core.name)
+                    .name(core.name())
                     .marker(symbols::Marker::Braille)
-                    .style(Style::default().fg(core.color))
-                    .data(&core.data.dataset()),
+                    .style(Style::default().fg(core.color()))
+                    .data(&core.data().dataset()),
             );
         }
         data
     }
     fn title(&self) -> Span {
-        Span::styled("Cpu Frequency", Style::default().add_modifier(Modifier::BOLD))
+        Span::styled(
+            "Cpu Frequency",
+            Style::default().add_modifier(Modifier::BOLD).fg(Color::Blue),
+        )
     }
     fn x_axis(&self) -> Span {
         Span::styled("Time", Style::default().fg(Color::White))
@@ -123,19 +195,40 @@ impl GraphWidget for CpuMonitor {
     }
 }
 
-impl CpuMonitor {
-    pub fn new() -> Result<CpuMonitor> {
+impl CpuMonitor<CoreUsageStat> {
+    pub fn new() -> Result<CpuMonitor<CoreUsageStat>> {
         Ok(CpuMonitor {
             stats: {
                 let mut stats = processor()?
                     .cores
                     .into_iter()
-                    .map(CoreStat::from)
-                    .collect::<Vec<CoreStat>>();
+                    .map(CoreUsageStat::from)
+                    .collect::<Vec<CoreUsageStat>>();
                 stats.sort_by(|s1, s2| s1.core.id.cmp(&s2.core.id));
                 stats
             },
-            m: Monitor::new(X_AXIS, Y_AXIS),
+            m: Monitor::new(X_AXIS, USAGE_Y_AXIS),
+        })
+    }
+    pub fn usage_graph_loop() -> Result<()> {
+        let mut monitor = CpuMonitor::<CoreUsageStat>::new()?;
+        single_widget_loop(&mut monitor, Config::new(TICK_RATE))
+    }
+}
+
+impl CpuMonitor<CoreFrequencyStat> {
+    pub fn new() -> Result<CpuMonitor<CoreFrequencyStat>> {
+        Ok(CpuMonitor {
+            stats: {
+                let mut stats = processor()?
+                    .cores
+                    .into_iter()
+                    .map(CoreFrequencyStat::from)
+                    .collect::<Vec<CoreFrequencyStat>>();
+                stats.sort_by(|s1, s2| s1.core.id.cmp(&s2.core.id));
+                stats
+            },
+            m: Monitor::new(X_AXIS, FREQUENCY_Y_AXIS),
         })
     }
 
@@ -158,8 +251,18 @@ impl CpuMonitor {
         f.render_widget(table, chunks[1]);
     }
 
-    pub fn graph_loop() -> Result<()> {
-        let mut monitor = CpuMonitor::new()?;
+    pub fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+        let chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Percentage(20), Constraint::Min(80)].as_ref())
+            .split(area);
+
+        self.render_cores_info_widget(f, chunks[0]);
+        self.render_graph_widget(f, chunks[1]);
+    }
+
+    pub fn frequency_graph_loop() -> Result<()> {
+        let mut monitor = CpuMonitor::<CoreFrequencyStat>::new()?;
         single_widget_loop(&mut monitor, Config::new(TICK_RATE))
     }
 }
