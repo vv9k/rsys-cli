@@ -102,6 +102,10 @@ pub fn conv_t(time: f64) -> String {
     format!("{:.1}s", time)
 }
 
+pub fn conv_p(val: f64) -> String {
+    format!("{:.1}%", val)
+}
+
 pub fn random_color(min: Option<u8>) -> Color {
     let mut rng = rand::thread_rng();
     let mut color: [u8; 3] = [0, 0, 0];
