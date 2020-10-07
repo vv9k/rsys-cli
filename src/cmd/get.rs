@@ -4,6 +4,7 @@ use crate::{
 };
 use rsys::linux::{
     net::Interface,
+    ps::Process,
     storage::{BlockStorageDeviceName, DeviceMapper, MultipleDeviceStorage, ScsiCdrom, StorageDevice},
 };
 use rsys::Result;
@@ -76,7 +77,7 @@ impl RsysCli {
             memory_free => print(self.system.memory_free()?, format, pretty)?,
             memory_total => print(self.system.memory_total()?, format, pretty)?,
             mounts => print(self.system.mounts()?, format, pretty)?,
-            process { pid } => print(self.system.stat_process(*pid)?, format, pretty)?,
+            process { pid } => print(Process::new(*pid)?, format, pretty)?,
             storage { name } => self.print_storage(name, format, pretty)?,
             swap_total => print(self.system.swap_total()?, format, pretty)?,
             swap_free => print(self.system.swap_free()?, format, pretty)?,

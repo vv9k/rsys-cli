@@ -422,6 +422,7 @@ impl SystemInfo {
             p_table.add_row(row![
                 c =>
                 "pid",
+                "cmdline",
                 "name",
                 "state",
                 "ppid",
@@ -443,34 +444,37 @@ impl SystemInfo {
                 "nswap",
                 "cnswap",
                 "guest_time",
-                "cguest_time"
+                "cguest_time",
+                "processor"
             ]);
 
             for p in processes {
                 p_table.add_row(row![
-                    p.pid,
-                    p.name,
-                    p.state,
-                    p.ppid,
-                    p.pgrp,
-                    p.session,
-                    p.tty_nr,
-                    p.utime,
-                    p.stime,
-                    p.cutime,
-                    p.cstime,
-                    p.priority,
-                    p.nice,
-                    p.num_threads,
-                    p.itrealvalue,
-                    p.starttime,
-                    p.vsize,
-                    p.rss,
-                    p.rsslim,
-                    p.nswap,
-                    p.cnswap,
-                    p.guest_time,
-                    p.cguest_time,
+                    p.stat.pid,
+                    p.cmdline,
+                    p.stat.name,
+                    p.stat.state,
+                    p.stat.ppid,
+                    p.stat.pgrp,
+                    p.stat.session,
+                    p.stat.tty_nr,
+                    p.stat.utime,
+                    p.stat.stime,
+                    p.stat.cutime,
+                    p.stat.cstime,
+                    p.stat.priority,
+                    p.stat.nice,
+                    p.stat.num_threads,
+                    p.stat.itrealvalue,
+                    p.stat.starttime,
+                    p.stat.vsize,
+                    p.stat.rss,
+                    p.stat.rsslim,
+                    p.stat.nswap,
+                    p.stat.cnswap,
+                    p.stat.guest_time,
+                    p.stat.cguest_time,
+                    p.stat.processor
                 ]);
             }
             s.push_str(&p_table.to_string());

@@ -21,7 +21,7 @@ pub struct ProcessMonitor {
 impl StatefulWidget for ProcessMonitor {
     fn update(&mut self) {
         for process in &mut self.processes {
-            if let Ok(_) = process.update() {}
+            if let Ok(_) = process.stat.update() {}
         }
     }
     fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
@@ -45,13 +45,13 @@ impl ProcessMonitor {
         let data = self.processes.iter().map(|s| {
             Row::StyledData(
                 vec![
-                    s.pid.to_string(),
-                    s.name.to_string(),
-                    s.state.to_string(),
-                    s.vsize.to_string(),
-                    s.rss.to_string(),
-                    s.utime.to_string(),
-                    s.stime.to_string(),
+                    s.stat.pid.to_string(),
+                    s.stat.name.to_string(),
+                    s.stat.state.to_string(),
+                    s.stat.vsize.to_string(),
+                    s.stat.rss.to_string(),
+                    s.stat.utime.to_string(),
+                    s.stat.stime.to_string(),
                 ]
                 .into_iter(),
                 Style::default(),
