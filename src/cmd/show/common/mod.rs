@@ -37,17 +37,23 @@ pub trait GraphWidget {
     fn x_axis(&self) -> Span;
     // Name of y axis
     fn y_axis(&self) -> Span;
-    fn labels(&self) -> Vec<Span>;
+    fn y_labels(&self) -> Vec<Span>;
+    fn x_labels(&self) -> Vec<Span>;
     fn monitor(&self) -> &Monitor;
 
     fn chart(&self) -> Chart {
         Chart::new(self.datasets())
             .block(Block::default().title(self.title()).borders(Borders::ALL))
-            .x_axis(Axis::default().title(self.x_axis()).bounds(self.monitor().x()))
+            .x_axis(
+                Axis::default()
+                    .title(self.x_axis())
+                    .labels(self.x_labels())
+                    .bounds(self.monitor().x()),
+            )
             .y_axis(
                 Axis::default()
                     .title(self.y_axis())
-                    .labels(self.labels())
+                    .labels(self.y_labels())
                     .bounds(self.monitor().y()),
             )
     }

@@ -2,7 +2,7 @@ use super::{
     common::{single_widget_loop, DataSeries, GraphWidget, Monitor, RxTx, StatefulWidget},
     events::Config,
 };
-use crate::util::{conv_fbs, random_color};
+use crate::util::{conv_fbs, conv_t, random_color};
 use anyhow::{anyhow, Result};
 use rsys::linux::storage::{storage_devices_info, BlockStorageInfo};
 use tui::{
@@ -151,8 +151,11 @@ impl GraphWidget for StorageMonitor {
     fn y_axis(&self) -> Span {
         Span::styled("r/w speed", Style::default())
     }
-    fn labels(&self) -> Vec<Span> {
+    fn y_labels(&self) -> Vec<Span> {
         self.m.y_bounds_labels(conv_fbs, 5)
+    }
+    fn x_labels(&self) -> Vec<Span> {
+        self.m.x_bounds_labels(conv_t, 4)
     }
     fn monitor(&self) -> &Monitor {
         &self.m

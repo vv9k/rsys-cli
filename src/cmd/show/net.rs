@@ -2,7 +2,7 @@ use super::{
     common::{kv_span, single_widget_loop, spans_from, DataSeries, GraphWidget, Monitor, RxTx, StatefulWidget},
     events::Config,
 };
-use crate::util::{conv_fbs, random_color};
+use crate::util::{conv_fbs, conv_t, random_color};
 use anyhow::{anyhow, Result};
 use rsys::linux::net::{ifaces, Interface};
 use tui::{
@@ -185,8 +185,11 @@ impl GraphWidget for NetMonitor {
     fn y_axis(&self) -> Span {
         Span::styled("Speed", Style::default().fg(Color::White))
     }
-    fn labels(&self) -> Vec<Span> {
+    fn y_labels(&self) -> Vec<Span> {
         self.m.y_bounds_labels(conv_fbs, 5)
+    }
+    fn x_labels(&self) -> Vec<Span> {
+        self.m.x_bounds_labels(conv_t, 4)
     }
     fn monitor(&self) -> &Monitor {
         &self.m

@@ -2,7 +2,7 @@ use super::{
     common::{single_widget_loop, DataSeries, GraphWidget, Monitor, StatefulWidget},
     events::Config,
 };
-use crate::util::{conv_fhz, conv_hz, random_color};
+use crate::util::{conv_fhz, conv_hz, conv_t, random_color};
 use anyhow::{anyhow, Result};
 use rsys::linux::cpu::{processor, Core};
 use tui::{
@@ -112,8 +112,11 @@ impl GraphWidget for CpuMonitor {
     fn y_axis(&self) -> Span {
         Span::styled("Frequency", Style::default().fg(Color::White))
     }
-    fn labels(&self) -> Vec<Span> {
+    fn y_labels(&self) -> Vec<Span> {
         self.m.y_bounds_labels(conv_fhz, 4)
+    }
+    fn x_labels(&self) -> Vec<Span> {
+        self.m.x_bounds_labels(conv_t, 4)
     }
     fn monitor(&self) -> &Monitor {
         &self.m
