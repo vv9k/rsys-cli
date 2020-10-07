@@ -1,7 +1,4 @@
-use super::{
-    common::{GraphWidget, Monitor, StatefulWidget},
-    Statistic,
-};
+use super::common::{GraphWidget, Monitor, StatefulWidget, Statistic};
 use crate::util::{conv_fhz, conv_t};
 use tui::{
     backend::Backend,
