@@ -113,7 +113,7 @@ impl GraphWidget for CpuMonitor {
         Span::styled("Frequency", Style::default().fg(Color::White))
     }
     fn labels(&self) -> Vec<Span> {
-        self.m.bounds_labels(conv_fhz, 4)
+        self.m.y_bounds_labels(conv_fhz, 4)
     }
     fn monitor(&self) -> &Monitor {
         &self.m

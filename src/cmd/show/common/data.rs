@@ -6,10 +6,7 @@ pub struct DataSeries {
 }
 impl DataSeries {
     pub fn new() -> Self {
-        Self {
-            data: Vec::new(),
-            len: 0,
-        }
+        Self::default()
     }
     /// Return self data as slice readable by tui's Dataset
     pub fn dataset(&self) -> &[(f64, f64)] {

@@ -152,7 +152,7 @@ impl GraphWidget for StorageMonitor {
         Span::styled("r/w speed", Style::default())
     }
     fn labels(&self) -> Vec<Span> {
-        self.m.bounds_labels(conv_fbs, 5)
+        self.m.y_bounds_labels(conv_fbs, 5)
     }
     fn monitor(&self) -> &Monitor {
         &self.m

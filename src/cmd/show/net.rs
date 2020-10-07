@@ -186,7 +186,7 @@ impl GraphWidget for NetMonitor {
         Span::styled("Speed", Style::default().fg(Color::White))
     }
     fn labels(&self) -> Vec<Span> {
-        self.m.bounds_labels(conv_fbs, 5)
+        self.m.y_bounds_labels(conv_fbs, 5)
     }
     fn monitor(&self) -> &Monitor {
         &self.m

@@ -26,29 +26,38 @@ impl Monitor {
         }
     }
 
-    /// Returns spans of y axis points divided into n parts and values of y axis
-    /// converted with f
-    pub fn bounds_labels<'s, F>(&'s self, f: F, n: u32) -> Vec<Span<'s>>
+    /// Generic implementation of creating labels for axis bounds
+    fn bounds_labels<'s, F>(&'s self, f: F, n: u32, min: f64, max: f64) -> Vec<Span<'s>>
     where
         F: Fn(f64) -> String,
     {
-        let mut spans = vec![Span::styled(
-            f(self.min_y()),
-            Style::default().add_modifier(Modifier::BOLD),
-        )];
+        let mut spans = vec![Span::styled(f(min), Style::default().add_modifier(Modifier::BOLD))];
 
         (1..n).into_iter().for_each(|i| {
-            spans.push(Span::raw(f(
-                self.min_y() + ((self.max_y() - self.min_y()) * (i as f64 / n as f64))
-            )));
+            spans.push(Span::raw(f(min + (max - min) * (i as f64 / n as f64))));
         });
 
-        spans.push(Span::styled(
-            f(self.max_y()),
-            Style::default().add_modifier(Modifier::BOLD),
-        ));
+        spans.push(Span::styled(f(max), Style::default().add_modifier(Modifier::BOLD)));
 
         spans
+    }
+
+    /// Returns spans of y axis points divided into n parts and values of y axis
+    /// converted with f
+    pub fn y_bounds_labels<'s, F>(&'s self, f: F, n: u32) -> Vec<Span<'s>>
+    where
+        F: Fn(f64) -> String,
+    {
+        self.bounds_labels(f, n, self.min_y(), self.max_y())
+    }
+
+    /// Returns spans of x axis points divided into n parts and values of y axis
+    /// converted with f
+    pub fn x_bounds_labels<'s, F>(&'s self, f: F, n: u32) -> Vec<Span<'s>>
+    where
+        F: Fn(f64) -> String,
+    {
+        self.bounds_labels(f, n, self.min_x(), self.max_x())
     }
 
     /// Returns time elapsed since start in seconds
