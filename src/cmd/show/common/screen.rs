@@ -15,6 +15,11 @@ pub struct Screen {
     /// Last measurement time
     last_time: Instant,
 }
+impl Default for Screen {
+    fn default() -> Self {
+        Self::new((0., 0.), (0., 0.))
+    }
+}
 impl Screen {
     /// Returns a new instance of Monitor given x and y axis ranges.
     pub fn new(x: (f64, f64), y: (f64, f64)) -> Self {
