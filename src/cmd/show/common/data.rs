@@ -1,4 +1,5 @@
 use super::monitor::Monitor;
+use anyhow::Result;
 use tui::style::Color;
 
 #[derive(Default, Debug)]

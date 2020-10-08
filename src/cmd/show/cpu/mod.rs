@@ -2,9 +2,8 @@ mod frequency;
 mod monitor;
 mod usage;
 
-use super::{
-    common::{self, DataSeries, Monitor},
-    events,
-};
-use anyhow::Result;
-use tui::style::Color;
+use super::{common, events};
+
+pub use frequency::CoreFrequencyStat;
+pub use monitor::CpuMonitor;
+pub use usage::CoreUsageStat;

@@ -1,8 +1,7 @@
 use super::{
-    common::{single_widget_loop, Statistic},
+    common::{single_widget_loop, DataSeries, Monitor, Statistic},
     events::Config,
     monitor::CpuMonitor,
-    DataSeries, Monitor,
 };
 use crate::util::random_color;
 use anyhow::Result;

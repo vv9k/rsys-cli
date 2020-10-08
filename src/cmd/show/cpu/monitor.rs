@@ -34,13 +34,15 @@ impl<S: Statistic> StatefulWidget for CpuMonitor<S> {
             });
         }
     }
+    // By default widget is rendered on full area. If a monitor of some
+    // statistic wants to display more widgets it has to override this method
     fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(20), Constraint::Min(80)].as_ref())
+            .constraints([Constraint::Min(100)].as_ref())
             .split(area);
 
-        self.render_graph_widget(f, chunks[1]);
+        self.render_graph_widget(f, chunks[0]);
     }
 }
 
