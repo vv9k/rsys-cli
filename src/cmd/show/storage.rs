@@ -1,5 +1,7 @@
 use super::{
-    common::{single_widget_loop, DataSeries, GraphSettings, GraphWidget, RxTx, Screen, StatefulWidget},
+    common::{
+        single_widget_loop, DataSeries, GraphSettings, GraphWidget, Monitor, RxTx, Screen, StatefulWidget, Statistic,
+    },
     events::Config,
 };
 use crate::util::{conv_fbs, conv_t, random_color};
@@ -22,7 +24,7 @@ const STORAGE_INFO_HEADERS: &[&str] = &["name", "rx/s", "wx/s", "Σrx", "Σwx"];
 
 #[derive(Debug)]
 // Stats of a single block storage device
-struct BlockDeviceStat {
+pub struct StorageSpeedStat {
     name: String,
     color: Color,
     device: BlockStorageInfo,
@@ -30,7 +32,7 @@ struct BlockDeviceStat {
     speed: RxTx<f64>,
     total: RxTx<f64>,
 }
-impl From<BlockStorageInfo> for BlockDeviceStat {
+impl From<BlockStorageInfo> for StorageSpeedStat {
     fn from(info: BlockStorageInfo) -> Self {
         Self {
             name: info.dev.to_string(),
@@ -45,21 +47,10 @@ impl From<BlockStorageInfo> for BlockDeviceStat {
         }
     }
 }
-impl BlockDeviceStat {
-    fn sectors(&mut self) -> (f64, f64) {
-        if let Some(stat) = &self.device.stat {
-            (
-                stat.read_sectors as f64 * SECTOR_SIZE,
-                stat.write_sectors as f64 * SECTOR_SIZE,
-            )
-        } else {
-            (0., 0.)
-        }
-    }
-    // Updates core and returns its new frequency
-    fn update(&mut self, monitor: &Screen) -> Result<()> {
+impl Statistic for StorageSpeedStat {
+    fn update(&mut self, m: &mut Screen) -> Result<()> {
         let (rx_before, wx_before) = self.sectors();
-        let time_delta = monitor.elapsed_since_last();
+        let time_delta = m.elapsed_since_last();
 
         self.device
             .update_stats()
@@ -73,9 +64,33 @@ impl BlockDeviceStat {
         self.total.inc(rx_delta, wx_delta);
         self.speed = RxTx((rx_delta / time_delta, wx_delta / time_delta));
 
-        self.add_current(monitor.elapsed_since_start());
+        self.add_current(m.elapsed_since_start());
 
         Ok(())
+    }
+    fn pop(&mut self) -> f64 {
+        let removed = self.data.rx_mut().pop();
+        self.data.tx_mut().pop();
+
+        if let Some(point) = self.data.rx().first() {
+            return point.0 - removed.0;
+        }
+        0.
+    }
+    fn name(&self) -> &str {
+        &self.name
+    }
+}
+impl StorageSpeedStat {
+    fn sectors(&mut self) -> (f64, f64) {
+        if let Some(stat) = &self.device.stat {
+            (
+                stat.read_sectors as f64 * SECTOR_SIZE,
+                stat.write_sectors as f64 * SECTOR_SIZE,
+            )
+        } else {
+            (0., 0.)
+        }
     }
 
     fn add_current(&mut self, time: f64) {
@@ -84,34 +99,7 @@ impl BlockDeviceStat {
     }
 }
 
-pub struct StorageMonitor {
-    stats: Vec<BlockDeviceStat>,
-    m: Screen,
-}
-
-impl StatefulWidget for StorageMonitor {
-    fn update(&mut self) {
-        for storage in &mut self.stats {
-            storage.update(&mut self.m).unwrap();
-
-            self.m.set_if_y_max(storage.speed.rx() + 100.);
-            self.m.set_if_y_max(storage.speed.tx() + 100.);
-        }
-        self.m.update_last_time();
-
-        // Move x axis if time reached end
-        if self.m.elapsed_since_start() > self.m.max_x() {
-            let removed = self.stats[0].data.rx_mut().pop();
-            self.stats[0].data.tx_mut().pop();
-            if let Some(point) = self.stats[0].data.rx().first() {
-                self.m.inc_x_axis(point.0 - removed.0);
-            }
-            self.stats.iter_mut().skip(1).for_each(|c| {
-                c.data.rx_mut().pop();
-                c.data.tx_mut().pop();
-            });
-        }
-    }
+impl StatefulWidget for Monitor<StorageSpeedStat> {
     fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -123,7 +111,7 @@ impl StatefulWidget for StorageMonitor {
     }
 }
 
-impl GraphWidget for StorageMonitor {
+impl GraphWidget for Monitor<StorageSpeedStat> {
     fn datasets(&self) -> Vec<Dataset> {
         let mut data = Vec::new();
         for device in &self.stats {
@@ -160,15 +148,15 @@ impl GraphWidget for StorageMonitor {
     }
 }
 
-impl StorageMonitor {
-    pub fn new() -> Result<StorageMonitor> {
-        Ok(StorageMonitor {
+impl Monitor<StorageSpeedStat> {
+    pub fn new() -> Result<Monitor<StorageSpeedStat>> {
+        Ok(Monitor {
             stats: {
                 let mut stats = storage_devices_info()
                     .map_err(|e| anyhow!("Failed to get storage devices info - {}", e))?
                     .into_iter()
-                    .map(BlockDeviceStat::from)
-                    .collect::<Vec<BlockDeviceStat>>();
+                    .map(StorageSpeedStat::from)
+                    .collect::<Vec<StorageSpeedStat>>();
                 stats.sort_by(|s1, s2| s1.name.cmp(&s2.name));
                 stats
             },
@@ -205,7 +193,7 @@ impl StorageMonitor {
     }
 
     pub fn graph_loop() -> Result<()> {
-        let mut monitor = StorageMonitor::new()?;
+        let mut monitor = Monitor::<StorageSpeedStat>::new()?;
         single_widget_loop(&mut monitor, Config::new(TICK_RATE))
     }
 }

@@ -11,7 +11,7 @@ use cpu::{CoreFrequencyStat, CoreUsageStat};
 use events::{Config, Event, Events};
 use net::IfaceSpeedStat;
 use ps::ProcessMonitor;
-use storage::StorageMonitor;
+use storage::StorageSpeedStat;
 
 use std::io::{self, stdout};
 use structopt::StructOpt;
@@ -40,19 +40,19 @@ pub fn get_terminal() -> Result<Term> {
 #[derive(StructOpt, Clone)]
 pub enum ShowCmd {
     /// Draw interface rx/tx speed
-    Interface {
-        name: String,
-    },
+    Interface { name: String },
     /// Draw cpu usage
     CpuUsage,
     /// Draw cpu core frequencies
     CpuFreq,
     /// Display I/O stats for storage devices
     Storage,
+    /// Display network interfaces graphs
+    Net,
+    /// Display process list
+    Ps,
     /// Display all graphs at once
     All,
-    Ps,
-    Net,
 }
 
 impl RsysCli {
@@ -61,10 +61,10 @@ impl RsysCli {
             ShowCmd::Interface { name } => Monitor::<IfaceSpeedStat>::single_iface_loop(&name),
             ShowCmd::CpuFreq => Monitor::<CoreFrequencyStat>::graph_loop(),
             ShowCmd::CpuUsage => Monitor::<CoreUsageStat>::graph_loop(),
-            ShowCmd::Storage => StorageMonitor::graph_loop(),
-            ShowCmd::All => show_all_loop(),
-            ShowCmd::Ps => ProcessMonitor::display_loop(),
+            ShowCmd::Storage => Monitor::<StorageSpeedStat>::graph_loop(),
             ShowCmd::Net => Monitor::<IfaceSpeedStat>::graph_loop(None),
+            ShowCmd::Ps => ProcessMonitor::display_loop(),
+            ShowCmd::All => show_all_loop(),
         };
 
         if let Err(e) = result {
@@ -79,7 +79,7 @@ pub fn show_all_loop() -> Result<()> {
     let events = Events::with_config(Config::new(200));
     let mut cpumon = Monitor::<CoreFrequencyStat>::new()?;
     let mut ifacemon = Monitor::<IfaceSpeedStat>::new(None)?;
-    let mut stormon = StorageMonitor::new()?;
+    let mut stormon = Monitor::<StorageSpeedStat>::new()?;
     loop {
         terminal.draw(|f| {
             let size = f.size();
