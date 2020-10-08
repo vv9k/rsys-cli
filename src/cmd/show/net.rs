@@ -168,33 +168,39 @@ impl GraphWidget for Monitor<IfaceSpeedStat> {
 
 impl Monitor<IfaceSpeedStat> {
     pub fn new(filter: Option<&[&str]>) -> Result<Monitor<IfaceSpeedStat>> {
-        Ok(Monitor {
-            stats: ifaces()?
-                .0
-                .into_iter()
-                .filter(|s| {
-                    if let Some(filters) = filter {
-                        for f in filters {
-                            if *f == &s.name {
-                                return true;
-                            } else {
-                                continue;
-                            }
+        let stats = ifaces()?
+            .0
+            .into_iter()
+            .filter(|s| {
+                if let Some(filters) = filter {
+                    for f in filters {
+                        if *f == &s.name {
+                            return true;
+                        } else {
+                            continue;
                         }
-                        false
-                    } else {
-                        true
                     }
-                })
-                .map(IfaceSpeedStat::from)
-                .collect::<Vec<IfaceSpeedStat>>(),
+                    false
+                } else {
+                    true
+                }
+            })
+            .map(IfaceSpeedStat::from)
+            .collect::<Vec<IfaceSpeedStat>>();
+
+        if stats.len() == 0 {
+            return Err(anyhow!("No interface matched passed in filter `{:?}`", filter));
+        }
+
+        Ok(Monitor {
+            stats,
             m: Screen::new(X_AXIS, Y_AXIS),
         })
     }
 
     fn render_info_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let count = self.stats.len();
-        let percentage = (100 / count) as u16;
+        let percentage = if count == 0 { 1 as u16 } else { (100 / count) as u16 };
         let constraints = (0..count)
             .into_iter()
             .map(|_| Constraint::Percentage(percentage))
