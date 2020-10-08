@@ -1,6 +1,7 @@
 use super::{
     common::{
-        kv_span, single_widget_loop, spans_from, DataSeries, GraphSettings, GraphWidget, Monitor, RxTx, StatefulWidget,
+        kv_span, single_widget_loop, spans_from, DataSeries, GraphSettings, GraphWidget, Monitor, RxTx, Screen,
+        StatefulWidget, Statistic,
     },
     events::Config,
 };
@@ -21,24 +22,54 @@ const X_AXIS: (f64, f64) = (0., 30.0);
 const Y_AXIS: (f64, f64) = (0., 100.0);
 const TICK_RATE: u64 = 300;
 
-struct IfaceStat {
+pub struct IfaceSpeedStat {
     iface: Interface,
-    rx_color: Color,
-    tx_color: Color,
     data: RxTx<DataSeries>,
     prev_bytes: RxTx<u64>,
     curr_speed: RxTx<f64>,
     total: RxTx<f64>,
 }
-impl IfaceStat {
+impl Statistic for IfaceSpeedStat {
+    // Updates core and returns its new frequency
+    fn update(&mut self, m: &mut Screen) -> Result<()> {
+        self.iface
+            .update()
+            .map_err(|e| anyhow!("Failed to update interface `{}` - {}", self.iface.name, e.to_string()))?;
+
+        let (delta_rx, delta_tx) = self.delta();
+
+        self.total.inc(delta_rx, delta_tx);
+
+        self.curr_speed = RxTx((delta_rx / m.elapsed_since_last(), delta_tx / m.elapsed_since_last()));
+        self.data.rx_mut().add(m.elapsed_since_start(), *self.curr_speed.rx());
+        self.data.tx_mut().add(m.elapsed_since_start(), *self.curr_speed.tx());
+
+        self.prev_bytes = RxTx((self.iface.stat.rx_bytes, self.iface.stat.tx_bytes));
+        Ok(())
+    }
+    fn pop(&mut self) -> f64 {
+        let removed = self.data.rx_mut().pop();
+        self.data.tx_mut().pop();
+
+        if let Some(point) = self.data.rx().first() {
+            return point.0 - removed.0;
+        }
+        0.
+    }
+    fn name(&self) -> &str {
+        &self.iface.name
+    }
+}
+impl IfaceSpeedStat {
     fn new(iface: Interface) -> Self {
         let rx = iface.stat.rx_bytes;
         let tx = iface.stat.tx_bytes;
         Self {
             iface,
-            rx_color: random_color(Some(20)),
-            tx_color: random_color(Some(20)),
-            data: RxTx((DataSeries::new(), DataSeries::new())),
+            data: RxTx((
+                DataSeries::new(random_color(Some(20))),
+                DataSeries::new(random_color(Some(20))),
+            )),
             prev_bytes: RxTx((rx, tx)),
             curr_speed: RxTx::default(),
             total: RxTx::default(),
@@ -59,25 +90,25 @@ impl IfaceStat {
             spans_from(vec![kv_span(
                 " Vrx : ",
                 &self.curr_speed.rx_speed_str(),
-                self.rx_color,
+                self.data.rx().color,
                 true,
             )]),
             spans_from(vec![kv_span(
                 " Σrx : ",
                 &self.total.rx_bytes_str(),
-                self.rx_color,
+                self.data.rx().color,
                 true,
             )]),
             spans_from(vec![kv_span(
                 " Vtx : ",
                 &self.curr_speed.tx_speed_str(),
-                self.tx_color,
+                self.data.tx().color,
                 true,
             )]),
             spans_from(vec![kv_span(
                 " Σtx : ",
                 &self.total.tx_bytes_str(),
-                self.tx_color,
+                self.data.tx().color,
                 true,
             )]),
             spans_from(vec![kv_span(" ipv4: ", &self.iface.ipv4, Color::White, true)]),
@@ -91,73 +122,14 @@ impl IfaceStat {
             spans_from(vec![kv_span(" mac : ", &self.iface.mac_address, Color::White, true)]),
         ])
     }
-
-    fn update(&mut self, m: &Monitor) -> Result<()> {
-        self.iface
-            .update()
-            .map_err(|e| anyhow!("Failed to update interface `{}` - {}", self.iface.name, e.to_string()))?;
-
-        let (delta_rx, delta_tx) = self.delta();
-
-        self.total.inc(delta_rx, delta_tx);
-
-        self.curr_speed = RxTx((delta_rx / m.elapsed_since_last(), delta_tx / m.elapsed_since_last()));
-        self.data.rx_mut().add(m.elapsed_since_start(), *self.curr_speed.rx());
-        self.data.tx_mut().add(m.elapsed_since_start(), *self.curr_speed.tx());
-
-        self.prev_bytes = RxTx((self.iface.stat.rx_bytes, self.iface.stat.tx_bytes));
-        Ok(())
-    }
 }
-impl From<Interface> for IfaceStat {
-    fn from(iface: Interface) -> IfaceStat {
-        IfaceStat::new(iface)
+impl From<Interface> for IfaceSpeedStat {
+    fn from(iface: Interface) -> IfaceSpeedStat {
+        IfaceSpeedStat::new(iface)
     }
 }
 
-pub struct NetMonitor {
-    stats: Vec<IfaceStat>,
-    m: Monitor,
-}
-
-impl StatefulWidget for NetMonitor {
-    fn update(&mut self) {
-        for iface in &mut self.stats {
-            iface.update(&mut self.m).unwrap();
-
-            // If the values are bigger than current max y
-            // update y axis
-            self.m.set_if_y_max(iface.curr_speed.rx() + 100.);
-            self.m.set_if_y_max(iface.curr_speed.tx() + 100.);
-        }
-        self.m.update_last_time();
-        // If total time elapsed passed max x coordinate
-        // pop first item of dataset and move x axis
-        // by time difference of popped and last element
-        if self.m.elapsed_since_start() > self.m.max_x() {
-            let removed = self.stats[0].data.rx_mut().pop();
-            self.stats[0].data.tx_mut().pop();
-            if let Some(point) = self.stats[0].data.rx().first() {
-                self.m.inc_x_axis(point.0 - removed.0);
-            }
-            self.stats.iter_mut().skip(1).for_each(|s| {
-                s.data.rx_mut().pop();
-                s.data.tx_mut().pop();
-            });
-        }
-    }
-    fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
-        let chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(20), Constraint::Percentage(80)].as_ref())
-            .split(area);
-
-        self.render_info_widget(f, chunks[0]);
-        self.render_graph_widget(f, chunks[1]);
-    }
-}
-
-impl GraphWidget for NetMonitor {
+impl GraphWidget for Monitor<IfaceSpeedStat> {
     fn datasets(&self) -> Vec<Dataset> {
         let mut data = Vec::new();
         for iface in &self.stats {
@@ -165,14 +137,14 @@ impl GraphWidget for NetMonitor {
                 Dataset::default()
                     .name("rx")
                     .marker(symbols::Marker::Dot)
-                    .style(Style::default().fg(iface.rx_color))
+                    .style(Style::default().fg(iface.data.rx().color))
                     .data(&iface.data.rx().dataset()),
             );
             data.push(
                 Dataset::default()
                     .name("tx")
                     .marker(symbols::Marker::Braille)
-                    .style(Style::default().fg(iface.tx_color))
+                    .style(Style::default().fg(iface.data.tx().color))
                     .data(&iface.data.tx().dataset()),
             );
         }
@@ -189,14 +161,14 @@ impl GraphWidget for NetMonitor {
             .x_labels(self.m.x_bounds_labels(conv_t, 4))
             .y_labels(self.m.y_bounds_labels(conv_fbs, 5))
     }
-    fn monitor(&self) -> &Monitor {
+    fn monitor(&self) -> &Screen {
         &self.m
     }
 }
 
-impl NetMonitor {
-    pub fn new(filter: Option<&[&str]>) -> Result<NetMonitor> {
-        Ok(NetMonitor {
+impl Monitor<IfaceSpeedStat> {
+    pub fn new(filter: Option<&[&str]>) -> Result<Monitor<IfaceSpeedStat>> {
+        Ok(Monitor {
             stats: ifaces()?
                 .0
                 .into_iter()
@@ -214,9 +186,9 @@ impl NetMonitor {
                         true
                     }
                 })
-                .map(IfaceStat::from)
-                .collect::<Vec<IfaceStat>>(),
-            m: Monitor::new(X_AXIS, Y_AXIS),
+                .map(IfaceSpeedStat::from)
+                .collect::<Vec<IfaceSpeedStat>>(),
+            m: Screen::new(X_AXIS, Y_AXIS),
         })
     }
 
@@ -238,11 +210,24 @@ impl NetMonitor {
     }
 
     pub fn graph_loop(filter: Option<&[&str]>) -> Result<()> {
-        let mut monitor = NetMonitor::new(filter)?;
+        let mut monitor = Self::new(filter)?;
         single_widget_loop(&mut monitor, Config::new(TICK_RATE))
     }
 
     pub fn single_iface_loop(name: &str) -> Result<()> {
         Self::graph_loop(Some(&[name]))
+    }
+}
+
+impl StatefulWidget for Monitor<IfaceSpeedStat> {
+    // Override
+    fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+        let chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Percentage(20), Constraint::Min(80)].as_ref())
+            .split(area);
+
+        self.render_info_widget(f, chunks[0]);
+        self.render_graph_widget(f, chunks[1]);
     }
 }

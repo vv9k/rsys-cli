@@ -1,16 +1,32 @@
-use super::monitor::Monitor;
+use super::screen::Screen;
 use anyhow::Result;
 use tui::style::Color;
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 /// Wrapper stuct for graph datapoints used by Datasets.
 pub struct DataSeries {
     data: Vec<(f64, f64)>,
+    pub color: Color,
     len: usize,
 }
+
+impl Default for DataSeries {
+    fn default() -> Self {
+        Self {
+            data: Vec::new(),
+            color: Color::White,
+            len: 0,
+        }
+    }
+}
+
 impl DataSeries {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(color: Color) -> Self {
+        Self {
+            data: Vec::new(),
+            color,
+            len: 0,
+        }
     }
     /// Return self data as slice readable by tui's Dataset
     pub fn dataset(&self) -> &[(f64, f64)] {
@@ -48,10 +64,10 @@ impl DataSeries {
 }
 
 pub trait Statistic {
-    /// Updates the value of this stat and also adjusts monitor y axis
-    fn update(&mut self, m: &mut Monitor) -> Result<()>;
-    fn data(&self) -> &DataSeries;
-    fn data_mut(&mut self) -> &mut DataSeries;
+    /// Updates the value of this stat
+    fn update(&mut self, m: &mut Screen) -> Result<()>;
+    /// Pops all datasets returning time delta between popped
+    /// element and new first element of set
+    fn pop(&mut self) -> f64;
     fn name(&self) -> &str;
-    fn color(&self) -> Color;
 }

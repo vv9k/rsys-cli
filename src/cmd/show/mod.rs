@@ -6,10 +6,10 @@ mod ps;
 mod storage;
 
 use crate::RsysCli;
-use common::StatefulWidget;
-use cpu::{CoreFrequencyStat, CoreUsageStat, CpuMonitor};
+use common::{Monitor, StatefulWidget};
+use cpu::{CoreFrequencyStat, CoreUsageStat};
 use events::{Config, Event, Events};
-use net::NetMonitor;
+use net::IfaceSpeedStat;
 use ps::ProcessMonitor;
 use storage::StorageMonitor;
 
@@ -58,13 +58,13 @@ pub enum ShowCmd {
 impl RsysCli {
     pub fn show(&self, cmd: ShowCmd) {
         let result = match cmd {
-            ShowCmd::Interface { name } => NetMonitor::single_iface_loop(&name),
-            ShowCmd::CpuFreq => CpuMonitor::<CoreFrequencyStat>::graph_loop(),
-            ShowCmd::CpuUsage => CpuMonitor::<CoreUsageStat>::graph_loop(),
+            ShowCmd::Interface { name } => Monitor::<IfaceSpeedStat>::single_iface_loop(&name),
+            ShowCmd::CpuFreq => Monitor::<CoreFrequencyStat>::graph_loop(),
+            ShowCmd::CpuUsage => Monitor::<CoreUsageStat>::graph_loop(),
             ShowCmd::Storage => StorageMonitor::graph_loop(),
             ShowCmd::All => show_all_loop(),
             ShowCmd::Ps => ProcessMonitor::display_loop(),
-            ShowCmd::Net => NetMonitor::graph_loop(None),
+            ShowCmd::Net => Monitor::<IfaceSpeedStat>::graph_loop(None),
         };
 
         if let Err(e) = result {
@@ -77,8 +77,8 @@ impl RsysCli {
 pub fn show_all_loop() -> Result<()> {
     let mut terminal = get_terminal()?;
     let events = Events::with_config(Config::new(200));
-    let mut cpumon = CpuMonitor::<CoreFrequencyStat>::new()?;
-    let mut ifacemon = NetMonitor::new(None)?;
+    let mut cpumon = Monitor::<CoreFrequencyStat>::new()?;
+    let mut ifacemon = Monitor::<IfaceSpeedStat>::new(None)?;
     let mut stormon = StorageMonitor::new()?;
     loop {
         terminal.draw(|f| {

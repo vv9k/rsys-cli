@@ -1,5 +1,5 @@
 use super::{
-    common::{single_widget_loop, DataSeries, GraphSettings, GraphWidget, Monitor, RxTx, StatefulWidget},
+    common::{single_widget_loop, DataSeries, GraphSettings, GraphWidget, RxTx, Screen, StatefulWidget},
     events::Config,
 };
 use crate::util::{conv_fbs, conv_t, random_color};
@@ -36,7 +36,10 @@ impl From<BlockStorageInfo> for BlockDeviceStat {
             name: info.dev.to_string(),
             color: random_color(Some(20)),
             device: info,
-            data: RxTx((DataSeries::new(), DataSeries::new())),
+            data: RxTx((
+                DataSeries::new(random_color(Some(20))),
+                DataSeries::new(random_color(Some(20))),
+            )),
             speed: RxTx::default(),
             total: RxTx::default(),
         }
@@ -54,7 +57,7 @@ impl BlockDeviceStat {
         }
     }
     // Updates core and returns its new frequency
-    fn update(&mut self, monitor: &Monitor) -> Result<()> {
+    fn update(&mut self, monitor: &Screen) -> Result<()> {
         let (rx_before, wx_before) = self.sectors();
         let time_delta = monitor.elapsed_since_last();
 
@@ -83,7 +86,7 @@ impl BlockDeviceStat {
 
 pub struct StorageMonitor {
     stats: Vec<BlockDeviceStat>,
-    m: Monitor,
+    m: Screen,
 }
 
 impl StatefulWidget for StorageMonitor {
@@ -152,7 +155,7 @@ impl GraphWidget for StorageMonitor {
             .x_labels(self.m.x_bounds_labels(conv_t, 4))
             .y_labels(self.m.y_bounds_labels(conv_fbs, 5))
     }
-    fn monitor(&self) -> &Monitor {
+    fn monitor(&self) -> &Screen {
         &self.m
     }
 }
@@ -169,7 +172,7 @@ impl StorageMonitor {
                 stats.sort_by(|s1, s2| s1.name.cmp(&s2.name));
                 stats
             },
-            m: Monitor::new(X_AXIS, Y_AXIS),
+            m: Screen::new(X_AXIS, Y_AXIS),
         })
     }
     fn render_storage_info_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {

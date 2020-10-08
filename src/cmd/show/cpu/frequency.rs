@@ -1,7 +1,6 @@
 use super::{
-    common::{single_widget_loop, DataSeries, GraphSettings, GraphWidget, Monitor, StatefulWidget, Statistic},
+    common::{single_widget_loop, DataSeries, GraphSettings, GraphWidget, Monitor, Screen, StatefulWidget, Statistic},
     events::Config,
-    CpuMonitor,
 };
 use crate::util::random_color;
 use crate::util::{conv_fhz, conv_hz, conv_t};
@@ -24,7 +23,6 @@ const CPU_INFO_HEADERS: &[&str] = &["core", "frequency"];
 // Stats of a single core
 pub struct CoreFrequencyStat {
     name: String,
-    color: Color,
     frequency_data: DataSeries,
     core: Core,
 }
@@ -32,15 +30,14 @@ impl From<Core> for CoreFrequencyStat {
     fn from(core: Core) -> Self {
         Self {
             name: format!("cpu{}", core.id),
-            color: random_color(Some(20)),
-            frequency_data: DataSeries::new(),
+            frequency_data: DataSeries::new(random_color(Some(20))),
             core,
         }
     }
 }
 impl Statistic for CoreFrequencyStat {
     // Updates core and returns its new frequency
-    fn update(&mut self, m: &mut Monitor) -> Result<()> {
+    fn update(&mut self, m: &mut Screen) -> Result<()> {
         self.core
             .update()
             .map_err(|e| anyhow!("Failed to update core `{}` frequency - {}", self.name, e))?;
@@ -52,23 +49,21 @@ impl Statistic for CoreFrequencyStat {
 
         Ok(())
     }
-    fn data(&self) -> &DataSeries {
-        &self.frequency_data
-    }
-    fn data_mut(&mut self) -> &mut DataSeries {
-        &mut self.frequency_data
+    fn pop(&mut self) -> f64 {
+        let removed = self.frequency_data.pop();
+        if let Some(point) = self.frequency_data.first() {
+            return point.0 - removed.0;
+        }
+        0.
     }
     fn name(&self) -> &str {
         &self.name
     }
-    fn color(&self) -> Color {
-        self.color
-    }
 }
 
-impl CpuMonitor<CoreFrequencyStat> {
-    pub fn new() -> Result<CpuMonitor<CoreFrequencyStat>> {
-        Ok(CpuMonitor {
+impl Monitor<CoreFrequencyStat> {
+    pub fn new() -> Result<Monitor<CoreFrequencyStat>> {
+        Ok(Monitor {
             stats: {
                 let mut stats = processor()?
                     .cores
@@ -78,7 +73,7 @@ impl CpuMonitor<CoreFrequencyStat> {
                 stats.sort_by(|s1, s2| s1.core.id.cmp(&s2.core.id));
                 stats
             },
-            m: Monitor::new(X_AXIS, FREQUENCY_Y_AXIS),
+            m: Screen::new(X_AXIS, FREQUENCY_Y_AXIS),
         })
     }
 
@@ -91,7 +86,7 @@ impl CpuMonitor<CoreFrequencyStat> {
         let data = self.stats.iter().map(|s| {
             Row::StyledData(
                 vec![s.name.clone(), conv_hz(s.core.cur_freq)].into_iter(),
-                Style::default().fg(s.color),
+                Style::default().fg(s.frequency_data.color),
             )
         });
 
@@ -107,7 +102,7 @@ impl CpuMonitor<CoreFrequencyStat> {
     }
 }
 
-impl GraphWidget for CpuMonitor<CoreFrequencyStat> {
+impl GraphWidget for Monitor<CoreFrequencyStat> {
     fn datasets(&self) -> Vec<Dataset> {
         let mut data = Vec::new();
         for core in &self.stats {
@@ -115,8 +110,8 @@ impl GraphWidget for CpuMonitor<CoreFrequencyStat> {
                 Dataset::default()
                     .name(core.name())
                     .marker(symbols::Marker::Braille)
-                    .style(Style::default().fg(core.color()))
-                    .data(&core.data().dataset()),
+                    .style(Style::default().fg(core.frequency_data.color))
+                    .data(&core.frequency_data.dataset()),
             );
         }
         data
@@ -132,12 +127,10 @@ impl GraphWidget for CpuMonitor<CoreFrequencyStat> {
             .x_labels(self.m.x_bounds_labels(conv_t, 4))
             .y_labels(self.m.y_bounds_labels(conv_fhz, 4))
     }
-    fn monitor(&self) -> &Monitor {
-        &self.m
-    }
 }
 
-impl StatefulWidget for CpuMonitor<CoreFrequencyStat> {
+impl StatefulWidget for Monitor<CoreFrequencyStat> {
+    // Override
     fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Horizontal)

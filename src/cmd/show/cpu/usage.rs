@@ -1,7 +1,6 @@
 use super::{
-    common::{single_widget_loop, DataSeries, GraphSettings, GraphWidget, Monitor, Statistic},
+    common::{single_widget_loop, DataSeries, GraphSettings, GraphWidget, Monitor, Screen, Statistic},
     events::Config,
-    CpuMonitor,
 };
 use crate::util::{conv_p, conv_t, random_color};
 use anyhow::Result;
@@ -18,7 +17,6 @@ const TICK_RATE: u64 = 250;
 
 pub struct CoreUsageStat {
     name: String,
-    color: Color,
     data: DataSeries,
     last_total_time: f64,
     last_idle_time: f64,
@@ -29,8 +27,7 @@ impl From<Core> for CoreUsageStat {
     fn from(core: Core) -> Self {
         Self {
             name: format!("cpu{}", core.id),
-            color: random_color(Some(20)),
-            data: DataSeries::new(),
+            data: DataSeries::new(random_color(Some(20))),
             last_total_time: 0.,
             last_idle_time: 0.,
             last_usage: 0.,
@@ -39,7 +36,7 @@ impl From<Core> for CoreUsageStat {
     }
 }
 impl Statistic for CoreUsageStat {
-    fn update(&mut self, m: &mut Monitor) -> Result<()> {
+    fn update(&mut self, m: &mut Screen) -> Result<()> {
         if let Some(times) = self.core.cpu_time()? {
             let total_time = (times.user + times.nice + times.system + times.iowait + times.irq + times.softirq) as f64;
             let idle_time = times.idle as f64;
@@ -51,23 +48,21 @@ impl Statistic for CoreUsageStat {
 
         Ok(())
     }
-    fn data(&self) -> &DataSeries {
-        &self.data
-    }
-    fn data_mut(&mut self) -> &mut DataSeries {
-        &mut self.data
+    fn pop(&mut self) -> f64 {
+        let removed = self.data.pop();
+        if let Some(point) = self.data.first() {
+            return point.0 - removed.0;
+        }
+        0.
     }
     fn name(&self) -> &str {
         &self.name
     }
-    fn color(&self) -> Color {
-        self.color
-    }
 }
 
-impl CpuMonitor<CoreUsageStat> {
-    pub fn new() -> Result<CpuMonitor<CoreUsageStat>> {
-        Ok(CpuMonitor {
+impl Monitor<CoreUsageStat> {
+    pub fn new() -> Result<Monitor<CoreUsageStat>> {
+        Ok(Monitor {
             stats: {
                 let mut stats = processor()?
                     .cores
@@ -77,16 +72,16 @@ impl CpuMonitor<CoreUsageStat> {
                 stats.sort_by(|s1, s2| s1.core.id.cmp(&s2.core.id));
                 stats
             },
-            m: Monitor::new(X_AXIS, USAGE_Y_AXIS),
+            m: Screen::new(X_AXIS, USAGE_Y_AXIS),
         })
     }
     pub fn graph_loop() -> Result<()> {
-        let mut monitor = CpuMonitor::<CoreUsageStat>::new()?;
+        let mut monitor = Monitor::<CoreUsageStat>::new()?;
         single_widget_loop(&mut monitor, Config::new(TICK_RATE))
     }
 }
 
-impl GraphWidget for CpuMonitor<CoreUsageStat> {
+impl GraphWidget for Monitor<CoreUsageStat> {
     fn datasets(&self) -> Vec<Dataset> {
         let mut data = Vec::new();
         for core in &self.stats {
@@ -94,8 +89,8 @@ impl GraphWidget for CpuMonitor<CoreUsageStat> {
                 Dataset::default()
                     .name(core.name())
                     .marker(symbols::Marker::Braille)
-                    .style(Style::default().fg(core.color()))
-                    .data(&core.data().dataset()),
+                    .style(Style::default().fg(core.data.color))
+                    .data(&core.data.dataset()),
             );
         }
         data
@@ -111,7 +106,7 @@ impl GraphWidget for CpuMonitor<CoreUsageStat> {
             .x_labels(self.m.x_bounds_labels(conv_t, 4))
             .y_labels(self.m.y_bounds_labels(conv_p, 4))
     }
-    fn monitor(&self) -> &Monitor {
+    fn monitor(&self) -> &Screen {
         &self.m
     }
 }
