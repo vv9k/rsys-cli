@@ -1,4 +1,5 @@
 use super::{GraphSettings, GraphWidget, Screen, StatefulWidget, Statistic};
+use anyhow::{anyhow, Result};
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
@@ -24,11 +25,10 @@ impl<S: Statistic> GraphWidget for Monitor<S> {
 }
 
 impl<S: Statistic> StatefulWidget for Monitor<S> {
-    fn update(&mut self) {
-        // Update frequencies on cores
+    fn update(&mut self) -> Result<()> {
         for stat in &mut self.stats {
-            // TODO: handle err here somehow
-            stat.update(&mut self.m).unwrap();
+            stat.update(&mut self.m)
+                .map_err(|e| anyhow!("Failed to update widget statistics - `{}`", e))?;
         }
         self.m.update_last_time();
 
@@ -41,6 +41,8 @@ impl<S: Statistic> StatefulWidget for Monitor<S> {
                 s.pop();
             });
         }
+
+        Ok(())
     }
     // By default widget is rendered on full area. If a monitor of some
     // statistic wants to display more widgets it has to override this method

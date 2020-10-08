@@ -19,10 +19,11 @@ pub struct ProcessMonitor {
 }
 
 impl StatefulWidget for ProcessMonitor {
-    fn update(&mut self) {
+    fn update(&mut self) -> Result<()> {
         for process in &mut self.processes {
-            if let Ok(_) = process.stat.update() {}
+            process.stat.update()?;
         }
+        Ok(())
     }
     fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()

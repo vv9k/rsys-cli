@@ -1,4 +1,5 @@
 use super::{
+    err_tab,
     events::{Config, Event, Events},
     get_terminal, Screen,
 };
@@ -16,18 +17,14 @@ use tui::{
 /// Trait grouping all widgets with state that needs updating
 /// together providing functionality like single_widget_loop.
 pub trait StatefulWidget {
-    fn update(&mut self);
+    fn update(&mut self) -> Result<()>;
     fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect);
 }
 
 /// Trait providing more readable way of creating graph widgets
 pub trait GraphWidget {
-    fn datasets(&self) -> Vec<Dataset> {
-        Vec::new()
-    }
-    fn settings(&self) -> GraphSettings {
-        GraphSettings::default()
-    }
+    fn datasets(&self) -> Vec<Dataset>;
+    fn settings(&self) -> GraphSettings;
     fn monitor(&self) -> &Screen;
 
     fn chart(&self) -> Chart {
@@ -56,11 +53,16 @@ pub trait GraphWidget {
 pub fn single_widget_loop<W: StatefulWidget>(widget: &mut W, config: Config) -> Result<()> {
     let mut terminal = get_terminal()?;
     let events = Events::with_config(config);
+    let mut err_msg = String::new();
     loop {
         terminal.draw(|f| {
             let size = f.size();
-            let layout = Layout::default().constraints([Constraint::Percentage(100)]).split(size);
-            widget.render_widget(f, layout[0]);
+            let layout = Layout::default()
+                .constraints([Constraint::Min(3), Constraint::Min(70)])
+                .split(size);
+            let err_tab = err_tab(&err_msg);
+            f.render_widget(err_tab, layout[0]);
+            widget.render_widget(f, layout[1]);
         })?;
 
         match events.next()? {
@@ -70,7 +72,9 @@ pub fn single_widget_loop<W: StatefulWidget>(widget: &mut W, config: Config) -> 
                 }
             }
             Event::Tick => {
-                widget.update();
+                if let Err(e) = widget.update() {
+                    err_msg = e.to_string();
+                }
             }
         }
     }
