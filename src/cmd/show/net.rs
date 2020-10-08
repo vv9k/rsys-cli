@@ -1,5 +1,7 @@
 use super::{
-    common::{kv_span, single_widget_loop, spans_from, DataSeries, GraphWidget, Monitor, RxTx, StatefulWidget},
+    common::{
+        kv_span, single_widget_loop, spans_from, DataSeries, GraphSettings, GraphWidget, Monitor, RxTx, StatefulWidget,
+    },
     events::Config,
 };
 use crate::util::{conv_fbs, conv_t, random_color};
@@ -176,23 +178,16 @@ impl GraphWidget for NetMonitor {
         }
         data
     }
-    fn title(&self) -> Span {
-        Span::styled(
-            "Network Speed",
-            Style::default().add_modifier(Modifier::BOLD).fg(Color::Blue),
-        )
-    }
-    fn x_axis(&self) -> Span {
-        Span::styled("Time", Style::default().fg(Color::White))
-    }
-    fn y_axis(&self) -> Span {
-        Span::styled("Speed", Style::default().fg(Color::White))
-    }
-    fn y_labels(&self) -> Vec<Span> {
-        self.m.y_bounds_labels(conv_fbs, 5)
-    }
-    fn x_labels(&self) -> Vec<Span> {
-        self.m.x_bounds_labels(conv_t, 4)
+    fn settings(&self) -> GraphSettings {
+        GraphSettings::new()
+            .title(
+                "Network Speed",
+                Style::default().add_modifier(Modifier::BOLD).fg(Color::Blue),
+            )
+            .x_title("Time", Style::default().fg(Color::White))
+            .y_title("Speed", Style::default().fg(Color::White))
+            .x_labels(self.m.x_bounds_labels(conv_t, 4))
+            .y_labels(self.m.y_bounds_labels(conv_fbs, 5))
     }
     fn monitor(&self) -> &Monitor {
         &self.m

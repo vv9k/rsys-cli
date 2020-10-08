@@ -1,5 +1,5 @@
 use super::{
-    common::{single_widget_loop, DataSeries, GraphWidget, Monitor, StatefulWidget, Statistic},
+    common::{single_widget_loop, DataSeries, GraphSettings, GraphWidget, Monitor, StatefulWidget, Statistic},
     events::Config,
     CpuMonitor,
 };
@@ -11,7 +11,6 @@ use tui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     symbols,
-    text::Span,
     widgets::Dataset,
     Frame,
 };
@@ -104,23 +103,16 @@ impl GraphWidget for CpuMonitor<CoreUsageStat> {
         }
         data
     }
-    fn title(&self) -> Span {
-        Span::styled(
-            "Cpu Frequency",
-            Style::default().add_modifier(Modifier::BOLD).fg(Color::Blue),
-        )
-    }
-    fn x_axis(&self) -> Span {
-        Span::styled("Time", Style::default().fg(Color::White))
-    }
-    fn y_axis(&self) -> Span {
-        Span::styled("Frequency", Style::default().fg(Color::White))
-    }
-    fn y_labels(&self) -> Vec<Span> {
-        self.m.y_bounds_labels(conv_p, 4)
-    }
-    fn x_labels(&self) -> Vec<Span> {
-        self.m.x_bounds_labels(conv_t, 4)
+    fn settings(&self) -> GraphSettings {
+        GraphSettings::new()
+            .title(
+                "Cpu Usage",
+                Style::default().add_modifier(Modifier::BOLD).fg(Color::Blue),
+            )
+            .x_title("Time", Style::default().fg(Color::White))
+            .y_title("Usage", Style::default().fg(Color::White))
+            .x_labels(self.m.x_bounds_labels(conv_t, 4))
+            .y_labels(self.m.y_bounds_labels(conv_p, 4))
     }
     fn monitor(&self) -> &Monitor {
         &self.m

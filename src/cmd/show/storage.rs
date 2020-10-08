@@ -1,5 +1,5 @@
 use super::{
-    common::{single_widget_loop, DataSeries, GraphWidget, Monitor, RxTx, StatefulWidget},
+    common::{single_widget_loop, DataSeries, GraphSettings, GraphWidget, Monitor, RxTx, StatefulWidget},
     events::Config,
 };
 use crate::util::{conv_fbs, conv_t, random_color};
@@ -10,7 +10,6 @@ use tui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     symbols,
-    text::Span,
     widgets::{Dataset, Row, Table},
     Frame,
 };
@@ -142,23 +141,16 @@ impl GraphWidget for StorageMonitor {
         }
         data
     }
-    fn title(&self) -> Span {
-        Span::styled(
-            "Storage devices",
-            Style::default().add_modifier(Modifier::BOLD).fg(Color::Blue),
-        )
-    }
-    fn x_axis(&self) -> Span {
-        Span::styled("Time", Style::default())
-    }
-    fn y_axis(&self) -> Span {
-        Span::styled("r/w speed", Style::default())
-    }
-    fn y_labels(&self) -> Vec<Span> {
-        self.m.y_bounds_labels(conv_fbs, 5)
-    }
-    fn x_labels(&self) -> Vec<Span> {
-        self.m.x_bounds_labels(conv_t, 4)
+    fn settings(&self) -> GraphSettings {
+        GraphSettings::new()
+            .title(
+                "Storage devices",
+                Style::default().add_modifier(Modifier::BOLD).fg(Color::Blue),
+            )
+            .x_title("Time", Style::default().fg(Color::White))
+            .y_title("r/w speed", Style::default().fg(Color::White))
+            .x_labels(self.m.x_bounds_labels(conv_t, 4))
+            .y_labels(self.m.y_bounds_labels(conv_fbs, 5))
     }
     fn monitor(&self) -> &Monitor {
         &self.m
