@@ -36,7 +36,9 @@ pub trait GraphWidget {
     fn datasets(&self) -> Vec<Dataset> {
         Vec::new()
     }
-    fn settings(&self) -> GraphSettings;
+    fn settings(&self) -> GraphSettings {
+        GraphSettings::default()
+    }
     fn monitor(&self) -> &Monitor;
 
     fn chart(&self) -> Chart {

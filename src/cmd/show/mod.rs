@@ -59,8 +59,8 @@ impl RsysCli {
     pub fn show(&self, cmd: ShowCmd) {
         let result = match cmd {
             ShowCmd::Interface { name } => NetMonitor::single_iface_loop(&name),
-            ShowCmd::CpuFreq => CpuMonitor::frequency_graph_loop(),
-            ShowCmd::CpuUsage => CpuMonitor::usage_graph_loop(),
+            ShowCmd::CpuFreq => CpuMonitor::<CoreFrequencyStat>::graph_loop(),
+            ShowCmd::CpuUsage => CpuMonitor::<CoreUsageStat>::graph_loop(),
             ShowCmd::Storage => StorageMonitor::graph_loop(),
             ShowCmd::All => show_all_loop(),
             ShowCmd::Ps => ProcessMonitor::display_loop(),

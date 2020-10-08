@@ -1,5 +1,5 @@
 use super::{
-    common::{single_widget_loop, DataSeries, GraphSettings, GraphWidget, Monitor, StatefulWidget, Statistic},
+    common::{single_widget_loop, DataSeries, GraphSettings, GraphWidget, Monitor, Statistic},
     events::Config,
     CpuMonitor,
 };
@@ -7,12 +7,9 @@ use crate::util::{conv_p, conv_t, random_color};
 use anyhow::Result;
 use rsys::linux::cpu::{processor, Core};
 use tui::{
-    backend::Backend,
-    layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     symbols,
     widgets::Dataset,
-    Frame,
 };
 
 const X_AXIS: (f64, f64) = (0., 30.0);
@@ -83,7 +80,7 @@ impl CpuMonitor<CoreUsageStat> {
             m: Monitor::new(X_AXIS, USAGE_Y_AXIS),
         })
     }
-    pub fn usage_graph_loop() -> Result<()> {
+    pub fn graph_loop() -> Result<()> {
         let mut monitor = CpuMonitor::<CoreUsageStat>::new()?;
         single_widget_loop(&mut monitor, Config::new(TICK_RATE))
     }
@@ -116,36 +113,5 @@ impl GraphWidget for CpuMonitor<CoreUsageStat> {
     }
     fn monitor(&self) -> &Monitor {
         &self.m
-    }
-}
-
-impl StatefulWidget for CpuMonitor<CoreUsageStat> {
-    fn update(&mut self) {
-        // Update frequencies on cores
-        for core in &mut self.stats {
-            // TODO: handle err here somehow
-            core.update(&mut self.m).unwrap();
-        }
-
-        // Move x axis if time reached end
-        if self.m.elapsed_since_start() > self.m.max_x() {
-            let removed = self.stats[0].data_mut().pop();
-            if let Some(point) = self.stats[0].data_mut().first() {
-                self.m.inc_x_axis(point.0 - removed.0);
-            }
-            self.stats.iter_mut().skip(1).for_each(|c| {
-                c.data_mut().pop();
-            });
-        }
-    }
-    // By default widget is rendered on full area. If a monitor of some
-    // statistic wants to display more widgets it has to override this method
-    fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
-        let chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Min(100)].as_ref())
-            .split(area);
-
-        self.render_graph_widget(f, chunks[0]);
     }
 }

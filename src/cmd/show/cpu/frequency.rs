@@ -18,7 +18,7 @@ use tui::{
 
 const X_AXIS: (f64, f64) = (0., 30.0);
 const FREQUENCY_Y_AXIS: (f64, f64) = (f64::MAX, 0.);
-const TICK_RATE: u64 = 250;
+const TICK_RATE: u64 = 200;
 const CPU_INFO_HEADERS: &[&str] = &["core", "frequency"];
 
 // Stats of a single core
@@ -101,18 +101,8 @@ impl CpuMonitor<CoreFrequencyStat> {
         f.render_widget(table, chunks[1]);
     }
 
-    pub fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
-        let chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(20), Constraint::Min(80)].as_ref())
-            .split(area);
-
-        self.render_cores_info_widget(f, chunks[0]);
-        self.render_graph_widget(f, chunks[1]);
-    }
-
-    pub fn frequency_graph_loop() -> Result<()> {
-        let mut monitor = CpuMonitor::<CoreFrequencyStat>::new()?;
+    pub fn graph_loop() -> Result<()> {
+        let mut monitor = Self::new()?;
         single_widget_loop(&mut monitor, Config::new(TICK_RATE))
     }
 }
@@ -148,32 +138,13 @@ impl GraphWidget for CpuMonitor<CoreFrequencyStat> {
 }
 
 impl StatefulWidget for CpuMonitor<CoreFrequencyStat> {
-    fn update(&mut self) {
-        // Update frequencies on cores
-        for core in &mut self.stats {
-            // TODO: handle err here somehow
-            core.update(&mut self.m).unwrap();
-        }
-
-        // Move x axis if time reached end
-        if self.m.elapsed_since_start() > self.m.max_x() {
-            let removed = self.stats[0].data_mut().pop();
-            if let Some(point) = self.stats[0].data_mut().first() {
-                self.m.inc_x_axis(point.0 - removed.0);
-            }
-            self.stats.iter_mut().skip(1).for_each(|c| {
-                c.data_mut().pop();
-            });
-        }
-    }
-    // By default widget is rendered on full area. If a monitor of some
-    // statistic wants to display more widgets it has to override this method
     fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
-            .constraints([Constraint::Min(100)].as_ref())
+            .constraints([Constraint::Percentage(20), Constraint::Min(80)].as_ref())
             .split(area);
 
-        self.render_graph_widget(f, chunks[0]);
+        self.render_cores_info_widget(f, chunks[0]);
+        self.render_graph_widget(f, chunks[1]);
     }
 }

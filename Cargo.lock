@@ -385,7 +385,7 @@ dependencies = [
 [[package]]
 name = "rsys"
 version = "0.5.5"
-source = "git+https://github.com/wojciechkepka/rsys#13a160a79db9f9fb9beb69970b84716dd48a766f"
+source = "git+https://github.com/wojciechkepka/rsys?branch=master#13a160a79db9f9fb9beb69970b84716dd48a766f"
 dependencies = [
  "cfg-if",
  "nix",
@@ -414,7 +414,7 @@ dependencies = [
 [[package]]
 name = "rsys_macro"
 version = "0.1.2"
-source = "git+https://github.com/wojciechkepka/rsys#13a160a79db9f9fb9beb69970b84716dd48a766f"
+source = "git+https://github.com/wojciechkepka/rsys?branch=master#13a160a79db9f9fb9beb69970b84716dd48a766f"
 dependencies = [
  "proc-macro2",
 ]
