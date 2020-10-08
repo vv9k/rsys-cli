@@ -1,5 +1,5 @@
 use super::{
-    err_tab,
+    err_popup,
     events::{Config, Event, Events},
     get_terminal, Screen,
 };
@@ -53,16 +53,16 @@ pub trait GraphWidget {
 pub fn single_widget_loop<W: StatefulWidget>(widget: &mut W, config: Config) -> Result<()> {
     let mut terminal = get_terminal()?;
     let events = Events::with_config(config);
-    let mut err_msg = String::new();
+    let mut err_msg: Option<String> = None;
     loop {
         terminal.draw(|f| {
             let size = f.size();
-            let layout = Layout::default()
-                .constraints([Constraint::Min(3), Constraint::Min(70)])
-                .split(size);
-            let err_tab = err_tab(&err_msg);
-            f.render_widget(err_tab, layout[0]);
-            widget.render_widget(f, layout[1]);
+            let layout = Layout::default().constraints([Constraint::Percentage(100)]).split(size);
+            widget.render_widget(f, layout[0]);
+
+            if let Some(err) = err_msg.clone() {
+                err_popup(f, &err, "Press `q` to quit.");
+            }
         })?;
 
         match events.next()? {
@@ -73,7 +73,7 @@ pub fn single_widget_loop<W: StatefulWidget>(widget: &mut W, config: Config) -> 
             }
             Event::Tick => {
                 if let Err(e) = widget.update() {
-                    err_msg = e.to_string();
+                    err_msg = Some(e.to_string());
                 }
             }
         }
