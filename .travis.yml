@@ -5,8 +5,9 @@ os:
 
 
 before_install:
-  - rustup component add clippy rustfmt
+  - rustup toolchain add nightly
   - rustup override set nightly
+  - rustup component add clippy rustfmt
 
 
 install:
