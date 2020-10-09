@@ -1,14 +1,17 @@
 use super::{
-    common::{single_widget_loop, DataSeries, GraphSettings, GraphWidget, Monitor, Screen, Statistic},
+    common::{single_widget_loop, DataSeries, GraphSettings, GraphWidget, Monitor, Screen, StatefulWidget, Statistic},
     events::Config,
 };
 use crate::util::{conv_p, conv_t, random_color};
 use anyhow::Result;
 use rsys::linux::cpu::{processor, Core};
 use tui::{
+    backend::Backend,
+    layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     symbols,
-    widgets::Dataset,
+    widgets::{Block, Borders, Dataset, Gauge},
+    Frame,
 };
 
 const X_AXIS: (f64, f64) = (0., 30.0);
@@ -84,6 +87,32 @@ impl Monitor<CoreUsageStat> {
         let mut monitor = Monitor::<CoreUsageStat>::new()?;
         single_widget_loop(&mut monitor, Config::new(TICK_RATE))
     }
+    fn render_gauge_cores<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+        let mut constraints = Vec::new();
+        let count = self.stats.len();
+        let ratio = if count > 0 { (100 / count) as u16 } else { 100 };
+        self.stats
+            .iter()
+            .for_each(|_| constraints.push(Constraint::Percentage(ratio)));
+
+        // Add an empty constraint so that last core is of equal size as the rest
+        constraints.push(Constraint::Percentage(ratio));
+
+        let layout = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(constraints)
+            .vertical_margin(0)
+            .split(area);
+
+        self.stats.iter().enumerate().for_each(|(i, s)| {
+            let gauge = Gauge::default()
+                .block(Block::default().title(s.name.as_str()).borders(Borders::ALL))
+                .percent(s.last_usage as u16)
+                .gauge_style(Style::default().fg(s.data.color));
+
+            f.render_widget(gauge, layout[i]);
+        });
+    }
 }
 
 impl GraphWidget for Monitor<CoreUsageStat> {
@@ -113,5 +142,18 @@ impl GraphWidget for Monitor<CoreUsageStat> {
     }
     fn monitor(&self) -> &Screen {
         &self.m
+    }
+}
+
+impl StatefulWidget for Monitor<CoreUsageStat> {
+    // Override
+    fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+        let chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Percentage(20), Constraint::Min(80)].as_ref())
+            .split(area);
+
+        self.render_gauge_cores(f, chunks[0]);
+        self.render_graph_widget(f, chunks[1]);
     }
 }
