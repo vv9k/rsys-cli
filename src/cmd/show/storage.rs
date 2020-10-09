@@ -64,6 +64,9 @@ impl Statistic for StorageSpeedStat {
         self.total.inc(rx_delta, wx_delta);
         self.speed = RxTx((rx_delta / time_delta, wx_delta / time_delta));
 
+        m.set_if_y_max(*self.speed.rx() + 100.);
+        m.set_if_y_max(*self.speed.tx() + 100.);
+
         self.add_current(m.elapsed_since_start());
 
         Ok(())
