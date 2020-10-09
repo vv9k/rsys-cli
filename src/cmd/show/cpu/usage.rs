@@ -15,6 +15,7 @@ const X_AXIS: (f64, f64) = (0., 30.0);
 const USAGE_Y_AXIS: (f64, f64) = (0., 100.);
 const TICK_RATE: u64 = 250;
 
+#[derive(Debug)]
 pub struct CoreUsageStat {
     name: String,
     data: DataSeries,
@@ -38,9 +39,13 @@ impl From<Core> for CoreUsageStat {
 impl Statistic for CoreUsageStat {
     fn update(&mut self, m: &mut Screen) -> Result<()> {
         if let Some(times) = self.core.cpu_time()? {
-            let total_time = (times.user + times.nice + times.system + times.iowait + times.irq + times.softirq) as f64;
+            let total_time =
+                (times.user + times.nice + times.system + times.iowait + times.irq + times.softirq + times.idle) as f64;
             let idle_time = times.idle as f64;
-            self.last_usage = (1. - (idle_time - self.last_idle_time) / (total_time - self.last_total_time)) * 100.;
+            let idle_delta = idle_time - self.last_idle_time;
+            let total_delta = total_time - self.last_total_time;
+            self.last_usage = 100. * (1.0 - idle_delta / total_delta);
+
             self.data.add(m.elapsed_since_start(), self.last_usage);
             self.last_total_time = total_time;
             self.last_idle_time = idle_time;
