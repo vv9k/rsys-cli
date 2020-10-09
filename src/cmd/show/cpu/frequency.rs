@@ -120,7 +120,7 @@ impl GraphWidget for Monitor<CoreFrequencyStat> {
         GraphSettings::new()
             .title(
                 "Cpu Frequency",
-                Style::default().add_modifier(Modifier::BOLD).fg(Color::Blue),
+                Style::default().add_modifier(Modifier::BOLD).fg(Color::Cyan),
             )
             .x_title("Time", Style::default().fg(Color::White))
             .y_title("Frequency", Style::default().fg(Color::White))

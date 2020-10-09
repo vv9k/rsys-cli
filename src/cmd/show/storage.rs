@@ -136,7 +136,7 @@ impl GraphWidget for Monitor<StorageSpeedStat> {
         GraphSettings::new()
             .title(
                 "Storage devices",
-                Style::default().add_modifier(Modifier::BOLD).fg(Color::Blue),
+                Style::default().add_modifier(Modifier::BOLD).fg(Color::Cyan),
             )
             .x_title("Time", Style::default().fg(Color::White))
             .y_title("r/w speed", Style::default().fg(Color::White))

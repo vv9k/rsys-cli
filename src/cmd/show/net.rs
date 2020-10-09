@@ -44,7 +44,11 @@ impl Statistic for IfaceSpeedStat {
         self.data.rx_mut().add(m.elapsed_since_start(), *self.curr_speed.rx());
         self.data.tx_mut().add(m.elapsed_since_start(), *self.curr_speed.tx());
 
+        m.set_if_y_max(*self.curr_speed.rx() + 100.);
+        m.set_if_y_max(*self.curr_speed.tx() + 100.);
+
         self.prev_bytes = RxTx((self.iface.stat.rx_bytes, self.iface.stat.tx_bytes));
+
         Ok(())
     }
     fn pop(&mut self) -> f64 {
@@ -135,14 +139,14 @@ impl GraphWidget for Monitor<IfaceSpeedStat> {
         for iface in &self.stats {
             data.push(
                 Dataset::default()
-                    .name("rx")
+                    .name(format!("{} rx", iface.iface.name))
                     .marker(symbols::Marker::Dot)
                     .style(Style::default().fg(iface.data.rx().color))
                     .data(&iface.data.rx().dataset()),
             );
             data.push(
                 Dataset::default()
-                    .name("tx")
+                    .name(format!("{} tx", iface.iface.name))
                     .marker(symbols::Marker::Braille)
                     .style(Style::default().fg(iface.data.tx().color))
                     .data(&iface.data.tx().dataset()),
@@ -154,7 +158,7 @@ impl GraphWidget for Monitor<IfaceSpeedStat> {
         GraphSettings::new()
             .title(
                 "Network Speed",
-                Style::default().add_modifier(Modifier::BOLD).fg(Color::Blue),
+                Style::default().add_modifier(Modifier::BOLD).fg(Color::Cyan),
             )
             .x_title("Time", Style::default().fg(Color::White))
             .y_title("Speed", Style::default().fg(Color::White))

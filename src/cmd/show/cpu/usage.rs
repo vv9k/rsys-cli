@@ -99,7 +99,7 @@ impl GraphWidget for Monitor<CoreUsageStat> {
         GraphSettings::new()
             .title(
                 "Cpu Usage",
-                Style::default().add_modifier(Modifier::BOLD).fg(Color::Blue),
+                Style::default().add_modifier(Modifier::BOLD).fg(Color::Cyan),
             )
             .x_title("Time", Style::default().fg(Color::White))
             .y_title("Usage", Style::default().fg(Color::White))
