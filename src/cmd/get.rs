@@ -4,7 +4,7 @@ use crate::{
 };
 use rsys::linux::{
     net::Interface,
-    ps::Process,
+    ps::{processes, Process},
     storage::{BlockStorageDeviceName, DeviceMapper, MultipleDeviceStorage, ScsiCdrom, StorageDevice},
 };
 use rsys::Result;
@@ -37,9 +37,13 @@ pub enum Property {
     /// Mountpoints from /etc/mounts
     mounts,
     os,
+    pid {
+        id: i32,
+    },
+    /// Prints the first process that contains name in its cmdline
     process {
-        /// Id of the process to stat
-        pid: i32,
+        /// Process name
+        name: String,
     },
     /// Storage device info
     storage {
@@ -77,7 +81,15 @@ impl RsysCli {
             memory_free => print(self.system.memory_free()?, format, pretty)?,
             memory_total => print(self.system.memory_total()?, format, pretty)?,
             mounts => print(self.system.mounts()?, format, pretty)?,
-            process { pid } => print(Process::new(*pid)?, format, pretty)?,
+            pid { id } => print(Process::new(*id)?, format, pretty)?,
+            process { name } => {
+                for ps in processes()? {
+                    if ps.cmdline.contains(name) {
+                        print(ps, format, pretty)?;
+                        break;
+                    }
+                }
+            }
             storage { name } => self.print_storage(name, format, pretty)?,
             swap_total => print(self.system.swap_total()?, format, pretty)?,
             swap_free => print(self.system.swap_free()?, format, pretty)?,
