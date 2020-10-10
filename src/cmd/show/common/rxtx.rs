@@ -36,7 +36,7 @@ impl RxTx<f64> {
     }
     /// Returns tx value in scaled bytes/s as display string.
     pub fn tx_speed_str(&self) -> String {
-        format!("{}/s", conv_fb(*self.rx()))
+        format!("{}/s", conv_fb(*self.tx()))
     }
     /// Returns scaled total rx bytes as display string.
     pub fn rx_bytes_str(&self) -> String {
