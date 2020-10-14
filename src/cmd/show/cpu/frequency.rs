@@ -1,5 +1,5 @@
 use super::{
-    common::{single_widget_loop, DataSeries, GraphSettings, GraphWidget, Monitor, Screen, StatefulWidget, Statistic},
+    common::{single_widget_loop, DataSeries, GraphSettings, GraphWidget, InfoGraphWidget, Monitor, Screen, Statistic},
     events::Config,
 };
 use crate::util::random_color;
@@ -77,25 +77,6 @@ impl Monitor<CoreFrequencyStat> {
         })
     }
 
-    fn render_cores_info_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
-        let chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(10), Constraint::Percentage(90)])
-            .split(area);
-
-        let data = self.stats.iter().map(|s| {
-            Row::StyledData(
-                vec![s.name.clone(), conv_hz(s.core.cur_freq)].into_iter(),
-                Style::default().fg(s.frequency_data.color),
-            )
-        });
-
-        let table =
-            Table::new(CPU_INFO_HEADERS.iter(), data).widths(&[Constraint::Percentage(25), Constraint::Percentage(60)]);
-
-        f.render_widget(table, chunks[1]);
-    }
-
     pub fn graph_loop() -> Result<()> {
         let mut monitor = Self::new()?;
         single_widget_loop(&mut monitor, Config::new(TICK_RATE))
@@ -116,6 +97,9 @@ impl GraphWidget for Monitor<CoreFrequencyStat> {
         }
         data
     }
+    fn monitor(&self) -> &Screen {
+        &self.m
+    }
     fn settings(&self) -> GraphSettings {
         GraphSettings::new()
             .title(
@@ -129,15 +113,26 @@ impl GraphWidget for Monitor<CoreFrequencyStat> {
     }
 }
 
-impl StatefulWidget for Monitor<CoreFrequencyStat> {
-    // Override
-    fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+impl InfoGraphWidget for Monitor<CoreFrequencyStat> {
+    const DIRECTION: Direction = Direction::Horizontal;
+    const CONSTRAINTS: [Constraint; 2] = [Constraint::Percentage(20), Constraint::Min(80)];
+
+    fn render_extra_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(20), Constraint::Min(80)].as_ref())
+            .constraints([Constraint::Percentage(10), Constraint::Percentage(90)])
             .split(area);
 
-        self.render_cores_info_widget(f, chunks[0]);
-        self.render_graph_widget(f, chunks[1]);
+        let data = self.stats.iter().map(|s| {
+            Row::StyledData(
+                vec![s.name.clone(), conv_hz(s.core.cur_freq)].into_iter(),
+                Style::default().fg(s.frequency_data.color),
+            )
+        });
+
+        let table =
+            Table::new(CPU_INFO_HEADERS.iter(), data).widths(&[Constraint::Percentage(25), Constraint::Percentage(60)]);
+
+        f.render_widget(table, chunks[1]);
     }
 }

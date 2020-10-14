@@ -1,6 +1,6 @@
 use super::{
     common::{
-        single_widget_loop, DataSeries, GraphSettings, GraphWidget, Monitor, RxTx, Screen, StatefulWidget, Statistic,
+        single_widget_loop, DataSeries, GraphSettings, GraphWidget, InfoGraphWidget, Monitor, RxTx, Screen, Statistic,
     },
     events::Config,
 };
@@ -9,7 +9,7 @@ use anyhow::{anyhow, Result};
 use rsys::linux::storage::{storage_devices_info, BlockStorageInfo};
 use tui::{
     backend::Backend,
-    layout::{Constraint, Direction, Layout, Rect},
+    layout::{Constraint, Direction, Rect},
     style::{Color, Modifier, Style},
     symbols,
     widgets::{Dataset, Row, Table},
@@ -102,18 +102,6 @@ impl StorageSpeedStat {
     }
 }
 
-impl StatefulWidget for Monitor<StorageSpeedStat> {
-    fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
-        let chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(30), Constraint::Percentage(70)].as_ref())
-            .split(area);
-
-        self.render_storage_info_widget(f, chunks[0]);
-        self.render_graph_widget(f, chunks[1]);
-    }
-}
-
 impl GraphWidget for Monitor<StorageSpeedStat> {
     fn datasets(&self) -> Vec<Dataset> {
         let mut data = Vec::new();
@@ -151,22 +139,11 @@ impl GraphWidget for Monitor<StorageSpeedStat> {
     }
 }
 
-impl Monitor<StorageSpeedStat> {
-    pub fn new() -> Result<Monitor<StorageSpeedStat>> {
-        Ok(Monitor {
-            stats: {
-                let mut stats = storage_devices_info()
-                    .map_err(|e| anyhow!("Failed to get storage devices info - {}", e))?
-                    .into_iter()
-                    .map(StorageSpeedStat::from)
-                    .collect::<Vec<StorageSpeedStat>>();
-                stats.sort_by(|s1, s2| s1.name.cmp(&s2.name));
-                stats
-            },
-            m: Screen::new(X_AXIS, Y_AXIS),
-        })
-    }
-    fn render_storage_info_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+impl InfoGraphWidget for Monitor<StorageSpeedStat> {
+    const DIRECTION: Direction = Direction::Horizontal;
+    const CONSTRAINTS: [Constraint; 2] = [Constraint::Percentage(20), Constraint::Min(80)];
+
+    fn render_extra_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let data = self.stats.iter().map(|s| {
             Row::StyledData(
                 vec![
@@ -194,7 +171,23 @@ impl Monitor<StorageSpeedStat> {
 
         f.render_widget(table, area);
     }
+}
 
+impl Monitor<StorageSpeedStat> {
+    pub fn new() -> Result<Monitor<StorageSpeedStat>> {
+        Ok(Monitor {
+            stats: {
+                let mut stats = storage_devices_info()
+                    .map_err(|e| anyhow!("Failed to get storage devices info - {}", e))?
+                    .into_iter()
+                    .map(StorageSpeedStat::from)
+                    .collect::<Vec<StorageSpeedStat>>();
+                stats.sort_by(|s1, s2| s1.name.cmp(&s2.name));
+                stats
+            },
+            m: Screen::new(X_AXIS, Y_AXIS),
+        })
+    }
     pub fn graph_loop() -> Result<()> {
         let mut monitor = Monitor::<StorageSpeedStat>::new()?;
         single_widget_loop(&mut monitor, Config::new(TICK_RATE))

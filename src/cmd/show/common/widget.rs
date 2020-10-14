@@ -7,7 +7,7 @@ use anyhow::Result;
 use std::borrow::Cow;
 use tui::{
     backend::Backend,
-    layout::{Constraint, Layout, Rect},
+    layout::{Constraint, Direction, Layout, Rect},
     style::Style,
     text::Span,
     widgets::{Axis, Block, Borders, Chart, Dataset},
@@ -47,6 +47,26 @@ pub trait GraphWidget {
         let chart = self.chart();
         f.render_widget(chart, area);
     }
+}
+
+pub trait InfoGraphWidget: GraphWidget {
+    const DIRECTION: Direction;
+    const CONSTRAINTS: [Constraint; 2];
+    fn render_extra_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect);
+
+    fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+        let chunks = Layout::default()
+            .direction(Self::DIRECTION)
+            .constraints(Self::CONSTRAINTS)
+            .split(area);
+
+        self.render_extra_widget(f, chunks[0]);
+        self.render_graph_widget(f, chunks[1]);
+    }
+}
+
+pub trait Updatable {
+    fn update(&mut self) -> Result<()>;
 }
 
 /// Loop a single widget on full screen endlessly

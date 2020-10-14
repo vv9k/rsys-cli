@@ -1,4 +1,3 @@
-#![feature(specialization)]
 #[macro_use]
 extern crate prettytable;
 pub mod cli;

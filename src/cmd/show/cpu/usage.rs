@@ -1,5 +1,5 @@
 use super::{
-    common::{single_widget_loop, DataSeries, GraphSettings, GraphWidget, Monitor, Screen, StatefulWidget, Statistic},
+    common::{single_widget_loop, DataSeries, GraphSettings, GraphWidget, InfoGraphWidget, Monitor, Screen, Statistic},
     events::Config,
 };
 use crate::util::{conv_p, conv_t, random_color};
@@ -145,16 +145,16 @@ impl GraphWidget for Monitor<CoreUsageStat> {
         &self.m
     }
 }
+impl InfoGraphWidget for Monitor<CoreUsageStat> {
+    const DIRECTION: Direction = Direction::Horizontal;
+    const CONSTRAINTS: [Constraint; 2] = [Constraint::Percentage(20), Constraint::Min(80)];
 
-impl StatefulWidget for Monitor<CoreUsageStat> {
-    // Override
-    fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+    fn render_extra_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(20), Constraint::Min(80)].as_ref())
+            .constraints([Constraint::Percentage(100)])
             .split(area);
 
         self.render_gauge_cores(f, chunks[0]);
-        self.render_graph_widget(f, chunks[1]);
     }
 }

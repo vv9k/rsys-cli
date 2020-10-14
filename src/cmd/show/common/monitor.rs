@@ -1,9 +1,8 @@
-use super::{GraphSettings, GraphWidget, Screen, StatefulWidget, Statistic};
+use super::{InfoGraphWidget, Screen, StatefulWidget, Statistic, Updatable};
 use anyhow::{anyhow, Result};
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
-    widgets::Dataset,
     Frame,
 };
 
@@ -12,19 +11,7 @@ pub struct Monitor<S: Statistic> {
     pub m: Screen,
 }
 
-impl<S: Statistic> GraphWidget for Monitor<S> {
-    default fn datasets(&self) -> Vec<Dataset> {
-        Vec::new()
-    }
-    default fn monitor(&self) -> &Screen {
-        &self.m
-    }
-    default fn settings(&self) -> GraphSettings {
-        GraphSettings::default()
-    }
-}
-
-impl<S: Statistic> StatefulWidget for Monitor<S> {
+impl<S: Statistic> Updatable for Monitor<S> {
     fn update(&mut self) -> Result<()> {
         for stat in &mut self.stats {
             stat.update(&mut self.m)
@@ -44,14 +31,20 @@ impl<S: Statistic> StatefulWidget for Monitor<S> {
 
         Ok(())
     }
+}
+
+impl<W: Updatable + InfoGraphWidget> StatefulWidget for W {
+    fn update(&mut self) -> Result<()> {
+        self.update()
+    }
     // By default widget is rendered on full area. If a monitor of some
     // statistic wants to display more widgets it has to override this method
-    default fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+    fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
             .constraints([Constraint::Percentage(100)].as_ref())
             .split(area);
 
-        self.render_graph_widget(f, chunks[0]);
+        self.render_widget(f, chunks[0]);
     }
 }

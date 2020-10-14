@@ -1,7 +1,7 @@
 use super::{
     common::{
-        kv_span, single_widget_loop, spans_from, DataSeries, GraphSettings, GraphWidget, Monitor, RxTx, Screen,
-        StatefulWidget, Statistic,
+        kv_span, single_widget_loop, spans_from, DataSeries, GraphSettings, GraphWidget, InfoGraphWidget, Monitor,
+        RxTx, Screen, Statistic,
     },
     events::Config,
 };
@@ -202,7 +202,20 @@ impl Monitor<IfaceSpeedStat> {
         })
     }
 
-    fn render_info_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+    pub fn graph_loop(filter: Option<&[&str]>) -> Result<()> {
+        let mut monitor = Self::new(filter)?;
+        single_widget_loop(&mut monitor, Config::new(TICK_RATE))
+    }
+
+    pub fn single_iface_loop(name: &str) -> Result<()> {
+        Self::graph_loop(Some(&[name]))
+    }
+}
+impl InfoGraphWidget for Monitor<IfaceSpeedStat> {
+    const DIRECTION: Direction = Direction::Horizontal;
+    const CONSTRAINTS: [Constraint; 2] = [Constraint::Percentage(20), Constraint::Min(80)];
+
+    fn render_extra_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let count = self.stats.len();
         let percentage = if count == 0 { 1 as u16 } else { (100 / count) as u16 };
         let constraints = (0..count)
@@ -217,27 +230,5 @@ impl Monitor<IfaceSpeedStat> {
             .iter()
             .enumerate()
             .for_each(|(i, s)| f.render_widget(s.info(), chunks[i]));
-    }
-
-    pub fn graph_loop(filter: Option<&[&str]>) -> Result<()> {
-        let mut monitor = Self::new(filter)?;
-        single_widget_loop(&mut monitor, Config::new(TICK_RATE))
-    }
-
-    pub fn single_iface_loop(name: &str) -> Result<()> {
-        Self::graph_loop(Some(&[name]))
-    }
-}
-
-impl StatefulWidget for Monitor<IfaceSpeedStat> {
-    // Override
-    fn render_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
-        let chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(20), Constraint::Min(80)].as_ref())
-            .split(area);
-
-        self.render_info_widget(f, chunks[0]);
-        self.render_graph_widget(f, chunks[1]);
     }
 }
