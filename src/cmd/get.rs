@@ -41,7 +41,7 @@ pub enum Property {
         id: i32,
     },
     /// Prints the first process that contains name in its cmdline
-    process {
+    ps {
         /// Process name
         name: String,
     },
@@ -82,10 +82,10 @@ impl RsysCli {
             memory_total => print(self.system.memory_total()?, format, pretty)?,
             mounts => print(self.system.mounts()?, format, pretty)?,
             pid { id } => print(Process::new(*id)?, format, pretty)?,
-            process { name } => {
-                for ps in processes()? {
-                    if ps.cmdline.contains(name) {
-                        print(ps, format, pretty)?;
+            ps { name } => {
+                for process in processes()? {
+                    if process.cmdline.contains(name) {
+                        print(process, format, pretty)?;
                         break;
                     }
                 }
