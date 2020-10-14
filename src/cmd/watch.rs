@@ -1,3 +1,4 @@
+use super::WatchOpts;
 use crate::{
     cli::RsysCli,
     cmd::common::SystemInfo,
@@ -10,24 +11,13 @@ use std::{
 };
 
 impl RsysCli {
-    pub fn watch(
-        &self,
-        pretty: bool,
-        cpu: bool,
-        memory: bool,
-        net: bool,
-        storage: bool,
-        all: bool,
-        stats: bool,
-        duration: Option<u64>,
-        interval: Option<u64>,
-    ) -> Result<()> {
-        let duration = if let Some(d) = duration {
+    pub fn watch(&self, opts: WatchOpts) -> Result<()> {
+        let duration = if let Some(d) = opts.duration {
             Duration::from_secs(d)
         } else {
             Duration::from_secs(u64::MAX)
         };
-        let interval: u128 = if let Some(i) = interval { i as u128 } else { 1000 };
+        let interval: u128 = if let Some(i) = opts.interval { i as u128 } else { 1000 };
         let loop_start = Instant::now();
         loop {
             let print_start = Instant::now();
@@ -40,17 +30,17 @@ impl RsysCli {
                     true,
                     false,
                     false,
-                    cpu,
-                    memory,
-                    net,
-                    storage,
+                    opts.cpu,
+                    opts.memory,
+                    opts.network,
+                    opts.storage,
                     false,
-                    all,
-                    stats,
+                    opts.all,
+                    opts.stats,
                     false,
                 )?,
                 PrintFormat::Json,
-                pretty,
+                opts.pretty,
             )?;
             println!();
             let print_duration = print_start.elapsed().as_millis();

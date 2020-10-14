@@ -1,7 +1,4 @@
-use super::{
-    cmd::{RsysCmd, RsysOpt},
-    util::PrintFormat,
-};
+use super::cmd::{RsysCmd, RsysOpt};
 use rsys::{Result, Rsys};
 use structopt::StructOpt;
 
@@ -18,60 +15,11 @@ impl RsysCli {
     }
 
     pub fn main(&self) -> Result<()> {
-        if let Some(cmd) = &self.opts.cmd {
+        if let Some(cmd) = self.opts.cmd.clone() {
             match cmd {
-                RsysCmd::Get {
-                    property,
-                    json,
-                    yaml,
-                    pretty,
-                } => {
-                    let format = if *json {
-                        PrintFormat::Json
-                    } else if *yaml {
-                        PrintFormat::Yaml
-                    } else {
-                        PrintFormat::Normal
-                    };
-                    self.get(property, format, *pretty)?
-                }
-                RsysCmd::Dump {
-                    json,
-                    yaml,
-                    pretty,
-                    cpu,
-                    memory,
-                    network,
-                    storage,
-                    mounts,
-                    all,
-                    stats,
-                    processes,
-                } => {
-                    let format = if *json {
-                        PrintFormat::Json
-                    } else if *yaml {
-                        PrintFormat::Yaml
-                    } else {
-                        PrintFormat::Normal
-                    };
-                    self.dump(
-                        format, *pretty, *cpu, *memory, *network, *storage, *mounts, *all, *stats, *processes,
-                    )?
-                }
-                RsysCmd::Watch {
-                    pretty,
-                    cpu,
-                    memory,
-                    network,
-                    storage,
-                    all,
-                    stats,
-                    duration,
-                    interval,
-                } => self.watch(
-                    *pretty, *cpu, *memory, *network, *storage, *all, *stats, *duration, *interval,
-                )?,
+                RsysCmd::Get(opts) => self.get(opts)?,
+                RsysCmd::Dump(opts) => self.dump(opts)?,
+                RsysCmd::Watch(opts) => self.watch(opts)?,
                 RsysCmd::Show { cmd } => self.show(cmd.clone()),
             }
         }

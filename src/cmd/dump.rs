@@ -1,3 +1,4 @@
+use super::DumpOpts;
 use crate::{
     cmd::common::SystemInfo,
     util::{print, PrintFormat},
@@ -6,19 +7,14 @@ use crate::{
 use rsys::Result;
 
 impl RsysCli {
-    pub fn dump(
-        &self,
-        format: PrintFormat,
-        pretty: bool,
-        cpu: bool,
-        memory: bool,
-        net: bool,
-        storage: bool,
-        mounts: bool,
-        all: bool,
-        stats: bool,
-        processes: bool,
-    ) -> Result<()> {
+    pub fn dump(&self, opts: DumpOpts) -> Result<()> {
+        let format = if opts.json {
+            PrintFormat::Json
+        } else if opts.yaml {
+            PrintFormat::Yaml
+        } else {
+            PrintFormat::Normal
+        };
         print(
             SystemInfo::new(
                 &self.system,
@@ -28,17 +24,17 @@ impl RsysCli {
                 true,
                 true,
                 true,
-                cpu,
-                memory,
-                net,
-                storage,
-                mounts,
-                all,
-                stats,
-                processes,
+                opts.cpu,
+                opts.memory,
+                opts.network,
+                opts.storage,
+                opts.mounts,
+                opts.all,
+                opts.stats,
+                opts.processes,
             )?,
             format,
-            pretty,
+            opts.pretty,
         )
     }
 }

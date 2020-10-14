@@ -17,6 +17,17 @@ pub enum PrintFormat {
     Json,
     Yaml,
 }
+impl PrintFormat {
+    pub fn from_bools(json: bool, yaml: bool) -> Self {
+        if json {
+            PrintFormat::Json
+        } else if yaml {
+            PrintFormat::Yaml
+        } else {
+            PrintFormat::Normal
+        }
+    }
+}
 
 pub fn json_to_string<T: Serialize>(val: T, pretty: bool) -> Result<String> {
     let f = if pretty {
