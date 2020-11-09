@@ -32,10 +32,11 @@ USAGE:
 
 FLAGS:
     -h, --help       Prints help information
-    -j, --json       Print output as JSON
-    -p, --pretty     Make the output pretty
+    -p, --pretty     Make the output pretty if it applies
     -V, --version    Prints version information
-    -y, --yaml       Print output as YAML
+
+OPTIONS:
+    -f, --format <format>    Specify output format like json, yaml
 
 SUBCOMMANDS:
     arch             Cpu architecture
@@ -135,22 +136,24 @@ hostname, uptime, cpu architecture are dumped. To enable more information
 use `--memory`, `--mounts`, `--storage`, `--network` flags
 ```
 USAGE:
-    rsys dump [FLAGS]
+    rsys dump [FLAGS] [OPTIONS]
 
 FLAGS:
-    -a, --all        Shortcut for `--cpu --memory --storage --network --mounts`
-        --cpu        Include CPU info with cores
-    -h, --help       Prints help information
-    -j, --json       Print output as JSON
-        --memory     Include memory statistics
-        --mounts     Adds information about mountpoints on host os
-        --network    Adds network interfaces to the output
-    -p, --pretty     Make the output pretty
-        --stats      Whether to parse stats for all storage devices or just the main ones. Only functional with
-                     `--storage` flag
-        --storage    Adds info about storage devices, device mappers, multiple device arrays
-    -V, --version    Prints version information
-    -y, --yaml       Print output as YAML
+    -a, --all          Shortcut for `--cpu --memory --storage --network --mounts --stats --processes`
+        --cpu          Include CPU info with cores
+    -h, --help         Prints help information
+        --memory       Include memory statistics
+        --mounts       Adds information about mountpoints on host os
+        --network      Adds network interfaces to the output
+    -p, --pretty       Make the output pretty
+        --processes    Adds all processes
+        --stats        Whether to parse stats for all storage devices or just the main ones. Only functional with
+                       `--storage` and `network` flag
+        --storage      Adds info about storage devices, device mappers, multiple device arrays
+    -V, --version      Prints version information
+
+OPTIONS:
+    -f, --format <format>    Specify output format like json, yaml
 ```
 
 ### Some examples
