@@ -50,6 +50,7 @@ pub struct GetOpts {
 
 #[derive(StructOpt, Clone)]
 pub struct DumpOpts {
+    #[structopt(short, long)]
     /// Specify output format like json, yaml
     pub format: Option<String>,
     #[structopt(short, long)]
