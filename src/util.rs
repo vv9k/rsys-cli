@@ -17,12 +17,19 @@ pub enum PrintFormat {
     Json,
     Yaml,
 }
+impl From<String> for PrintFormat {
+    fn from(s: String) -> Self {
+        match &s[..] {
+            "json" => PrintFormat::Json,
+            "yaml" => PrintFormat::Yaml,
+            _ => PrintFormat::Normal,
+        }
+    }
+}
 impl PrintFormat {
-    pub fn from_bools(json: bool, yaml: bool) -> Self {
-        if json {
-            PrintFormat::Json
-        } else if yaml {
-            PrintFormat::Yaml
+    pub fn from_opt(format: Option<String>) -> Self {
+        if let Some(format) = format {
+            PrintFormat::from(format)
         } else {
             PrintFormat::Normal
         }
