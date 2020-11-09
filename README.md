@@ -2,6 +2,9 @@
 [![Build Status](https://travis-ci.com/wojciechkepka/rsys-cli.svg?branch=master)](https://travis-ci.com/wojciechkepka/rsys-cli)  
 CLI tool for quick access to system information. For now Linux only.
 
+## To build
+ - Run `cargo build --release`
+
 ## Available commands
 ### `show`
 ```
