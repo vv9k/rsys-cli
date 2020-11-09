@@ -59,7 +59,7 @@ pub enum Property {
 impl RsysCli {
     pub fn get(&self, opts: GetOpts) -> Result<()> {
         use Property::*;
-        let format = PrintFormat::from_bools(opts.json, opts.yaml);
+        let format = PrintFormat::from_opt(opts.format);
         match opts.property {
             arch => print(self.system.arch()?, format, opts.pretty)?,
             cpu => print(self.system.processor()?, format, opts.pretty)?,

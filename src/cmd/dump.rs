@@ -8,13 +8,7 @@ use rsys::Result;
 
 impl RsysCli {
     pub fn dump(&self, opts: DumpOpts) -> Result<()> {
-        let format = if opts.json {
-            PrintFormat::Json
-        } else if opts.yaml {
-            PrintFormat::Yaml
-        } else {
-            PrintFormat::Normal
-        };
+        let format = PrintFormat::from_opt(opts.format);
         print(
             SystemInfo::new(
                 &self.system,

@@ -41,24 +41,17 @@ pub struct GetOpts {
     /// One of system properties
     pub property: Property,
     #[structopt(short, long)]
-    /// Print output as JSON
-    pub json: bool,
+    /// Specify output format like json, yaml
+    pub format: Option<String>,
     #[structopt(short, long)]
-    /// Print output as YAML
-    pub yaml: bool,
-    #[structopt(short, long)]
-    /// Make the output pretty
+    /// Make the output pretty if it applies
     pub pretty: bool,
 }
 
 #[derive(StructOpt, Clone)]
 pub struct DumpOpts {
-    #[structopt(short, long)]
-    /// Print output as JSON
-    pub json: bool,
-    #[structopt(short, long)]
-    /// Print output as YAML
-    pub yaml: bool,
+    /// Specify output format like json, yaml
+    pub format: Option<String>,
     #[structopt(short, long)]
     /// Make the output pretty
     pub pretty: bool,
