@@ -1,10 +1,10 @@
 # rsys-cli
-[![master](https://github.com/wojciechkepka/rsys-cli/actions/workflows/master.yml/badge.svg)](https://github.com/wojciechkepka/rsys-cli/actions/workflows/master.yml)
+[![master](https://github.com/wojciechkepka/rsys-cli/actions/workflows/master.yml/badge.svg)](https://github.com/wojciechkepka/rsys-cli/actions/workflows/master.yml)  
 CLI tool for quick access to system information. For now Linux only.
 
 ## Install
 
-You can get the prebuilt binaries from [here](https://github.com/wojciechkepka/wutag/releases).
+You can get the prebuilt binaries from [here](https://github.com/wojciechkepka/rsys-cli/releases).
 
 To build manually you'll need latest `rust` and `cargo`. Build with:
  - `cargo build --release`
