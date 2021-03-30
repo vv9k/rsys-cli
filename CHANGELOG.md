@@ -1,5 +1,0 @@
-# Changes
-## Fixed
-## Added
-
-# Versions
