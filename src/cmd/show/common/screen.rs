@@ -32,7 +32,7 @@ impl Screen {
     }
 
     /// Generic implementation of creating labels for axis bounds
-    fn bounds_labels<'s, F>(&'s self, f: F, n: u32, min: f64, max: f64) -> Vec<Span<'s>>
+    fn bounds_labels<F>(&self, f: F, n: u32, min: f64, max: f64) -> Vec<Span<'_>>
     where
         F: Fn(f64) -> String,
     {
