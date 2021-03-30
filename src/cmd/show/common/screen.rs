@@ -49,7 +49,7 @@ impl Screen {
 
     /// Returns spans of y axis points divided into n parts and values of y axis
     /// converted with f
-    pub fn y_bounds_labels<'s, F>(&'s self, f: F, n: u32) -> Vec<Span<'s>>
+    pub fn y_bounds_labels<F>(&self, f: F, n: u32) -> Vec<Span<'_>>
     where
         F: Fn(f64) -> String,
     {
@@ -58,7 +58,7 @@ impl Screen {
 
     /// Returns spans of x axis points divided into n parts and values of y axis
     /// converted with f
-    pub fn x_bounds_labels<'s, F>(&'s self, f: F, n: u32) -> Vec<Span<'s>>
+    pub fn x_bounds_labels<F>(&self, f: F, n: u32) -> Vec<Span<'_>>
     where
         F: Fn(f64) -> String,
     {

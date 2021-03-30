@@ -55,6 +55,7 @@ pub struct SystemInfo {
     display_all: bool,
 }
 impl SystemInfo {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         r: &Rsys,
         arch: bool,
@@ -69,7 +70,7 @@ impl SystemInfo {
         storage: bool,
         mounts: bool,
         all: bool,
-        mut stats: bool,
+        stats: bool,
         processes: bool,
     ) -> Result<SystemInfo> {
         Ok(Self {
@@ -117,20 +118,20 @@ impl SystemInfo {
             },
             interfaces: if net || all { Some(handle_err(r.ifaces())) } else { None },
             storage_devices: if storage || all {
-                stats = if all { true } else { stats };
-                Some(handle_err(storage_devices::<StorageDevice>(stats)))
+                let show_stats = if all { true } else { stats };
+                Some(handle_err(storage_devices::<StorageDevice>(show_stats)))
             } else {
                 None
             },
             multiple_device_storages: if storage || all {
-                stats = if all { true } else { stats };
-                Some(handle_err(storage_devices::<MultipleDeviceStorage>(stats)))
+                let show_stats = if all { true } else { stats };
+                Some(handle_err(storage_devices::<MultipleDeviceStorage>(show_stats)))
             } else {
                 None
             },
             device_mappers: if storage || all {
-                stats = if all { true } else { stats };
-                Some(handle_err(storage_devices::<DeviceMapper>(stats)))
+                let show_stats = if all { true } else { stats };
+                Some(handle_err(storage_devices::<DeviceMapper>(show_stats)))
             } else {
                 None
             },

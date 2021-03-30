@@ -96,7 +96,7 @@ pub fn show_all_loop() -> Result<()> {
                 ])
                 .split(size);
 
-            if errors.len() != 0 && show_errors {
+            if !errors.is_empty() && show_errors {
                 let error = &errors[0];
                 was_error = true;
                 err_popup(f, &error.to_string(), "`q` - quit, `i` - ignore errors, `c` - continue")

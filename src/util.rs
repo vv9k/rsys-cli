@@ -122,8 +122,7 @@ pub fn random_color(min: Option<u8>) -> Color {
     let mut color: [u8; 3] = [0, 0, 0];
 
     let low = if let Some(min) = min { min } else { 0 };
-    let range = (low..255).into_iter();
 
-    range.choose_multiple_fill(&mut rng, &mut color);
+    (low..255).choose_multiple_fill(&mut rng, &mut color);
     Color::Rgb(color[0], color[1], color[2])
 }

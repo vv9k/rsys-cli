@@ -18,11 +18,11 @@ pub fn kv_span<'a, T: Into<String>>(k: T, v: T, color: Color, bold: bool) -> KvS
     [Span::raw(k.into()), val]
 }
 
-pub fn spans_from<'a>(kvspans: Vec<KvSpan<'a>>) -> Spans<'a> {
+pub fn spans_from(kvspans: Vec<KvSpan<'_>>) -> Spans<'_> {
     Spans::from(kvspans.concat())
 }
 
-pub fn popup<'s, B: Backend>(f: &mut Frame<B>, message: Span<'s>, title: &str, border_style: Style, button: Span<'s>) {
+pub fn popup<B: Backend>(f: &mut Frame<B>, message: Span<'_>, title: &str, border_style: Style, button: Span<'_>) {
     let area = centered_rect(60, 20, f.size());
     let layout = Layout::default()
         .direction(Direction::Vertical)

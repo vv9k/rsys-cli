@@ -47,7 +47,7 @@ impl Events {
                 let stdin = io::stdin();
                 for evt in stdin.keys() {
                     if let Ok(key) = evt {
-                        if let Err(_) = tx.send(Event::Input(key)) {
+                        if tx.send(Event::Input(key)).is_err() {
                             return;
                         }
                         if key == config.exit_key {

@@ -178,7 +178,7 @@ impl Monitor<IfaceSpeedStat> {
             .filter(|s| {
                 if let Some(filters) = filter {
                     for f in filters {
-                        if *f == &s.name {
+                        if *f == s.name {
                             return true;
                         } else {
                             continue;
@@ -192,7 +192,7 @@ impl Monitor<IfaceSpeedStat> {
             .map(IfaceSpeedStat::from)
             .collect::<Vec<IfaceSpeedStat>>();
 
-        if stats.len() == 0 {
+        if stats.is_empty() {
             return Err(anyhow!("No interface matched passed in filter `{:?}`", filter));
         }
 
@@ -217,7 +217,7 @@ impl InfoGraphWidget for Monitor<IfaceSpeedStat> {
 
     fn render_extra_widget<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
         let count = self.stats.len();
-        let percentage = if count == 0 { 1 as u16 } else { (100 / count) as u16 };
+        let percentage = if count == 0 { 1_u16 } else { (100 / count) as u16 };
         let constraints = (0..count)
             .into_iter()
             .map(|_| Constraint::Percentage(percentage))

@@ -115,7 +115,7 @@ impl RsysCli {
     }
 
     fn get_interface(&self, name: &str) -> Option<Interface> {
-        if let Some(interface) = self.system.ifaces().ok()?.0.iter().filter(|i| i.name == name).next() {
+        if let Some(interface) = self.system.ifaces().ok()?.0.iter().find(|i| i.name == name) {
             return Some(interface.clone());
         }
         None
